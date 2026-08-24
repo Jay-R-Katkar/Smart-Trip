@@ -52,7 +52,10 @@ import {
   AlertOctagon,
   Activity,
   Timer,
-  BadgeCheck
+  BadgeCheck,
+  Coins,
+  Sliders,
+  Sparkle
 } from 'lucide-react';
 
 export default function App() {
@@ -116,6 +119,51 @@ export default function App() {
     GBP: { symbol: '£', rate: 0.0092, label: 'GBP (£) - British Pound' },
     SGD: { symbol: 'S$', rate: 0.0156, label: 'SGD (S$) - Singapore Dollar' }
   };
+
+  // Realistic Minimum Daily Cost per City in Base INR (For Low Budget Warning)
+  const cityMinDailyRatesINR = {
+    Ujjain: 900,
+    Ayodhya: 850,
+    Varanasi: 950,
+    Puri: 850,
+    Amritsar: 750,
+    Somnath: 800,
+    Tirupati: 1100,
+    Kedarnath: 1600,
+    Jaipur: 1300,
+    Agra: 1200,
+    Hampi: 1000,
+    Goa: 1600,
+    Rishikesh: 950,
+    Munnar: 1400,
+    Manali: 1500,
+    Ladakh: 2200,
+    Dubai: 7000,
+    Switzerland: 15000,
+    Bali: 3500,
+    Tokyo: 8500,
+    Paris: 10000
+  };
+
+  // Convert Base INR Budget to Selected Currency
+  const activeRate = currencyRates[currency]?.rate || 1;
+  const activeSymbol = currencyRates[currency]?.symbol || '₹';
+  const convertedTotalBudget = Math.round(baseBudgetINR * activeRate);
+  const convertedPerDayBudget = Math.round((baseBudgetINR / (days || 1)) * activeRate);
+
+  // Minimum required budget calculations
+  const minDailyINR = cityMinDailyRatesINR[selectedCity] || 1000;
+  const totalMinRequiredINR = minDailyINR * days;
+  const convertedMinRequired = Math.round(totalMinRequiredINR * activeRate);
+  const isBudgetTooLow = convertedTotalBudget < convertedMinRequired;
+  const budgetDeficitToMin = isBudgetTooLow ? (convertedMinRequired - convertedTotalBudget) : 0;
+
+  // Determine Budget Tier Style (Pocket-Friendly, Standard, Luxury VIP)
+  const budgetTier = convertedTotalBudget < (convertedMinRequired * 1.3)
+    ? 'budget'
+    : convertedTotalBudget > (convertedMinRequired * 3)
+      ? 'luxury'
+      : 'standard';
 
   // Comprehensive Verified Guides Dataset with minimum 1 female per place
   const verifiedGuidesList = [
@@ -1065,12 +1113,6 @@ export default function App() {
     setScheduleGenerated(true);
   };
 
-  // Convert Base INR Budget to Selected Currency
-  const activeRate = currencyRates[currency]?.rate || 1;
-  const activeSymbol = currencyRates[currency]?.symbol || '₹';
-  const convertedTotalBudget = Math.round(baseBudgetINR * activeRate);
-  const convertedPerDayBudget = Math.round((baseBudgetINR / days) * activeRate);
-
   // Dynamic Total Spent & Out of Budget Calculations
   const totalSpentINR = expenses.reduce((acc, curr) => acc + curr.amount, 0);
   const convertedTotalSpent = Math.round(totalSpentINR * activeRate);
@@ -1111,6 +1153,29 @@ export default function App() {
   // 1-Click Auto Expand Budget by 30% if Out of Budget
   const handleExpandBudget = () => {
     setBaseBudgetINR(prev => Math.round(prev * 1.3));
+  };
+
+  // Set preset budget tier directly from user
+  const handleSetPresetBudgetTier = (tier) => {
+    if (tier === 'budget') {
+      setBaseBudgetINR(Math.round(totalMinRequiredINR * 1.1));
+    } else if (tier === 'standard') {
+      setBaseBudgetINR(Math.round(totalMinRequiredINR * 2.2));
+    } else {
+      setBaseBudgetINR(Math.round(totalMinRequiredINR * 4.5));
+    }
+  };
+
+  // Set Recommended Minimum Budget
+  const handleSetMinRecommendedBudget = () => {
+    setBaseBudgetINR(totalMinRequiredINR);
+  };
+
+  // User manual budget change input handler
+  const handleUserBudgetInputChange = (val) => {
+    const num = parseFloat(val) || 0;
+    const inrVal = Math.round(num / activeRate);
+    setBaseBudgetINR(inrVal);
   };
 
   // REAL BACKEND BOOKING API CALL
@@ -1498,7 +1563,7 @@ export default function App() {
                     Automate Pilgrimage & Spiritual Circuits in Seconds.
                   </h1>
                   <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed max-w-2xl font-normal">
-                    Intelligent clustering for Jyotirlingas, Char Dham, Ram Mandir Ayodhya, Ghats, Switzerland, Dubai, Bali, Ashrams, multi-currency budgeting, and verified Vedic guides.
+                    Intelligent clustering for Jyotirlingas, Char Dham, Ram Mandir Ayodhya, Ghats, Switzerland, Dubai, Bali, Ashrams, user-defined budgeting, and verified Vedic guides.
                   </p>
                 </div>
               </div>
@@ -1604,27 +1669,60 @@ export default function App() {
                 </div>
               </div>
 
-              {/* HORIZONTAL TRIP SETTINGS BAR WITH CURRENCY DROPDOWN */}
-              <div className={`border rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 transition-colors ${
+              {/* ⚠️ REAL-TIME SMART "BUDGET TOO LOW" WARNING BANNER */}
+              {isBudgetTooLow && (
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-600 via-orange-600 to-rose-700 text-white p-5 sm:p-6 shadow-md border border-amber-400">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-start gap-3.5">
+                      <div className="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center shrink-0">
+                        <AlertTriangle size={24} className="text-amber-100 animate-bounce" />
+                      </div>
+                      <div>
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/40 text-amber-200 text-[10px] font-black uppercase tracking-wider mb-1">
+                          ⚠️ BUDGET DEFICIT ADVISORY
+                        </div>
+                        <h4 className="text-base sm:text-lg font-black">
+                          Your Defined Budget ({activeSymbol}{convertedTotalBudget.toLocaleString()}) is Too Low for {selectedCity} ({days} Days)!
+                        </h4>
+                        <p className="text-xs text-amber-100/90 font-medium mt-0.5 leading-relaxed">
+                          Basic daily accommodation (Ashram/Stay), local transit & satvik meals in {selectedCity} realistically require at least <strong>{activeSymbol}{convertedMinRequired.toLocaleString()}</strong> ({activeSymbol}{Math.round(minDailyINR * activeRate).toLocaleString()}/day).
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={handleSetMinRecommendedBudget}
+                      className="bg-white text-orange-800 hover:bg-amber-50 active:scale-95 font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-sm whitespace-nowrap transition-transform flex items-center gap-1.5"
+                    >
+                      <Zap size={14} />
+                      <span>Set Recommended ({activeSymbol}{convertedMinRequired.toLocaleString()})</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* HORIZONTAL TRIP SETTINGS BAR WITH USER-DEFINED BUDGET INPUT */}
+              <div className={`border rounded-3xl p-5 sm:p-6 shadow-sm space-y-4 transition-colors ${
                 isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
               }`}>
                 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full md:w-auto flex-1">
+                {/* Top Row: Destination, Currency, Days & Custom Budget Input */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
                   
                   {/* 1. Destination */}
-                  <div className={`border-r pr-4 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+                  <div className={`border-b sm:border-b-0 sm:border-r pb-3 sm:pb-0 pr-0 sm:pr-4 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Selected Destination</span>
-                    <span className={`font-black text-base ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{selectedCity}</span>
+                    <span className={`font-black text-lg ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{selectedCity}</span>
                   </div>
 
                   {/* 2. Currency Dropdown Menu */}
-                  <div className={`border-r pr-4 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+                  <div className={`border-b sm:border-b-0 sm:border-r pb-3 sm:pb-0 pr-0 sm:pr-4 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Trip Currency (Auto)</span>
-                    <div className="relative mt-0.5">
+                    <div className="relative mt-1">
                       <select
                         value={currency}
                         onChange={(e) => setCurrency(e.target.value)}
-                        className={`w-full text-xs font-bold py-1.5 px-2.5 rounded-xl border focus:outline-none transition-all cursor-pointer ${
+                        className={`w-full text-xs font-bold py-2 px-3 rounded-xl border focus:outline-none transition-all cursor-pointer ${
                           isDarkMode 
                             ? 'bg-slate-800 border-slate-700 text-emerald-400 focus:border-emerald-500' 
                             : 'bg-emerald-50 border-emerald-200 text-emerald-800 focus:border-emerald-500'
@@ -1640,32 +1738,99 @@ export default function App() {
                   </div>
 
                   {/* 3. Duration */}
-                  <div className={`border-r pr-4 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+                  <div className={`border-b sm:border-b-0 lg:border-r pb-3 sm:pb-0 pr-0 sm:pr-4 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Duration (Days)</span>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <button onClick={() => setDays(Math.max(1, days - 1))} className={`w-5 h-5 rounded font-bold text-xs flex items-center justify-center ${isDarkMode ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-700'}`}>-</button>
+                    <div className="flex items-center gap-2 mt-1">
+                      <button onClick={() => setDays(Math.max(1, days - 1))} className={`w-7 h-7 rounded-lg font-bold text-xs flex items-center justify-center ${isDarkMode ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-700'}`}>-</button>
                       <span className={`font-extrabold text-sm ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{days} Days</span>
-                      <button onClick={() => setDays(Math.min(14, days + 1))} className={`w-5 h-5 rounded font-bold text-xs flex items-center justify-center ${isDarkMode ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-700'}`}>+</button>
+                      <button onClick={() => setDays(Math.min(14, days + 1))} className={`w-7 h-7 rounded-lg font-bold text-xs flex items-center justify-center ${isDarkMode ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-700'}`}>+</button>
                     </div>
                   </div>
 
-                  {/* 4. Total Budget Converted */}
+                  {/* 4. USER-DEFINED EDITABLE BUDGET INPUT */}
                   <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Budget ({currency})</span>
-                    <span className={`font-black text-base ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>
-                      {activeSymbol}{convertedTotalBudget.toLocaleString()}
-                    </span>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        Define Your Budget ({currency})
+                      </span>
+                      {isBudgetTooLow && (
+                        <span className="text-[9px] font-black text-rose-500 uppercase tracking-wider">
+                          Too Low
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="relative">
+                      <span className="absolute left-3 top-2 text-xs font-black text-slate-400">
+                        {activeSymbol}
+                      </span>
+                      <input
+                        type="number"
+                        min="100"
+                        value={convertedTotalBudget}
+                        onChange={(e) => handleUserBudgetInputChange(e.target.value)}
+                        placeholder="Enter budget..."
+                        className={`w-full pl-8 pr-3 py-1.5 border rounded-xl text-sm font-black focus:outline-none transition-all ${
+                          isBudgetTooLow 
+                            ? 'border-rose-500 text-rose-500 bg-rose-500/5'
+                            : isDarkMode 
+                              ? 'bg-slate-800 border-slate-700 text-emerald-400 focus:border-emerald-500' 
+                              : 'bg-emerald-50/60 border-emerald-200 text-emerald-800 focus:border-emerald-500'
+                        }`}
+                      />
+                    </div>
                   </div>
 
                 </div>
 
-                {/* EXPLORE BUTTON */}
-                <button
-                  onClick={() => setScheduleGenerated(true)}
-                  className="w-full md:w-auto bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-sm text-sm whitespace-nowrap"
-                >
-                  EXPLORE
-                </button>
+                {/* Bottom Row: 3 Quick Preset Tiers + Explore Button */}
+                <div className={`pt-3 border-t flex flex-col sm:flex-row items-center justify-between gap-3 ${
+                  isDarkMode ? 'border-slate-800' : 'border-slate-100'
+                }`}>
+                  <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto no-scrollbar">
+                    <span className="text-[11px] font-bold text-slate-400 whitespace-nowrap">Plan Style:</span>
+                    
+                    <button
+                      onClick={() => handleSetPresetBudgetTier('budget')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1 ${
+                        budgetTier === 'budget' && !isBudgetTooLow
+                          ? 'bg-emerald-600 text-white shadow-xs'
+                          : isDarkMode ? 'bg-slate-800 text-slate-300 hover:text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      }`}
+                    >
+                      🎒 Pocket-Friendly
+                    </button>
+
+                    <button
+                      onClick={() => handleSetPresetBudgetTier('standard')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1 ${
+                        budgetTier === 'standard' && !isBudgetTooLow
+                          ? 'bg-emerald-600 text-white shadow-xs'
+                          : isDarkMode ? 'bg-slate-800 text-slate-300 hover:text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      }`}
+                    >
+                      ⚖️ Standard Comfort
+                    </button>
+
+                    <button
+                      onClick={() => handleSetPresetBudgetTier('luxury')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1 ${
+                        budgetTier === 'luxury' && !isBudgetTooLow
+                          ? 'bg-amber-600 text-white shadow-xs'
+                          : isDarkMode ? 'bg-slate-800 text-slate-300 hover:text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      }`}
+                    >
+                      👑 VIP Luxury Pass
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={() => setScheduleGenerated(true)}
+                    className="w-full sm:w-auto bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white font-bold px-8 py-2.5 rounded-xl transition-all shadow-sm text-xs whitespace-nowrap"
+                  >
+                    UPDATE ITINERARY
+                  </button>
+                </div>
 
               </div>
 
@@ -1703,7 +1868,7 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Day-by-Day Schedule Timeline */}
+                  {/* Day-by-Day Schedule Timeline Adapted to User Budget */}
                   <div className="lg:col-span-6 space-y-3">
                     <div className={`border p-5 rounded-3xl shadow-sm space-y-4 ${
                       isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
@@ -1713,14 +1878,44 @@ export default function App() {
                         isDarkMode ? 'border-slate-800' : 'border-slate-100'
                       }`}>
                         <div>
-                          <h3 className={`font-extrabold text-lg ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{selectedCity} Circuit Plan</h3>
-                          <p className="text-xs text-slate-400">{days} Days Optimized Itinerary</p>
+                          <div className="flex items-center gap-2">
+                            <h3 className={`font-extrabold text-lg ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{selectedCity} Circuit Plan</h3>
+                            <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md text-white ${
+                              budgetTier === 'luxury' ? 'bg-amber-600' : budgetTier === 'budget' ? 'bg-blue-600' : 'bg-emerald-600'
+                            }`}>
+                              {budgetTier === 'luxury' ? 'VIP Luxury' : budgetTier === 'budget' ? 'Pocket-Friendly' : 'Standard'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-400">{days} Days Custom Budget Schedule</p>
                         </div>
-                        <span className={`text-xs font-bold px-3 py-1 rounded-full ${
-                          isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-800'
-                        }`}>
-                          {activeSymbol}{convertedPerDayBudget.toLocaleString()}/day
-                        </span>
+                        
+                        <div className="text-right">
+                          <span className={`text-xs font-black block ${
+                            isBudgetTooLow ? 'text-rose-500' : isDarkMode ? 'text-emerald-400' : 'text-emerald-700'
+                          }`}>
+                            {activeSymbol}{convertedPerDayBudget.toLocaleString()}/day
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-semibold">Allocated Daily</span>
+                        </div>
+                      </div>
+
+                      {/* Itinerary Adaptation Banner */}
+                      <div className={`p-3 rounded-2xl border text-xs leading-relaxed flex items-start gap-2.5 ${
+                        budgetTier === 'luxury'
+                          ? isDarkMode ? 'bg-amber-500/10 border-amber-500/30 text-amber-300' : 'bg-amber-50 border-amber-200 text-amber-800'
+                          : budgetTier === 'budget'
+                            ? isDarkMode ? 'bg-blue-500/10 border-blue-500/30 text-blue-300' : 'bg-blue-50 border-blue-200 text-blue-800'
+                            : isDarkMode ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                      }`}>
+                        <Sparkles size={16} className="shrink-0 mt-0.5" />
+                        <div>
+                          <strong>{budgetTier === 'luxury' ? '👑 VIP Circuit Activated' : budgetTier === 'budget' ? '🎒 Budget Optimization Active' : '⚖️ Balanced Comfort Mode'}:</strong>{' '}
+                          {budgetTier === 'luxury' 
+                            ? 'Includes VIP Protocol Darshan, AC Heritage suites, private AC cab transfers, and full-day Vedic Acharya guidance.'
+                            : budgetTier === 'budget'
+                              ? 'Prioritizing zero-entry spiritual ghats, shared satvik ashrams, free langar darshans, and public e-rickshaws.'
+                              : 'Includes Sugam Darshan passes, AC stay rooms, satvik thali meals, and local auto/cab transfers.'}
+                        </div>
                       </div>
 
                       <div className="space-y-3">
@@ -2174,7 +2369,7 @@ export default function App() {
           </div>
         )}
 
-        {/* MODULE 6: VERIFIED VEDIC & HERITAGE GUIDES (WITH EXPANDED FEMALE EXPERTS) */}
+        {/* MODULE 6: VERIFIED VEDIC & HERITAGE GUIDES */}
         {activeTab === 'guides' && (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
