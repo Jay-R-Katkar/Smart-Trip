@@ -74,6 +74,7 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedStayType, setSelectedStayType] = useState('All');
   const [activeDayView, setActiveDayView] = useState('all'); // 'all', 1, 2, 3...
+  const [selectedExpenseCategoryFilter, setSelectedExpenseCategoryFilter] = useState('All'); // 'All', 'Food', 'Stay', 'Transport', 'Activities'
   const [currency, setCurrency] = useState('INR');
   const [days, setDays] = useState(2);
   const [baseBudgetINR, setBaseBudgetINR] = useState(15000);
@@ -105,16 +106,15 @@ export default function App() {
 
   // Budget Tracker & Expense History State
   const [expenses, setExpenses] = useState([
-    { id: 1, title: 'Mahakaleshwar VIP Darshan Ticket', amount: 500, category: 'Darshan', date: '2026-08-24 06:30 AM', icon: 'ticket' },
-    { id: 2, title: 'Shri Mahakal Bhakt Ashram (1 Night)', amount: 1150, category: 'Stay', date: '2026-08-24 10:00 AM', icon: 'hotel' },
-    { id: 3, title: 'Satvik Mahaprasad Bhojan', amount: 350, category: 'Food', date: '2026-08-24 01:30 PM', icon: 'food' },
-    { id: 4, title: 'E-Rickshaw Ghat Parikrama', amount: 200, category: 'Transport', date: '2026-08-24 05:00 PM', icon: 'car' },
-    { id: 5, title: 'Vedic Guide Dakshina / Fee', amount: 500, category: 'Guide', date: '2026-08-24 07:00 PM', icon: 'guide' }
+    { id: 1, title: 'Mahakal Pilgrims Bhavan & Ashram (2 Nts)', amount: 3000, category: 'Stay', date: '2026-08-24 10:00 AM', icon: 'hotel' },
+    { id: 2, title: 'Bhasma Aarti Darshan & Special Pass', amount: 1100, category: 'Activities', date: '2026-08-24 06:30 AM', icon: 'ticket' },
+    { id: 3, title: 'Pure Satvik Thali & Mahaprasad', amount: 850, category: 'Food', date: '2026-08-24 01:30 PM', icon: 'food' },
+    { id: 4, title: 'E-Rickshaw Ghat & Parikrama Cabs', amount: 600, category: 'Transport', date: '2026-08-24 05:00 PM', icon: 'car' }
   ]);
 
   const [newExpenseTitle, setNewExpenseTitle] = useState('');
   const [newExpenseAmount, setNewExpenseAmount] = useState('');
-  const [newExpenseCategory, setNewExpenseCategory] = useState('Darshan');
+  const [newExpenseCategory, setNewExpenseCategory] = useState('Food');
   const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
 
   // Currency Exchange Rates (Base INR)
@@ -1251,6 +1251,14 @@ export default function App() {
   const convertedRemaining = isOutOfBudget ? 0 : (convertedTotalBudget - convertedTotalSpent);
   const spentPercentage = Math.min(100, Math.round((convertedTotalSpent / (convertedTotalBudget || 1)) * 100));
 
+  // Category Telemetry Breakdown Totals (INR Base)
+  const categorySpentINR = {
+    Food: expenses.filter(e => e.category === 'Food').reduce((sum, e) => sum + e.amount, 0),
+    Stay: expenses.filter(e => e.category === 'Stay').reduce((sum, e) => sum + e.amount, 0),
+    Transport: expenses.filter(e => e.category === 'Transport').reduce((sum, e) => sum + e.amount, 0),
+    Activities: expenses.filter(e => e.category === 'Activities' || e.category === 'Darshan' || e.category === 'Guide' || e.category === 'Shopping').reduce((sum, e) => sum + e.amount, 0)
+  };
+
   // Add New Expense to History
   const handleAddExpense = (e) => {
     e.preventDefault();
@@ -1266,7 +1274,7 @@ export default function App() {
       amount: parsedAmountINR,
       category: newExpenseCategory,
       date: formattedDate,
-      icon: newExpenseCategory === 'Darshan' ? 'ticket' : newExpenseCategory === 'Stay' ? 'hotel' : newExpenseCategory === 'Food' ? 'food' : newExpenseCategory === 'Transport' ? 'car' : 'receipt'
+      icon: newExpenseCategory === 'Food' ? 'food' : newExpenseCategory === 'Stay' ? 'hotel' : newExpenseCategory === 'Transport' ? 'car' : 'ticket'
     };
 
     setExpenses([newExp, ...expenses]);
@@ -1279,6 +1287,16 @@ export default function App() {
   const handleDeleteExpense = (id) => {
     setExpenses(expenses.filter(e => e.id !== id));
   };
+
+  // Filtered Itemized Expense List
+  const filteredExpenseList = expenses.filter(item => {
+    if (selectedExpenseCategoryFilter === 'All') return true;
+    if (selectedExpenseCategoryFilter === 'Food') return item.category === 'Food';
+    if (selectedExpenseCategoryFilter === 'Stay') return item.category === 'Stay';
+    if (selectedExpenseCategoryFilter === 'Transport') return item.category === 'Transport';
+    if (selectedExpenseCategoryFilter === 'Activities') return item.category === 'Activities' || item.category === 'Darshan' || item.category === 'Guide' || item.category === 'Shopping';
+    return true;
+  });
 
   // 1-Click Auto Expand Budget by 30% if Out of Budget
   const handleExpandBudget = () => {
@@ -1405,7 +1423,7 @@ export default function App() {
           id: Date.now(),
           title: `${guideName} (4 hrs Guide)`,
           amount: totalGuidePrice,
-          category: 'Guide',
+          category: 'Activities',
           date: 'Just now',
           icon: 'guide'
         }, ...prev]);
@@ -1428,7 +1446,7 @@ export default function App() {
         id: Date.now(),
         title: `${guideName} (4 hrs Guide)`,
         amount: totalGuidePrice,
-        category: 'Guide',
+        category: 'Activities',
         date: 'Just now',
         icon: 'guide'
       }, ...prev]);
@@ -2396,7 +2414,7 @@ export default function App() {
             </div>
           )}
 
-          {/* MODULE 3: BUDGET TRACKER WITH OUT-OF-BUDGET ALERTS & HISTORY */}
+          {/* MODULE 3: BUDGET TRACKER WITH LIVE CATEGORY TELEMETRY BREAKDOWN & ITEMIZED EXPENSES */}
           {activeTab === 'budget' && (
             <div className="space-y-6">
               
@@ -2528,30 +2546,177 @@ export default function App() {
 
               </div>
 
-              {/* EXPENSE HISTORY TABLE / LIST */}
+              {/* 📊 LIVE CATEGORY TELEMETRY & BREAKDOWN (INR / USER CURRENCY) - EXACT MATCH WITH USER IMAGE */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    📊 LIVE CATEGORY TELEMETRY & BREAKDOWN ({currency})
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  
+                  {/* 1. Food & Dining */}
+                  <div className={`p-4 rounded-2xl border shadow-xs transition-all ${
+                    isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                  }`}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold shrink-0">
+                          <Utensils size={18} />
+                        </div>
+                        <div>
+                          <h4 className={`font-extrabold text-sm ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                            Food & Dining
+                          </h4>
+                          <p className="text-[11px] text-slate-400 mt-0.5">Satvik Thali & Prasad</p>
+                        </div>
+                      </div>
+                      <span className={`font-black text-base ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                        {activeSymbol}{Math.round(categorySpentINR.Food * activeRate).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-3 overflow-hidden">
+                      <div 
+                        className="bg-emerald-600 h-full rounded-full" 
+                        style={{ width: `${Math.min(100, Math.round(((categorySpentINR.Food * activeRate) / (convertedTotalBudget || 1)) * 100))}%` }} 
+                      />
+                    </div>
+                  </div>
+
+                  {/* 2. Hotels & Stay */}
+                  <div className={`p-4 rounded-2xl border shadow-xs transition-all ${
+                    isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                  }`}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold shrink-0">
+                          <Building2 size={18} />
+                        </div>
+                        <div>
+                          <h4 className={`font-extrabold text-sm ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                            Hotels & Stay
+                          </h4>
+                          <p className="text-[11px] text-slate-400 mt-0.5">Ashrams, Bhavans, Stays</p>
+                        </div>
+                      </div>
+                      <span className={`font-black text-base ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                        {activeSymbol}{Math.round(categorySpentINR.Stay * activeRate).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-3 overflow-hidden">
+                      <div 
+                        className="bg-emerald-600 h-full rounded-full" 
+                        style={{ width: `${Math.min(100, Math.round(((categorySpentINR.Stay * activeRate) / (convertedTotalBudget || 1)) * 100))}%` }} 
+                      />
+                    </div>
+                  </div>
+
+                  {/* 3. Travel & Transport */}
+                  <div className={`p-4 rounded-2xl border shadow-xs transition-all ${
+                    isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                  }`}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold shrink-0">
+                          <Car size={18} />
+                        </div>
+                        <div>
+                          <h4 className={`font-extrabold text-sm ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                            Travel & Transport
+                          </h4>
+                          <p className="text-[11px] text-slate-400 mt-0.5">E-Rickshaw, Parikrama Cabs</p>
+                        </div>
+                      </div>
+                      <span className={`font-black text-base ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                        {activeSymbol}{Math.round(categorySpentINR.Transport * activeRate).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-3 overflow-hidden">
+                      <div 
+                        className="bg-emerald-600 h-full rounded-full" 
+                        style={{ width: `${Math.min(100, Math.round(((categorySpentINR.Transport * activeRate) / (convertedTotalBudget || 1)) * 100))}%` }} 
+                      />
+                    </div>
+                  </div>
+
+                  {/* 4. Activities & Darshan */}
+                  <div className={`p-4 rounded-2xl border shadow-xs transition-all ${
+                    isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                  }`}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold shrink-0">
+                          <Ticket size={18} />
+                        </div>
+                        <div>
+                          <h4 className={`font-extrabold text-sm ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                            Activities & Darshan
+                          </h4>
+                          <p className="text-[11px] text-slate-400 mt-0.5">VIP Passes, Vedic Guides</p>
+                        </div>
+                      </div>
+                      <span className={`font-black text-base ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                        {activeSymbol}{Math.round(categorySpentINR.Activities * activeRate).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-3 overflow-hidden">
+                      <div 
+                        className="bg-emerald-600 h-full rounded-full" 
+                        style={{ width: `${Math.min(100, Math.round(((categorySpentINR.Activities * activeRate) / (convertedTotalBudget || 1)) * 100))}%` }} 
+                      />
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* ITEMIZED EXPENSE HISTORY TABLE / LIST WITH CATEGORY FILTER PILLS */}
               <div className={`border rounded-3xl p-5 sm:p-6 space-y-4 shadow-xs ${
                 isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
               }`}>
-                <div className="flex items-center justify-between border-b pb-3 border-slate-100 dark:border-slate-800">
+                
+                {/* Header with Title and Filter Pills */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4 border-slate-100 dark:border-slate-800">
                   <div className="flex items-center gap-2">
                     <Receipt className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'} size={20} />
                     <h3 className={`font-extrabold text-base ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
-                      Expense History & Transactions
+                      Itemized Expense History ({filteredExpenseList.length})
                     </h3>
                   </div>
-                  <span className="text-xs font-bold text-slate-400">
-                    {expenses.length} Records Logged
-                  </span>
+
+                  {/* Filter Pills */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
+                    {[
+                      { id: 'All', label: 'All' },
+                      { id: 'Food', label: 'Food & Dining' },
+                      { id: 'Stay', label: 'Hotels & Stay' },
+                      { id: 'Transport', label: 'Travel & Transport' },
+                      { id: 'Activities', label: 'Activities' }
+                    ].map((pill) => (
+                      <button
+                        key={pill.id}
+                        onClick={() => setSelectedExpenseCategoryFilter(pill.id)}
+                        className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all ${
+                          selectedExpenseCategoryFilter === pill.id
+                            ? 'bg-emerald-700 text-white shadow-xs'
+                            : isDarkMode ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
+                      >
+                        {pill.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Expense List */}
                 <div className="space-y-2.5">
-                  {expenses.length === 0 ? (
+                  {filteredExpenseList.length === 0 ? (
                     <div className="py-8 text-center text-slate-400 text-xs font-semibold">
-                      No expenses logged yet. Click "Log Expense" to add your first transaction.
+                      No expenses logged in this category yet.
                     </div>
                   ) : (
-                    expenses.map((item) => {
+                    filteredExpenseList.map((item) => {
                       const itemConvertedPrice = Math.round(item.amount * activeRate);
                       return (
                         <div
@@ -2562,10 +2727,10 @@ export default function App() {
                         >
                           <div className="flex items-center gap-3 min-w-0">
                             <div className="w-10 h-10 rounded-xl bg-emerald-600/10 text-emerald-600 flex items-center justify-center font-bold shrink-0">
-                              {item.category === 'Darshan' && <Ticket size={18} />}
-                              {item.category === 'Stay' && <Building2 size={18} />}
                               {item.category === 'Food' && <Utensils size={18} />}
+                              {item.category === 'Stay' && <Building2 size={18} />}
                               {item.category === 'Transport' && <Car size={18} />}
+                              {(item.category === 'Activities' || item.category === 'Darshan') && <Ticket size={18} />}
                               {item.category === 'Guide' && <Users size={18} />}
                               {item.category === 'Shopping' && <ShoppingBag size={18} />}
                             </div>
@@ -2578,7 +2743,7 @@ export default function App() {
                                 <span className={`font-semibold px-2 py-0.5 rounded-md text-[10px] ${
                                   isDarkMode ? 'bg-slate-700 text-emerald-400' : 'bg-emerald-100 text-emerald-800'
                                 }`}>
-                                  {item.category}
+                                  {item.category === 'Food' ? 'Food & Dining' : item.category === 'Stay' ? 'Hotels & Stay' : item.category === 'Transport' ? 'Travel & Transport' : 'Activities & Darshan'}
                                 </span>
                                 <span>•</span>
                                 <span>{item.date}</span>
@@ -2587,13 +2752,13 @@ export default function App() {
                           </div>
 
                           <div className="flex items-center gap-3 shrink-0">
-                            <span className="font-black text-sm sm:text-base text-rose-500">
-                              -{activeSymbol}{itemConvertedPrice.toLocaleString()}
+                            <span className={`font-black text-sm sm:text-base ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                              {activeSymbol}{itemConvertedPrice.toFixed(2)}
                             </span>
 
                             <button
                               onClick={() => handleDeleteExpense(item.id)}
-                              className="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition-colors"
+                              className="text-slate-400 hover:text-rose-500 p-1.5 rounded-lg transition-colors"
                               title="Delete Expense"
                             >
                               <Trash2 size={15} />
@@ -3038,7 +3203,7 @@ export default function App() {
                   required
                   value={newExpenseTitle}
                   onChange={(e) => setNewExpenseTitle(e.target.value)}
-                  placeholder="e.g. Special Bhasma Aarti Pass, Satvik Prasad, Taxi"
+                  placeholder="e.g. Mahakal Pilgrims Bhavan (2 Nts), Satvik Thali, E-Rickshaw"
                   className={`w-full px-3.5 py-2.5 border rounded-xl text-xs sm:text-sm focus:outline-none transition-all ${
                     isDarkMode ? 'bg-slate-800 border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-emerald-600'
                   }`}
@@ -3054,7 +3219,7 @@ export default function App() {
                     min="1"
                     value={newExpenseAmount}
                     onChange={(e) => setNewExpenseAmount(e.target.value)}
-                    placeholder={`e.g. 500`}
+                    placeholder={`e.g. 850`}
                     className={`w-full px-3.5 py-2.5 border rounded-xl text-xs sm:text-sm focus:outline-none transition-all ${
                       isDarkMode ? 'bg-slate-800 border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-emerald-600'
                     }`}
@@ -3070,12 +3235,10 @@ export default function App() {
                       isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'
                     }`}
                   >
-                    <option value="Darshan">Darshan & Tickets</option>
-                    <option value="Stay">Stay & Ashram</option>
-                    <option value="Food">Food & Prasad</option>
-                    <option value="Transport">Local Transport</option>
-                    <option value="Guide">Vedic Guide</option>
-                    <option value="Shopping">Shopping & Souvenirs</option>
+                    <option value="Food">Food & Dining</option>
+                    <option value="Stay">Hotels & Stay</option>
+                    <option value="Transport">Travel & Transport</option>
+                    <option value="Activities">Activities & Darshan</option>
                   </select>
                 </div>
               </div>
