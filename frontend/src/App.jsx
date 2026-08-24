@@ -26,10 +26,15 @@ import {
   Shield,
   Zap,
   Calendar,
-  Share2
+  Sun,
+  Moon,
+  Star,
+  Phone,
+  Award
 } from 'lucide-react';
 
 export default function App() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [activeTab, setActiveTab] = useState('itinerary');
   const [selectedCity, setSelectedCity] = useState('Ujjain');
   const [searchQuery, setSearchQuery] = useState('');
@@ -41,7 +46,6 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [emailInput, setEmailInput] = useState('');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownNavOpen, setDropdownNavOpen] = useState(false);
 
   // 23+ Destinations Dataset
@@ -160,6 +164,126 @@ export default function App() {
     }
   ];
 
+  // Verified Stays / Ashrams Data with real photos
+  const staysData = [
+    {
+      id: 1,
+      name: 'Shri Mahakal Bhakt Ashram & Dharamshala',
+      city: 'Ujjain',
+      type: 'Recommended Ashram',
+      tagType: 'emerald',
+      image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600',
+      rating: 4.9,
+      reviews: 420,
+      distance: '200m from Mahakal Mandir',
+      amenities: ['AC Rooms', 'Pure Satvik Bhojan', '24h Hot Water', 'Lift Access'],
+      originalPrice: 1800,
+      discountedPrice: 1150
+    },
+    {
+      id: 2,
+      name: 'The Grand Heritage Palace & Riverfront',
+      city: 'Ujjain',
+      type: 'Heritage Hotel',
+      tagType: 'blue',
+      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600',
+      rating: 4.8,
+      reviews: 280,
+      distance: 'Ghatside Kshipra View',
+      amenities: ['Free WiFi', 'Traditional Architecture', 'Rooftop Aarti View', 'Restaurant'],
+      originalPrice: 3500,
+      discountedPrice: 2400
+    },
+    {
+      id: 3,
+      name: 'Kashi Vishwanath Satvik Bhavan',
+      city: 'Varanasi',
+      type: 'Ghatside Ashram',
+      tagType: 'emerald',
+      image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600',
+      rating: 4.9,
+      reviews: 510,
+      distance: '100m from Dashashwamedh Ghat',
+      amenities: ['Ganga Facing Balcony', 'Satvik Thali', 'Doctor on Call', 'Early Morning Snan Guide'],
+      originalPrice: 2200,
+      discountedPrice: 1400
+    },
+    {
+      id: 4,
+      name: 'Saryu Riverfront Yatri Nivas',
+      city: 'Ayodhya',
+      type: 'Pilgrim Resort',
+      tagType: 'blue',
+      image: 'https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?w=600',
+      rating: 4.7,
+      reviews: 195,
+      distance: 'Near Ram Mandir Gate 3',
+      amenities: ['Spacious Family Rooms', 'Lawn Garden', 'Free Shuttle to Mandir', 'EV Charging'],
+      originalPrice: 2800,
+      discountedPrice: 1850
+    }
+  ];
+
+  // Verified Vedic Guides Data with real photos
+  const guidesData = [
+    {
+      id: 1,
+      name: 'Pt. Shivam Shastri',
+      title: 'Senior Vedic Scholar & Darshan Historian',
+      city: 'Ujjain & Omkareshwar',
+      rating: 4.9,
+      reviews: 340,
+      experience: '12+ Years Experience',
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
+      languages: ['Sanskrit', 'Hindi', 'English', 'Gujarati'],
+      expertise: ['Garbhagriha Bhasma Aarti History', 'Jyotirlinga Mahatmya', 'Kshipra Parikrama'],
+      hourlyRate: 500,
+      dayRate: 2500
+    },
+    {
+      id: 2,
+      name: 'Acharya Radheshyam Tiwari',
+      title: 'Certified ASI Heritage & Temple Architect Guide',
+      city: 'Varanasi & Sarnath',
+      rating: 5.0,
+      reviews: 480,
+      experience: '15+ Years Experience',
+      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400',
+      languages: ['Hindi', 'English', 'Tamil', 'Bengali'],
+      expertise: ['Kashi 84 Ghats Secret History', 'Ganga Aarti Significance', 'Sarnath Stupas'],
+      hourlyRate: 600,
+      dayRate: 3000
+    },
+    {
+      id: 3,
+      name: 'Meera Joshi',
+      title: 'Spiritual Walk & Vedic Chant Specialist',
+      city: 'Rishikesh & Haridwar',
+      rating: 4.9,
+      reviews: 290,
+      experience: '8+ Years Experience',
+      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400',
+      languages: ['English', 'Hindi', 'German'],
+      expertise: ['Ashram Meditation Trails', 'Ganga Aarti Chants', 'Himalayan Herbal Walks'],
+      hourlyRate: 450,
+      dayRate: 2200
+    },
+    {
+      id: 4,
+      name: 'Pt. Alok Nath Dwivedi',
+      title: 'Ram Janmabhoomi & Saryu Heritage Guide',
+      city: 'Ayodhya',
+      rating: 4.8,
+      reviews: 215,
+      experience: '10+ Years Experience',
+      image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400',
+      languages: ['Hindi', 'English', 'Awadhi'],
+      expertise: ['Ramayana Circuit Chronicle', 'Hanuman Garhi Legacy', 'Saryu Ghat Legends'],
+      hourlyRate: 400,
+      dayRate: 2000
+    }
+  ];
+
   // Filter destinations
   const filteredDestinations = destinationsData.filter(d => {
     const matchesCategory = selectedCategory === 'All' 
@@ -199,10 +323,14 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans flex flex-col selection:bg-emerald-500 selection:text-white">
+    <div className={`min-h-screen font-sans flex flex-col transition-colors duration-200 ${
+      isDarkMode ? 'bg-[#070d18] text-slate-100 selection:bg-emerald-500 selection:text-slate-950' : 'bg-[#f8fafc] text-slate-900 selection:bg-emerald-500 selection:text-white'
+    }`}>
       
-      {/* 1. TOP NAVBAR (EXACTLY AS IN SCREENSHOT - CLEAN LIGHT THEME) */}
-      <header className="sticky top-0 z-40 bg-white border-b border-slate-200/80 shadow-sm">
+      {/* 1. TOP NAVBAR WITH DARK/LIGHT THEME SWITCHER */}
+      <header className={`sticky top-0 z-40 border-b shadow-sm transition-colors duration-200 ${
+        isDarkMode ? 'bg-slate-900/95 border-slate-800 backdrop-blur-md' : 'bg-white/95 border-slate-200/80 backdrop-blur-md'
+      }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20">
             
@@ -217,7 +345,9 @@ export default function App() {
                 <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg shadow-sm">
                   ST
                 </div>
-                <span className="text-xl font-extrabold text-slate-900 tracking-tight">Smart<span className="text-emerald-600">Trip</span></span>
+                <span className={`text-xl font-extrabold tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  Smart<span className="text-emerald-600">Trip</span>
+                </span>
               </div>
 
               {/* Desktop Nav Links */}
@@ -231,11 +361,15 @@ export default function App() {
                       onClick={() => setActiveTab(item.id)}
                       className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                         isActive
-                          ? 'bg-emerald-50 text-emerald-700 font-bold border border-emerald-200/80 shadow-xs'
-                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                          ? isDarkMode 
+                            ? 'bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30' 
+                            : 'bg-emerald-50 text-emerald-700 font-bold border border-emerald-200/80 shadow-xs'
+                          : isDarkMode 
+                            ? 'text-slate-400 hover:text-white hover:bg-slate-800' 
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                       }`}
                     >
-                      <Icon size={16} className={isActive ? 'text-emerald-600' : 'text-slate-400'} />
+                      <Icon size={16} className={isActive ? (isDarkMode ? 'text-emerald-400' : 'text-emerald-600') : 'text-slate-400'} />
                       <span>{item.label}</span>
                     </button>
                   );
@@ -246,14 +380,18 @@ export default function App() {
               <div className="lg:hidden relative">
                 <button
                   onClick={() => setDropdownNavOpen(!dropdownNavOpen)}
-                  className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 border border-slate-200"
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors ${
+                    isDarkMode ? 'bg-slate-800 text-slate-200 border-slate-700' : 'bg-slate-100 text-slate-700 border-slate-200'
+                  }`}
                 >
                   <span>Menu</span>
                   <ChevronDown size={14} className={`transition-transform ${dropdownNavOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {dropdownNavOpen && (
-                  <div className="absolute left-0 mt-2 w-60 bg-white border border-slate-200 rounded-2xl shadow-xl p-2 z-50">
+                  <div className={`absolute left-0 mt-2 w-60 border rounded-2xl shadow-xl p-2 z-50 ${
+                    isDarkMode ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'
+                  }`}>
                     {navMenuItems.map((item) => {
                       const Icon = item.icon;
                       const isActive = activeTab === item.id;
@@ -264,11 +402,13 @@ export default function App() {
                             setActiveTab(item.id);
                             setDropdownNavOpen(false);
                           }}
-                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-left ${
-                            isActive ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-700 hover:bg-slate-50'
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-left transition-colors ${
+                            isActive 
+                              ? isDarkMode ? 'bg-emerald-500/20 text-emerald-400 font-bold' : 'bg-emerald-50 text-emerald-700 font-bold'
+                              : isDarkMode ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-50'
                           }`}
                         >
-                          <Icon size={16} className={isActive ? 'text-emerald-600' : 'text-slate-400'} />
+                          <Icon size={16} className={isActive ? (isDarkMode ? 'text-emerald-400' : 'text-emerald-600') : 'text-slate-400'} />
                           <span>{item.label}</span>
                         </button>
                       );
@@ -279,15 +419,31 @@ export default function App() {
 
             </div>
 
-            {/* Right: User Pill + Emergency SOS */}
-            <div className="flex items-center gap-3">
+            {/* Right: Theme Toggle + User Pill + Emergency SOS */}
+            <div className="flex items-center gap-2.5 sm:gap-3">
               
+              {/* DARK / LIGHT MODE TOGGLE BUTTON */}
+              <button
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className={`p-2 rounded-xl border transition-all ${
+                  isDarkMode 
+                    ? 'bg-slate-800 hover:bg-slate-700 text-amber-400 border-slate-700 shadow-sm' 
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200 shadow-xs'
+                }`}
+                title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                aria-label="Toggle Theme"
+              >
+                {isDarkMode ? <Sun size={17} className="animate-spin-slow" /> : <Moon size={17} />}
+              </button>
+
               {/* User Sign In / Profile Pill */}
-              <div className="flex items-center gap-2 bg-slate-100/90 border border-slate-200/80 rounded-full px-3 py-1.5 text-xs">
-                <div className="w-5 h-5 rounded-full bg-slate-300 text-slate-700 flex items-center justify-center font-bold text-[10px]">
+              <div className={`flex items-center gap-2 border rounded-full px-3 py-1.5 text-xs transition-colors ${
+                isDarkMode ? 'bg-slate-800/90 border-slate-700 text-slate-300' : 'bg-slate-100/90 border-slate-200/80 text-slate-600'
+              }`}>
+                <div className="w-5 h-5 rounded-full bg-slate-400/30 text-slate-200 flex items-center justify-center font-bold text-[10px]">
                   {user ? user.name[0].toUpperCase() : 'G'}
                 </div>
-                <span className="text-slate-600 font-medium hidden sm:inline">
+                <span className="font-medium hidden sm:inline">
                   {user ? user.name : 'Guest User'}
                 </span>
                 <button
@@ -301,7 +457,7 @@ export default function App() {
               {/* Red EMERGENCY SOS Button */}
               <button
                 onClick={() => alert('🚨 EMERGENCY SOS: Coordinates dispatched to 112 Police and 108 Ambulance.')}
-                className="bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold px-4 py-2 rounded-xl text-xs sm:text-sm shadow-sm transition-all flex items-center gap-1.5"
+                className="bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm shadow-sm transition-all flex items-center gap-1.5"
               >
                 <Flame size={15} />
                 <span>EMERGENCY SOS</span>
@@ -316,7 +472,7 @@ export default function App() {
       {/* 2. MAIN BODY CONTENT */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         
-        {/* MODULE 1: ITINERARY PLANNER (EXACTLY MATCHING SCREENSHOT) */}
+        {/* MODULE 1: ITINERARY PLANNER (EXACT MATCHING SCREENSHOT) */}
         {activeTab === 'itinerary' && (
           <div className="space-y-6">
             
@@ -343,7 +499,11 @@ export default function App() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="SEARCH ANY PILGRIMAGE, HERITAGE OR SCENIC DESTINATION... (e.g. Ujjain, Ayodhya, Varanasi, Puri, Rishikesh, Somnath...)"
-                className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition-all shadow-xs"
+                className={`w-full pl-11 pr-4 py-3 border rounded-2xl text-xs sm:text-sm transition-all shadow-xs ${
+                  isDarkMode 
+                    ? 'bg-slate-900 border-slate-800 text-white placeholder-slate-500 focus:border-emerald-500' 
+                    : 'bg-white border-slate-200 text-slate-800 placeholder-slate-400 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600'
+                }`}
               />
               {searchQuery && (
                 <button onClick={() => setSearchQuery('')} className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600">
@@ -367,7 +527,9 @@ export default function App() {
                   className={`px-4 py-2 rounded-full font-bold whitespace-nowrap transition-all text-xs ${
                     selectedCategory === cat.id
                       ? 'bg-emerald-700 text-white shadow-xs'
-                      : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300'
+                      : isDarkMode 
+                        ? 'bg-slate-800/80 border border-slate-700 text-slate-400 hover:text-white' 
+                        : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300'
                   }`}
                 >
                   {cat.label}
@@ -378,7 +540,7 @@ export default function App() {
             {/* INTERACTIVE TOURISM GRID */}
             <div>
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-bold text-slate-800">
+                <h3 className={`text-sm font-bold ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>
                   Interactive Tourism Grid ({filteredDestinations.length} Places)
                 </h3>
               </div>
@@ -393,10 +555,10 @@ export default function App() {
                         setSelectedCity(dest.name);
                         setScheduleGenerated(true);
                       }}
-                      className={`group relative overflow-hidden rounded-2xl cursor-pointer transition-all bg-white border ${
+                      className={`group relative overflow-hidden rounded-2xl cursor-pointer transition-all border ${
                         isSelected 
                           ? 'border-emerald-600 ring-2 ring-emerald-600/30 shadow-md scale-[1.01]' 
-                          : 'border-slate-200 hover:border-slate-300 shadow-xs'
+                          : isDarkMode ? 'bg-slate-900 border-slate-800 hover:border-slate-700' : 'bg-white border-slate-200 hover:border-slate-300 shadow-xs'
                       }`}
                     >
                       <div className="h-32 sm:h-36 w-full relative">
@@ -425,29 +587,31 @@ export default function App() {
             </div>
 
             {/* HORIZONTAL TRIP SETTINGS BAR (FROM SCREENSHOT) */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className={`border rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 transition-colors ${
+              isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+            }`}>
               
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full md:w-auto flex-1">
                 
                 {/* 1. Destination */}
-                <div className="border-r border-slate-100 pr-4">
+                <div className={`border-r pr-4 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Selected Destination</span>
-                  <span className="font-black text-slate-800 text-base">{selectedCity}</span>
+                  <span className={`font-black text-base ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{selectedCity}</span>
                 </div>
 
                 {/* 2. Currency */}
-                <div className="border-r border-slate-100 pr-4">
+                <div className={`border-r pr-4 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Trip Currency</span>
                   <div className="flex items-center gap-1 mt-0.5">
                     <button
                       onClick={() => setCurrency('INR')}
-                      className={`text-xs font-bold px-2 py-0.5 rounded ${currency === 'INR' ? 'bg-emerald-100 text-emerald-800' : 'text-slate-500'}`}
+                      className={`text-xs font-bold px-2 py-0.5 rounded ${currency === 'INR' ? (isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-800') : 'text-slate-400'}`}
                     >
                       INR (₹)
                     </button>
                     <button
                       onClick={() => setCurrency('USD')}
-                      className={`text-xs font-bold px-2 py-0.5 rounded ${currency === 'USD' ? 'bg-emerald-100 text-emerald-800' : 'text-slate-500'}`}
+                      className={`text-xs font-bold px-2 py-0.5 rounded ${currency === 'USD' ? (isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-800') : 'text-slate-400'}`}
                     >
                       USD ($)
                     </button>
@@ -455,19 +619,19 @@ export default function App() {
                 </div>
 
                 {/* 3. Duration */}
-                <div className="border-r border-slate-100 pr-4">
+                <div className={`border-r pr-4 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Duration (Days)</span>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <button onClick={() => setDays(Math.max(1, days - 1))} className="w-5 h-5 rounded bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center">-</button>
-                    <span className="font-extrabold text-slate-800 text-sm">{days} Days</span>
-                    <button onClick={() => setDays(Math.min(14, days + 1))} className="w-5 h-5 rounded bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center">+</button>
+                    <button onClick={() => setDays(Math.max(1, days - 1))} className={`w-5 h-5 rounded font-bold text-xs flex items-center justify-center ${isDarkMode ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-700'}`}>-</button>
+                    <span className={`font-extrabold text-sm ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{days} Days</span>
+                    <button onClick={() => setDays(Math.min(14, days + 1))} className={`w-5 h-5 rounded font-bold text-xs flex items-center justify-center ${isDarkMode ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-700'}`}>+</button>
                   </div>
                 </div>
 
                 {/* 4. Total Budget */}
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Budget (INR)</span>
-                  <span className="font-black text-emerald-700 text-base">
+                  <span className={`font-black text-base ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>
                     {currency === 'INR' ? `₹${budget.toLocaleString()}` : `$${Math.round(budget/85).toLocaleString()}`}
                   </span>
                 </div>
@@ -490,13 +654,17 @@ export default function App() {
                 
                 {/* Interactive Leaflet Map */}
                 <div className="lg:col-span-6 space-y-3">
-                  <div className="bg-white border border-slate-200 p-4 rounded-3xl shadow-sm space-y-3">
+                  <div className={`border p-4 rounded-3xl shadow-sm space-y-3 transition-colors ${
+                    isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                  }`}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <MapPin className="text-emerald-600" size={18} />
-                        <h3 className="font-extrabold text-slate-800 text-base">Live Route Map: {selectedCity}</h3>
+                        <MapPin className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'} size={18} />
+                        <h3 className={`font-extrabold text-base ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Live Route Map: {selectedCity}</h3>
                       </div>
-                      <span className="text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full">
+                      <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
+                        isDarkMode ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-100 text-emerald-800'
+                      }`}>
                         {activeDestination.activities?.length || 3} Waypoints
                       </span>
                     </div>
@@ -508,7 +676,7 @@ export default function App() {
                       className="h-80 sm:h-96 w-full"
                     />
 
-                    <p className="text-[11px] text-slate-500 text-center">
+                    <p className="text-[11px] text-slate-400 text-center">
                       Interactive OpenStreetMap • Numbered stops connected in chronological sequence
                     </p>
                   </div>
@@ -516,28 +684,36 @@ export default function App() {
 
                 {/* Day-by-Day Schedule Timeline */}
                 <div className="lg:col-span-6 space-y-3">
-                  <div className="bg-white border border-slate-200 p-5 rounded-3xl shadow-sm space-y-4">
+                  <div className={`border p-5 rounded-3xl shadow-sm space-y-4 transition-colors ${
+                    isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                  }`}>
                     
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div className={`flex items-center justify-between border-b pb-3 ${
+                      isDarkMode ? 'border-slate-800' : 'border-slate-100'
+                    }`}>
                       <div>
-                        <h3 className="font-extrabold text-slate-900 text-lg">{selectedCity} Circuit Plan</h3>
-                        <p className="text-xs text-slate-500">{days} Days Optimized Itinerary</p>
+                        <h3 className={`font-extrabold text-lg ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{selectedCity} Circuit Plan</h3>
+                        <p className="text-xs text-slate-400">{days} Days Optimized Itinerary</p>
                       </div>
-                      <span className="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full">
+                      <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+                        isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-800'
+                      }`}>
                         {currency === 'INR' ? `₹${(budget/days).toFixed(0)}/day` : `$${(budget/85/days).toFixed(0)}/day`}
                       </span>
                     </div>
 
                     <div className="space-y-3">
                       {(activeDestination.activities || []).map((act, idx) => (
-                        <div key={idx} className="bg-slate-50 border border-slate-200/80 p-3.5 rounded-2xl flex items-start gap-3 hover:border-emerald-300 transition-colors">
+                        <div key={idx} className={`border p-3.5 rounded-2xl flex items-start gap-3 transition-colors ${
+                          isDarkMode ? 'bg-slate-800/60 border-slate-700/60 hover:border-emerald-500/40' : 'bg-slate-50 border-slate-200/80 hover:border-emerald-300'
+                        }`}>
                           <div className="w-8 h-8 rounded-full bg-emerald-600 text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5">
                             {idx + 1}
                           </div>
                           <div className="flex-1">
-                            <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">{act.period || act.time_slot}</span>
-                            <h4 className="font-bold text-slate-900 text-sm mt-0.5">{act.name}</h4>
-                            <p className="text-xs text-slate-500 mt-0.5">{act.category} • Cost: {act.cost ? `₹${act.cost}` : 'Free Entry'}</p>
+                            <span className={`text-[10px] font-bold uppercase tracking-wider ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>{act.period || act.time_slot}</span>
+                            <h4 className={`font-bold text-sm mt-0.5 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{act.name}</h4>
+                            <p className="text-xs text-slate-400 mt-0.5">{act.category} • Cost: {act.cost ? `₹${act.cost}` : 'Free Entry'}</p>
                           </div>
                         </div>
                       ))}
@@ -552,29 +728,99 @@ export default function App() {
           </div>
         )}
 
-        {/* MODULE 2: ASHRAMS & STAYS */}
+        {/* MODULE 2: ASHRAMS & STAYS (WITH REAL PHOTOS & RICH CARDS) */}
         {activeTab === 'hotels' && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-extrabold text-slate-900">Ashrams, Dharamshalas & Stays</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-3 shadow-xs">
-                <span className="text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-bold">Recommended Ashram</span>
-                <h4 className="font-extrabold text-lg text-slate-900">Shri Mahakal Bhakt Ashram</h4>
-                <p className="text-xs text-slate-500">AC Rooms, Pure Satvik Bhojan, 200m from Mandir</p>
-                <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                  <span className="text-base font-black text-emerald-700">₹1,150 / night</span>
-                  <button onClick={() => alert('Booked successfully!')} className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-xs">Book Ashram</button>
-                </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Ashrams, Dharamshalas & Heritage Stays</h2>
+                <p className="text-xs text-slate-400">Verified Dharamshalas and Ashrams near major Mandirs and Ghats</p>
               </div>
-              <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-3 shadow-xs">
-                <span className="text-xs bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full font-bold">Heritage Stay</span>
-                <h4 className="font-extrabold text-lg text-slate-900">The Grand Heritage Palace</h4>
-                <p className="text-xs text-slate-500">Free WiFi, Traditional architecture, River view</p>
-                <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                  <span className="text-base font-black text-emerald-700">₹2,400 / night</span>
-                  <button onClick={() => alert('Booked successfully!')} className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-xs">Book Room</button>
+              <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+                isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-800'
+              }`}>
+                Verified Satvik Stays
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {staysData.map((stay) => (
+                <div 
+                  key={stay.id} 
+                  className={`border rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between ${
+                    isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                  }`}
+                >
+                  <div className="relative h-48 w-full">
+                    <img 
+                      src={stay.image} 
+                      alt={stay.name} 
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                    
+                    <div className="absolute top-3 left-3">
+                      <span className={`text-[11px] font-extrabold px-3 py-1 rounded-full shadow-sm ${
+                        stay.tagType === 'emerald' 
+                          ? 'bg-emerald-600 text-white' 
+                          : 'bg-blue-600 text-white'
+                      }`}>
+                        {stay.type}
+                      </span>
+                    </div>
+
+                    <div className="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-sm text-amber-400 px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1 border border-slate-700">
+                      <Star size={13} fill="currentColor" />
+                      <span>{stay.rating}</span>
+                      <span className="text-[10px] text-slate-300">({stay.reviews})</span>
+                    </div>
+
+                    <div className="absolute bottom-3 left-3 right-3 text-white">
+                      <h3 className="font-extrabold text-lg leading-tight">{stay.name}</h3>
+                      <p className="text-xs text-emerald-300 font-medium flex items-center gap-1 mt-0.5">
+                        <MapPin size={12} /> {stay.distance} • {stay.city}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-5 space-y-4">
+                    {/* Amenities Badges */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {stay.amenities.map((am, i) => (
+                        <span 
+                          key={i} 
+                          className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg ${
+                            isDarkMode ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-700'
+                          }`}
+                        >
+                          ✓ {am}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className={`pt-3 border-t flex items-center justify-between ${
+                      isDarkMode ? 'border-slate-800' : 'border-slate-100'
+                    }`}>
+                      <div>
+                        <span className="text-xs text-slate-400 line-through">₹{stay.originalPrice}</span>
+                        <div className="flex items-baseline gap-1">
+                          <span className={`text-xl font-black ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>
+                            ₹{stay.discountedPrice}
+                          </span>
+                          <span className="text-xs text-slate-400 font-medium">/ night</span>
+                        </div>
+                      </div>
+
+                      <button 
+                        onClick={() => alert(`Booking confirmed for ${stay.name}!`)} 
+                        className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-sm transition-all"
+                      >
+                        Book Ashram
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         )}
@@ -582,11 +828,20 @@ export default function App() {
         {/* MODULE 3: BUDGET TRACKER */}
         {activeTab === 'budget' && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-extrabold text-slate-900">Multi-Currency Real-Time Budget Tracker</h2>
+            <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Multi-Currency Real-Time Budget Tracker</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs"><p className="text-xs font-bold text-slate-400 uppercase">Total Budget</p><p className="text-2xl font-black text-slate-900 mt-1">₹{budget.toLocaleString()}</p></div>
-              <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs"><p className="text-xs font-bold text-slate-400 uppercase">Spent</p><p className="text-2xl font-black text-emerald-700 mt-1">₹{Math.round(budget * 0.45).toLocaleString()}</p></div>
-              <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs"><p className="text-xs font-bold text-slate-400 uppercase">Remaining</p><p className="text-2xl font-black text-amber-600 mt-1">₹{Math.round(budget * 0.55).toLocaleString()}</p></div>
+              <div className={`border p-5 rounded-2xl shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+                <p className="text-xs font-bold text-slate-400 uppercase">Total Budget</p>
+                <p className={`text-2xl font-black mt-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>₹{budget.toLocaleString()}</p>
+              </div>
+              <div className={`border p-5 rounded-2xl shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+                <p className="text-xs font-bold text-slate-400 uppercase">Spent</p>
+                <p className={`text-2xl font-black mt-1 ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>₹{Math.round(budget * 0.45).toLocaleString()}</p>
+              </div>
+              <div className={`border p-5 rounded-2xl shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+                <p className="text-xs font-bold text-slate-400 uppercase">Remaining</p>
+                <p className="text-2xl font-black text-amber-500 mt-1">₹{Math.round(budget * 0.55).toLocaleString()}</p>
+              </div>
             </div>
           </div>
         )}
@@ -594,8 +849,8 @@ export default function App() {
         {/* MODULE 4: PACKING CHECKLIST */}
         {activeTab === 'packing' && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-extrabold text-slate-900">Pilgrimage & Heritage Packing Checklist</h2>
-            <div className="bg-white border border-slate-200 p-6 rounded-2xl space-y-3 shadow-xs">
+            <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Pilgrimage & Heritage Packing Checklist</h2>
+            <div className={`border p-6 rounded-2xl space-y-3 shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
               {[
                 'Traditional Attire / Dhoti / Kurta (Mandir Garbhagriha)',
                 'Govt ID Proof (Aadhaar / Voter ID for VIP Darshan)',
@@ -604,9 +859,11 @@ export default function App() {
                 'Power Bank & Mobile Charger',
                 'Emergency First Aid & Personal Prescription Meds'
               ].map((item, idx) => (
-                <label key={idx} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors border border-slate-200/60">
+                <label key={idx} className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors border ${
+                  isDarkMode ? 'bg-slate-800/50 border-slate-700/60 hover:bg-slate-800 text-slate-200' : 'bg-slate-50 border-slate-200/60 hover:bg-slate-100 text-slate-800'
+                }`}>
                   <input type="checkbox" defaultChecked={idx < 3} className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500" />
-                  <span className="text-xs font-semibold text-slate-800">{item}</span>
+                  <span className="text-xs font-semibold">{item}</span>
                 </label>
               ))}
             </div>
@@ -616,33 +873,111 @@ export default function App() {
         {/* MODULE 5: SMART ALERTS */}
         {activeTab === 'alerts' && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-extrabold text-slate-900">Smart Alerts & Darshan Queues</h2>
-            <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs flex items-center justify-between">
+            <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Smart Alerts & Darshan Queues</h2>
+            <div className={`border p-5 rounded-2xl shadow-xs flex items-center justify-between ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
               <div className="flex items-center gap-3">
-                <CloudSun className="text-emerald-600" size={24} />
+                <CloudSun className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'} size={24} />
                 <div>
-                  <h4 className="font-bold text-slate-900 text-sm">{selectedCity} Weather: 24°C Pleasant</h4>
-                  <p className="text-xs text-slate-500">Zero rain probability. Ideal for evening parikrama.</p>
+                  <h4 className={`font-bold text-sm ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{selectedCity} Weather: 24°C Pleasant</h4>
+                  <p className="text-xs text-slate-400">Zero rain probability. Ideal for evening parikrama.</p>
                 </div>
               </div>
-              <span className="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full">Good Condition</span>
+              <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+                isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-800'
+              }`}>Good Condition</span>
             </div>
           </div>
         )}
 
-        {/* MODULE 6: GUIDES */}
+        {/* MODULE 6: VERIFIED VEDIC GUIDES (WITH REAL PHOTOS & RICH CARDS) */}
         {activeTab === 'guides' && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-extrabold text-slate-900">Verified Vedic & Heritage Guides</h2>
-            <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs flex items-center justify-between max-w-xl">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">PS</div>
-                <div>
-                  <h4 className="font-bold text-slate-900">Pt. Shivam Shastri</h4>
-                  <p className="text-xs text-slate-500">Sanskrit, Hindi, English • Rating: ★ 4.9</p>
-                </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Verified Vedic & Heritage Guides</h2>
+                <p className="text-xs text-slate-400">Certified local Shastri, Sanskrit scholars and ASI historians for authentic spiritual walks</p>
               </div>
-              <button onClick={() => alert('Guide booked!')} className="bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs">Book (₹500/hr)</button>
+              <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+                isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-800'
+              }`}>
+                100% Certified Guides
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {guidesData.map((g) => (
+                <div 
+                  key={g.id} 
+                  className={`border rounded-3xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4 ${
+                    isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    <img 
+                      src={g.image} 
+                      alt={g.name} 
+                      className="w-20 h-20 rounded-2xl object-cover border-2 border-emerald-600/40 shadow-sm shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <h4 className={`font-extrabold text-base leading-tight truncate ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{g.name}</h4>
+                        <div className="flex items-center gap-1 text-amber-400 font-bold text-xs shrink-0">
+                          <Star size={13} fill="currentColor" />
+                          <span>{g.rating}</span>
+                          <span className="text-slate-400 text-[10px]">({g.reviews})</span>
+                        </div>
+                      </div>
+
+                      <p className={`text-xs font-medium mt-0.5 ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>{g.title}</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">{g.city} • {g.experience}</p>
+
+                      {/* Languages */}
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {g.languages.map((lang, idx) => (
+                          <span 
+                            key={idx} 
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                              isDarkMode ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-700'
+                            }`}
+                          >
+                            {lang}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Expertise Tags */}
+                  <div className={`p-2.5 rounded-xl border space-y-1 ${
+                    isDarkMode ? 'bg-slate-800/40 border-slate-800' : 'bg-slate-50 border-slate-100'
+                  }`}>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Specializations</span>
+                    <p className={`text-xs font-medium ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                      {g.expertise.join(' • ')}
+                    </p>
+                  </div>
+
+                  {/* Pricing & Booking */}
+                  <div className={`pt-3 border-t flex items-center justify-between ${
+                    isDarkMode ? 'border-slate-800' : 'border-slate-100'
+                  }`}>
+                    <div>
+                      <span className={`text-lg font-black ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>
+                        ₹{g.hourlyRate}
+                      </span>
+                      <span className="text-xs text-slate-400 font-medium"> / hour</span>
+                      <span className="text-[10px] text-slate-400 block">(₹{g.dayRate} full day)</span>
+                    </div>
+
+                    <button 
+                      onClick={() => alert(`Booking confirmed for ${g.name}!`)} 
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-sm transition-all"
+                    >
+                      Book Vedic Guide
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -651,9 +986,13 @@ export default function App() {
         {activeTab === 'safety' && (
           <div className="space-y-6">
             <h2 className="text-2xl font-extrabold text-rose-600">Safety & Emergency Command Center</h2>
-            <div className="bg-rose-50 border border-rose-200 p-6 rounded-2xl space-y-4">
-              <p className="text-xs text-rose-800">Triggering SOS broadcasts simulated emergency telemetry and alerts local police and medical responders.</p>
-              <button onClick={() => alert('🚨 SOS Signal Dispatched!')} className="bg-rose-600 text-white font-black px-6 py-3 rounded-xl text-xs shadow-md">
+            <div className={`border p-6 rounded-2xl space-y-4 ${
+              isDarkMode ? 'bg-rose-950/20 border-rose-900/40' : 'bg-rose-50 border-rose-200'
+            }`}>
+              <p className={`text-xs ${isDarkMode ? 'text-rose-300' : 'text-rose-800'}`}>
+                Triggering SOS broadcasts simulated emergency telemetry and alerts local police and medical responders with GPS coordinates.
+              </p>
+              <button onClick={() => alert('🚨 SOS Signal Dispatched!')} className="bg-rose-600 hover:bg-rose-700 text-white font-black px-6 py-3 rounded-xl text-xs shadow-md">
                 BROADCAST EMERGENCY SIGNAL
               </button>
             </div>
@@ -665,19 +1004,23 @@ export default function App() {
       {/* USER AUTH MODAL */}
       {isAuthOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl relative">
+          <div className={`border rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl relative ${
+            isDarkMode ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'
+          }`}>
             <button onClick={() => setIsAuthOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
               <X size={18} />
             </button>
-            <h3 className="text-xl font-extrabold text-slate-900">Sign In to SmartTrip</h3>
+            <h3 className="text-xl font-extrabold">Sign In to SmartTrip</h3>
             <div>
-              <label className="text-xs font-bold text-slate-600">Email Address</label>
+              <label className="text-xs font-bold text-slate-400">Email Address</label>
               <input
                 type="email"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
                 placeholder="name@example.com"
-                className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-emerald-600"
+                className={`w-full mt-1 border rounded-xl px-4 py-2.5 text-sm focus:outline-none ${
+                  isDarkMode ? 'bg-slate-800 border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-emerald-600'
+                }`}
               />
             </div>
             <button
@@ -691,13 +1034,15 @@ export default function App() {
       )}
 
       {/* FOOTER */}
-      <footer className="mt-auto border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
+      <footer className={`mt-auto border-t py-6 text-center text-xs transition-colors ${
+        isDarkMode ? 'border-slate-800 bg-slate-950 text-slate-500' : 'border-slate-200 bg-white text-slate-500'
+      }`}>
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <div className="w-5 h-5 rounded-md bg-emerald-600 text-white flex items-center justify-center font-black text-[10px]">
               ST
             </div>
-            <span className="font-bold text-slate-700">SmartTrip</span>
+            <span className={`font-bold ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>SmartTrip</span>
             <span>• AICTE 2026/02 Pilgrimage & Heritage Tourism Booster</span>
           </div>
           <p className="text-[11px] text-slate-400">
