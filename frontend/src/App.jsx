@@ -48,7 +48,8 @@ import {
   Receipt,
   Utensils,
   Car,
-  ShoppingBag
+  ShoppingBag,
+  AlertOctagon
 } from 'lucide-react';
 
 export default function App() {
@@ -527,10 +528,12 @@ export default function App() {
   const convertedTotalBudget = Math.round(baseBudgetINR * activeRate);
   const convertedPerDayBudget = Math.round((baseBudgetINR / days) * activeRate);
 
-  // Dynamic Total Spent & Remaining Calculations from Expense History
+  // Dynamic Total Spent & Out of Budget Calculations
   const totalSpentINR = expenses.reduce((acc, curr) => acc + curr.amount, 0);
   const convertedTotalSpent = Math.round(totalSpentINR * activeRate);
-  const convertedRemaining = Math.max(0, convertedTotalBudget - convertedTotalSpent);
+  const isOutOfBudget = convertedTotalSpent > convertedTotalBudget;
+  const overBudgetAmount = isOutOfBudget ? (convertedTotalSpent - convertedTotalBudget) : 0;
+  const convertedRemaining = isOutOfBudget ? 0 : (convertedTotalBudget - convertedTotalSpent);
   const spentPercentage = Math.min(100, Math.round((convertedTotalSpent / (convertedTotalBudget || 1)) * 100));
 
   // Add New Expense to History
@@ -560,6 +563,11 @@ export default function App() {
   // Delete Expense from History
   const handleDeleteExpense = (id) => {
     setExpenses(expenses.filter(e => e.id !== id));
+  };
+
+  // 1-Click Auto Expand Budget by 25% if Out of Budget
+  const handleExpandBudget = () => {
+    setBaseBudgetINR(prev => Math.round(prev * 1.3));
   };
 
   // REAL BACKEND BOOKING API CALL
@@ -1254,7 +1262,7 @@ export default function App() {
             </div>
           )}
 
-          {/* MODULE 3: BUDGET TRACKER WITH EXPENSE HISTORY */}
+          {/* MODULE 3: BUDGET TRACKER WITH OUT-OF-BUDGET ALERTS & HISTORY */}
           {activeTab === 'budget' && (
             <div className="space-y-6">
               
@@ -1265,18 +1273,63 @@ export default function App() {
                   <p className="text-xs text-slate-400">Track and log all pilgrimage and travel expenses with live history.</p>
                 </div>
                 
-                <button
-                  onClick={() => setShowAddExpenseModal(true)}
-                  className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-1.5 transition-all shadow-sm"
-                >
-                  <Plus size={16} />
-                  <span>Log Expense</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  {isOutOfBudget && (
+                    <button
+                      onClick={handleExpandBudget}
+                      className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all shadow-xs"
+                      title="Auto-increase budget by 30% to clear deficit"
+                    >
+                      <Zap size={14} />
+                      <span>Expand Budget (+30%)</span>
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => setShowAddExpenseModal(true)}
+                    className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-1.5 transition-all shadow-sm"
+                  >
+                    <Plus size={16} />
+                    <span>Log Expense</span>
+                  </button>
+                </div>
               </div>
+
+              {/* ⚠️ PROMINENT OUT-OF-BUDGET ALERT BANNER (SHOWN WHEN EXPENSES EXCEED BUDGET) */}
+              {isOutOfBudget && (
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-rose-600 via-rose-700 to-rose-900 text-white p-5 sm:p-6 shadow-lg border border-rose-500 animate-pulse">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-start gap-3.5">
+                      <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center shrink-0 shadow-inner">
+                        <AlertOctagon size={28} className="text-rose-100" />
+                      </div>
+                      <div>
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/40 text-rose-200 text-[11px] font-black uppercase tracking-wider mb-1">
+                          🚨 OVER BUDGET WARNING
+                        </div>
+                        <h3 className="text-lg sm:text-xl font-black tracking-tight">
+                          You are Out of Budget by {activeSymbol}{overBudgetAmount.toLocaleString()} ({currency})!
+                        </h3>
+                        <p className="text-xs text-rose-100/90 font-medium mt-0.5">
+                          Total trip expenditures ({activeSymbol}{convertedTotalSpent.toLocaleString()}) have surpassed your allocated budget ({activeSymbol}{convertedTotalBudget.toLocaleString()}).
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={handleExpandBudget}
+                      className="bg-white text-rose-800 hover:bg-rose-50 active:scale-95 font-black text-xs px-5 py-2.5 rounded-xl shadow-md whitespace-nowrap transition-transform"
+                    >
+                      Auto-Adjust Budget
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* 3 Metric Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 
+                {/* 1. Total Trip Budget */}
                 <div className={`border p-5 rounded-2xl shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
                   <p className="text-xs font-bold text-slate-400 uppercase">Total Trip Budget ({currency})</p>
                   <p className={`text-2xl font-black mt-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
@@ -1287,23 +1340,55 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className={`border p-5 rounded-2xl shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
-                  <p className="text-xs font-bold text-slate-400 uppercase">Total Spent ({expenses.length} Items)</p>
-                  <p className={`text-2xl font-black mt-1 ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>
+                {/* 2. Total Spent */}
+                <div className={`border p-5 rounded-2xl shadow-xs ${
+                  isOutOfBudget 
+                    ? 'border-rose-500/80 bg-rose-500/5' 
+                    : isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-bold text-slate-400 uppercase">Total Spent ({expenses.length} Items)</p>
+                    {isOutOfBudget && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500 text-white">
+                        Exceeded
+                      </span>
+                    )}
+                  </div>
+                  <p className={`text-2xl font-black mt-1 ${isOutOfBudget ? 'text-rose-500' : isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>
                     {activeSymbol}{convertedTotalSpent.toLocaleString()}
                   </p>
                   <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-3 overflow-hidden">
-                    <div className={`h-full rounded-full transition-all ${spentPercentage > 80 ? 'bg-rose-500' : 'bg-emerald-500'}`} style={{ width: `${spentPercentage}%` }} />
+                    <div className={`h-full rounded-full transition-all ${isOutOfBudget ? 'bg-rose-600' : spentPercentage > 80 ? 'bg-amber-500' : 'bg-emerald-500'}`} style={{ width: `${spentPercentage}%` }} />
                   </div>
                 </div>
 
-                <div className={`border p-5 rounded-2xl shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
-                  <p className="text-xs font-bold text-slate-400 uppercase">Remaining Balance</p>
-                  <p className="text-2xl font-black text-amber-500 mt-1">
-                    {activeSymbol}{convertedRemaining.toLocaleString()}
+                {/* 3. Remaining Balance OR Out of Budget Deficit */}
+                <div className={`border p-5 rounded-2xl shadow-xs ${
+                  isOutOfBudget 
+                    ? 'border-rose-500 bg-rose-500/10' 
+                    : isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-bold text-slate-400 uppercase">
+                      {isOutOfBudget ? 'Budget Deficit' : 'Remaining Balance'}
+                    </p>
+                    {isOutOfBudget ? (
+                      <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-600 text-white animate-bounce">
+                        OUT OF BUDGET
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                        Under Budget
+                      </span>
+                    )}
+                  </div>
+
+                  <p className={`text-2xl font-black mt-1 ${isOutOfBudget ? 'text-rose-600 dark:text-rose-400' : 'text-amber-500'}`}>
+                    {isOutOfBudget ? `-${activeSymbol}${overBudgetAmount.toLocaleString()}` : `${activeSymbol}${convertedRemaining.toLocaleString()}`}
                   </p>
+
                   <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-3 overflow-hidden">
-                    <div className="bg-amber-400 h-full rounded-full" style={{ width: `${100 - spentPercentage}%` }} />
+                    <div className={`h-full rounded-full ${isOutOfBudget ? 'bg-rose-500' : 'bg-amber-400'}`} style={{ width: isOutOfBudget ? '100%' : `${100 - spentPercentage}%` }} />
                   </div>
                 </div>
 
