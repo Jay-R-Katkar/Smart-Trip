@@ -1,0 +1,32 @@
+# Node dependencies
+node_modules/
+frontend/node_modules/
+.npm
+.vite/
+frontend/.vite/
+
+# Python cache & virtualenvs
+__pycache__/
+backend/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+ENV/
+.pytest_cache/
+*.db
+*.sqlite3
+
+# Build outputs
+dist/
+frontend/dist/
+build/
+frontend/build/
+
+# OS & Temp
+.DS_Store
+Thumbs.db
+*.log
