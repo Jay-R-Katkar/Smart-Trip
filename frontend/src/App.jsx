@@ -42,7 +42,13 @@ import {
   Compass,
   LogOut,
   CheckCircle2,
-  Ticket
+  Ticket,
+  Plus,
+  Trash2,
+  Receipt,
+  Utensils,
+  Car,
+  ShoppingBag
 } from 'lucide-react';
 
 export default function App() {
@@ -79,6 +85,20 @@ export default function App() {
 
   // Booking Confirmation Modal State
   const [confirmedBooking, setConfirmedBooking] = useState(null);
+
+  // Budget Tracker & Expense History State
+  const [expenses, setExpenses] = useState([
+    { id: 1, title: 'Mahakaleshwar VIP Darshan Ticket', amount: 500, category: 'Darshan', date: '2026-08-24 06:30 AM', icon: 'ticket' },
+    { id: 2, title: 'Shri Mahakal Bhakt Ashram (1 Night)', amount: 1150, category: 'Stay', date: '2026-08-24 10:00 AM', icon: 'hotel' },
+    { id: 3, title: 'Satvik Mahaprasad Bhojan', amount: 350, category: 'Food', date: '2026-08-24 01:30 PM', icon: 'food' },
+    { id: 4, title: 'E-Rickshaw Ghat Parikrama', amount: 200, category: 'Transport', date: '2026-08-24 05:00 PM', icon: 'car' },
+    { id: 5, title: 'Vedic Guide Dakshina / Fee', amount: 500, category: 'Guide', date: '2026-08-24 07:00 PM', icon: 'guide' }
+  ]);
+
+  const [newExpenseTitle, setNewExpenseTitle] = useState('');
+  const [newExpenseAmount, setNewExpenseAmount] = useState('');
+  const [newExpenseCategory, setNewExpenseCategory] = useState('Darshan');
+  const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
 
   // Currency Exchange Rates (Base INR)
   const currencyRates = {
@@ -507,6 +527,41 @@ export default function App() {
   const convertedTotalBudget = Math.round(baseBudgetINR * activeRate);
   const convertedPerDayBudget = Math.round((baseBudgetINR / days) * activeRate);
 
+  // Dynamic Total Spent & Remaining Calculations from Expense History
+  const totalSpentINR = expenses.reduce((acc, curr) => acc + curr.amount, 0);
+  const convertedTotalSpent = Math.round(totalSpentINR * activeRate);
+  const convertedRemaining = Math.max(0, convertedTotalBudget - convertedTotalSpent);
+  const spentPercentage = Math.min(100, Math.round((convertedTotalSpent / (convertedTotalBudget || 1)) * 100));
+
+  // Add New Expense to History
+  const handleAddExpense = (e) => {
+    e.preventDefault();
+    if (!newExpenseTitle.trim() || !newExpenseAmount) return;
+
+    const parsedAmountINR = Math.round(parseFloat(newExpenseAmount) / activeRate);
+    const now = new Date();
+    const formattedDate = `${now.toISOString().split('T')[0]} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+    const newExp = {
+      id: Date.now(),
+      title: newExpenseTitle,
+      amount: parsedAmountINR,
+      category: newExpenseCategory,
+      date: formattedDate,
+      icon: newExpenseCategory === 'Darshan' ? 'ticket' : newExpenseCategory === 'Stay' ? 'hotel' : newExpenseCategory === 'Food' ? 'food' : newExpenseCategory === 'Transport' ? 'car' : 'receipt'
+    };
+
+    setExpenses([newExp, ...expenses]);
+    setNewExpenseTitle('');
+    setNewExpenseAmount('');
+    setShowAddExpenseModal(false);
+  };
+
+  // Delete Expense from History
+  const handleDeleteExpense = (id) => {
+    setExpenses(expenses.filter(e => e.id !== id));
+  };
+
   // REAL BACKEND BOOKING API CALL
   const handleBookStay = async (stayName, price, type) => {
     try {
@@ -535,11 +590,20 @@ export default function App() {
           city: selectedCity,
           dates: `${days} Days Circuit`
         });
+
+        // Automatically log to expense history
+        setExpenses(prev => [{
+          id: Date.now(),
+          title: `${stayName} Booking`,
+          amount: price,
+          category: 'Stay',
+          date: 'Just now',
+          icon: 'hotel'
+        }, ...prev]);
       } else {
         throw new Error('Fallback to local confirmation');
       }
     } catch (err) {
-      // Fallback response with realistic code if offline
       const localCode = `ST-BK-${Math.floor(1000 + Math.random() * 9000)}`;
       setConfirmedBooking({
         title: 'Stay Booking Confirmed!',
@@ -550,11 +614,21 @@ export default function App() {
         city: selectedCity,
         dates: `${days} Days Circuit`
       });
+
+      setExpenses(prev => [{
+        id: Date.now(),
+        title: `${stayName} Booking`,
+        amount: price,
+        category: 'Stay',
+        date: 'Just now',
+        icon: 'hotel'
+      }, ...prev]);
     }
   };
 
   // REAL BACKEND GUIDE BOOKING API CALL
   const handleBookGuide = async (guideName, ratePerHour) => {
+    const totalGuidePrice = ratePerHour * 4;
     try {
       const response = await fetch('/api/guides/book', {
         method: 'POST',
@@ -565,7 +639,7 @@ export default function App() {
           date: 'Tomorrow (Morning Darshan)',
           hours: 4,
           traveler_name: user ? user.name : 'Guest Pilgrim',
-          price: ratePerHour * 4
+          price: totalGuidePrice
         })
       });
 
@@ -576,10 +650,19 @@ export default function App() {
           code: data.voucher_code,
           name: guideName,
           type: 'Verified Guide',
-          price: ratePerHour * 4,
+          price: totalGuidePrice,
           city: selectedCity,
           dates: '4 Hours (Morning Darshan & Parikrama)'
         });
+
+        setExpenses(prev => [{
+          id: Date.now(),
+          title: `${guideName} (4 hrs Guide)`,
+          amount: totalGuidePrice,
+          category: 'Guide',
+          date: 'Just now',
+          icon: 'guide'
+        }, ...prev]);
       } else {
         throw new Error('Fallback to local confirmation');
       }
@@ -590,10 +673,19 @@ export default function App() {
         code: localCode,
         name: guideName,
         type: 'Verified Guide',
-        price: ratePerHour * 4,
+        price: totalGuidePrice,
         city: selectedCity,
         dates: '4 Hours (Morning Darshan & Parikrama)'
       });
+
+      setExpenses(prev => [{
+        id: Date.now(),
+        title: `${guideName} (4 hrs Guide)`,
+        amount: totalGuidePrice,
+        category: 'Guide',
+        date: 'Just now',
+        icon: 'guide'
+      }, ...prev]);
     }
   };
 
@@ -1162,30 +1254,139 @@ export default function App() {
             </div>
           )}
 
-          {/* MODULE 3: BUDGET TRACKER */}
+          {/* MODULE 3: BUDGET TRACKER WITH EXPENSE HISTORY */}
           {activeTab === 'budget' && (
             <div className="space-y-6">
-              <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Multi-Currency Real-Time Budget Tracker</h2>
+              
+              {/* Top Bar Header & Add Expense Button */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Multi-Currency Real-Time Budget Tracker</h2>
+                  <p className="text-xs text-slate-400">Track and log all pilgrimage and travel expenses with live history.</p>
+                </div>
+                
+                <button
+                  onClick={() => setShowAddExpenseModal(true)}
+                  className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-1.5 transition-all shadow-sm"
+                >
+                  <Plus size={16} />
+                  <span>Log Expense</span>
+                </button>
+              </div>
+
+              {/* 3 Metric Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                
                 <div className={`border p-5 rounded-2xl shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
-                  <p className="text-xs font-bold text-slate-400 uppercase">Total Budget ({currency})</p>
+                  <p className="text-xs font-bold text-slate-400 uppercase">Total Trip Budget ({currency})</p>
                   <p className={`text-2xl font-black mt-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
                     {activeSymbol}{convertedTotalBudget.toLocaleString()}
                   </p>
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-3 overflow-hidden">
+                    <div className="bg-emerald-500 h-full rounded-full" style={{ width: '100%' }} />
+                  </div>
                 </div>
+
                 <div className={`border p-5 rounded-2xl shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
-                  <p className="text-xs font-bold text-slate-400 uppercase">Estimated Spend</p>
+                  <p className="text-xs font-bold text-slate-400 uppercase">Total Spent ({expenses.length} Items)</p>
                   <p className={`text-2xl font-black mt-1 ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>
-                    {activeSymbol}{Math.round(convertedTotalBudget * 0.45).toLocaleString()}
+                    {activeSymbol}{convertedTotalSpent.toLocaleString()}
                   </p>
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-3 overflow-hidden">
+                    <div className={`h-full rounded-full transition-all ${spentPercentage > 80 ? 'bg-rose-500' : 'bg-emerald-500'}`} style={{ width: `${spentPercentage}%` }} />
+                  </div>
                 </div>
+
                 <div className={`border p-5 rounded-2xl shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
                   <p className="text-xs font-bold text-slate-400 uppercase">Remaining Balance</p>
                   <p className="text-2xl font-black text-amber-500 mt-1">
-                    {activeSymbol}{Math.round(convertedTotalBudget * 0.55).toLocaleString()}
+                    {activeSymbol}{convertedRemaining.toLocaleString()}
                   </p>
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-3 overflow-hidden">
+                    <div className="bg-amber-400 h-full rounded-full" style={{ width: `${100 - spentPercentage}%` }} />
+                  </div>
+                </div>
+
+              </div>
+
+              {/* EXPENSE HISTORY TABLE / LIST */}
+              <div className={`border rounded-3xl p-5 sm:p-6 space-y-4 shadow-xs ${
+                isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+              }`}>
+                <div className="flex items-center justify-between border-b pb-3 border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <Receipt className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'} size={20} />
+                    <h3 className={`font-extrabold text-base ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
+                      Expense History & Transactions
+                    </h3>
+                  </div>
+                  <span className="text-xs font-bold text-slate-400">
+                    {expenses.length} Records Logged
+                  </span>
+                </div>
+
+                {/* Expense List */}
+                <div className="space-y-2.5">
+                  {expenses.length === 0 ? (
+                    <div className="py-8 text-center text-slate-400 text-xs font-semibold">
+                      No expenses logged yet. Click "Log Expense" to add your first transaction.
+                    </div>
+                  ) : (
+                    expenses.map((item) => {
+                      const itemConvertedPrice = Math.round(item.amount * activeRate);
+                      return (
+                        <div
+                          key={item.id}
+                          className={`p-3.5 rounded-2xl border flex items-center justify-between gap-3 transition-colors ${
+                            isDarkMode ? 'bg-slate-800/60 border-slate-700/60' : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-10 h-10 rounded-xl bg-emerald-600/10 text-emerald-600 flex items-center justify-center font-bold shrink-0">
+                              {item.category === 'Darshan' && <Ticket size={18} />}
+                              {item.category === 'Stay' && <Building2 size={18} />}
+                              {item.category === 'Food' && <Utensils size={18} />}
+                              {item.category === 'Transport' && <Car size={18} />}
+                              {item.category === 'Guide' && <Users size={18} />}
+                              {item.category === 'Shopping' && <ShoppingBag size={18} />}
+                            </div>
+
+                            <div className="min-w-0">
+                              <h4 className={`font-bold text-xs sm:text-sm truncate ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                                {item.title}
+                              </h4>
+                              <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
+                                <span className={`font-semibold px-2 py-0.5 rounded-md text-[10px] ${
+                                  isDarkMode ? 'bg-slate-700 text-emerald-400' : 'bg-emerald-100 text-emerald-800'
+                                }`}>
+                                  {item.category}
+                                </span>
+                                <span>•</span>
+                                <span>{item.date}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3 shrink-0">
+                            <span className="font-black text-sm sm:text-base text-rose-500">
+                              -{activeSymbol}{itemConvertedPrice.toLocaleString()}
+                            </span>
+
+                            <button
+                              onClick={() => handleDeleteExpense(item.id)}
+                              className="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition-colors"
+                              title="Delete Expense"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </div>
+
             </div>
           )}
 
@@ -1441,7 +1642,86 @@ export default function App() {
 
       </div>
 
-      {/* 4. BOOKING CONFIRMATION POPUP MODAL */}
+      {/* 4. LOG EXPENSE MODAL */}
+      {showAddExpenseModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className={`border rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl relative transition-all ${
+            isDarkMode ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'
+          }`}>
+            <button 
+              onClick={() => setShowAddExpenseModal(false)} 
+              className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-1 rounded-full"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="space-y-1">
+              <h3 className="text-lg font-extrabold">Log Trip Expense</h3>
+              <p className="text-xs text-slate-400">Add an expense to keep track of your budget in real time.</p>
+            </div>
+
+            <form onSubmit={handleAddExpense} className="space-y-3.5">
+              <div>
+                <label className="text-xs font-bold text-slate-400 block mb-1">Expense Title / Description</label>
+                <input
+                  type="text"
+                  required
+                  value={newExpenseTitle}
+                  onChange={(e) => setNewExpenseTitle(e.target.value)}
+                  placeholder="e.g. Special Bhasma Aarti Pass, Satvik Prasad, Taxi"
+                  className={`w-full px-3.5 py-2.5 border rounded-xl text-xs sm:text-sm focus:outline-none transition-all ${
+                    isDarkMode ? 'bg-slate-800 border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-emerald-600'
+                  }`}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-400 block mb-1">Amount ({currency})</label>
+                  <input
+                    type="number"
+                    required
+                    min="1"
+                    value={newExpenseAmount}
+                    onChange={(e) => setNewExpenseAmount(e.target.value)}
+                    placeholder={`e.g. 500`}
+                    className={`w-full px-3.5 py-2.5 border rounded-xl text-xs sm:text-sm focus:outline-none transition-all ${
+                      isDarkMode ? 'bg-slate-800 border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-emerald-600'
+                    }`}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-400 block mb-1">Category</label>
+                  <select
+                    value={newExpenseCategory}
+                    onChange={(e) => setNewExpenseCategory(e.target.value)}
+                    className={`w-full px-3 py-2.5 border rounded-xl text-xs font-semibold focus:outline-none ${
+                      isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'
+                    }`}
+                  >
+                    <option value="Darshan">Darshan & Tickets</option>
+                    <option value="Stay">Stay & Ashram</option>
+                    <option value="Food">Food & Prasad</option>
+                    <option value="Transport">Local Transport</option>
+                    <option value="Guide">Vedic Guide</option>
+                    <option value="Shopping">Shopping & Souvenirs</option>
+                  </select>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold py-3 rounded-xl text-xs sm:text-sm transition-all shadow-md mt-2"
+              >
+                Add to Expense History
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 5. BOOKING CONFIRMATION POPUP MODAL */}
       {confirmedBooking && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className={`border rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl relative transition-all ${
@@ -1496,7 +1776,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 5. MODERN FULL-FEATURED LOGIN & SIGN UP MODAL */}
+      {/* 6. MODERN FULL-FEATURED LOGIN & SIGN UP MODAL */}
       {isAuthOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className={`border rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-5 shadow-2xl relative transition-all ${
