@@ -51,7 +51,8 @@ import {
   ShoppingBag,
   AlertOctagon,
   Activity,
-  Timer
+  Timer,
+  BadgeCheck
 } from 'lucide-react';
 
 export default function App() {
@@ -115,6 +116,391 @@ export default function App() {
     GBP: { symbol: '£', rate: 0.0092, label: 'GBP (£) - British Pound' },
     SGD: { symbol: 'S$', rate: 0.0156, label: 'SGD (S$) - Singapore Dollar' }
   };
+
+  // Comprehensive Verified Guides Dataset with minimum 1 female per place
+  const verifiedGuidesList = [
+    // --- UJJAIN ---
+    {
+      id: 'uj-1',
+      name: 'Dr. Ananya Sharma',
+      gender: 'Female',
+      city: 'Ujjain',
+      rating: 4.9,
+      reviews: 142,
+      languages: 'Hindi, Sanskrit, English, Gujarati',
+      badge: 'Ph.D. in Vedic Studies & Jyotirlinga History',
+      experience: '11+ Years Experience',
+      hourlyRateINR: 500,
+      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400',
+      specialty: 'Bhasma Aarti rituals, Mahakal Lok stories & VIP facilitation'
+    },
+    {
+      id: 'uj-2',
+      name: 'Pt. Shivam Shastri',
+      gender: 'Male',
+      city: 'Ujjain',
+      rating: 4.9,
+      reviews: 210,
+      languages: 'Sanskrit, Hindi, Marathi, English',
+      badge: 'Certified Temple Archaka & Historian',
+      experience: '14+ Years Experience',
+      hourlyRateINR: 500,
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
+      specialty: 'Rudra Abhishek rituals, Kshipra Ghat Parikrama'
+    },
+
+    // --- AYODHYA ---
+    {
+      id: 'ay-1',
+      name: 'Pooja Trivedi',
+      gender: 'Female',
+      city: 'Ayodhya',
+      rating: 5.0,
+      reviews: 189,
+      languages: 'Hindi, Awadhi, English',
+      badge: 'ASI Certified Ramayana Heritage Guide',
+      experience: '9+ Years Experience',
+      hourlyRateINR: 450,
+      image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400',
+      specialty: 'Ram Janmabhoomi Darshan, Hanuman Garhi, Saryu Aarti'
+    },
+    {
+      id: 'ay-2',
+      name: 'Acharya Radheshyam',
+      gender: 'Male',
+      city: 'Ayodhya',
+      rating: 4.8,
+      reviews: 165,
+      languages: 'Hindi, Sanskrit, Bengali',
+      badge: 'Vedic Scholar & Temple Guide',
+      experience: '12+ Years Experience',
+      hourlyRateINR: 450,
+      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400',
+      specialty: 'Kanak Bhavan history, Guptar Ghat Parikrama'
+    },
+
+    // --- VARANASI ---
+    {
+      id: 'var-1',
+      name: 'Meera Deshmukh',
+      gender: 'Female',
+      city: 'Varanasi',
+      rating: 4.9,
+      reviews: 220,
+      languages: 'Hindi, English, French, Marathi',
+      badge: 'Banaras Cultural Historian & Boat Guide',
+      experience: '10+ Years Experience',
+      hourlyRateINR: 550,
+      image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400',
+      specialty: '84 Ghats sunrise boat tour, Ganga Aarti VIP seating'
+    },
+    {
+      id: 'var-2',
+      name: 'Pt. Kashi Nath Mishra',
+      gender: 'Male',
+      city: 'Varanasi',
+      rating: 4.9,
+      reviews: 195,
+      languages: 'Sanskrit, Hindi, English, German',
+      badge: 'Kashi Vishwanath Corridor Guide',
+      experience: '16+ Years Experience',
+      hourlyRateINR: 500,
+      image: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=400',
+      specialty: 'Sugam Darshan, Sarnath Buddhist stupa walkthrough'
+    },
+
+    // --- PURI ---
+    {
+      id: 'pur-1',
+      name: 'Kalyani Mohapatra',
+      gender: 'Female',
+      city: 'Puri',
+      rating: 4.9,
+      reviews: 130,
+      languages: 'Odia, Hindi, English, Bengali',
+      badge: 'Jagannath Cult & Mahaprasad Heritage Guide',
+      experience: '8+ Years Experience',
+      hourlyRateINR: 400,
+      image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400',
+      specialty: 'Char Dham rituals, Ananda Bazar Mahaprasad explanation'
+    },
+
+    // --- AMRITSAR ---
+    {
+      id: 'amr-1',
+      name: 'Harpreet Kaur',
+      gender: 'Female',
+      city: 'Amritsar',
+      rating: 5.0,
+      reviews: 250,
+      languages: 'Punjabi, Hindi, English',
+      badge: 'Golden Temple Heritage & Seva Guide',
+      experience: '10+ Years Experience',
+      hourlyRateINR: 450,
+      image: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=400',
+      specialty: 'Harmandir Sahib Parikrama, Jallianwala Bagh, Wagah Border'
+    },
+
+    // --- SOMNATH ---
+    {
+      id: 'som-1',
+      name: 'Bhavna Ben Patel',
+      gender: 'Female',
+      city: 'Somnath',
+      rating: 4.8,
+      reviews: 110,
+      languages: 'Gujarati, Hindi, English',
+      badge: 'Saurashtra Coast & Jyotirlinga Guide',
+      experience: '7+ Years Experience',
+      hourlyRateINR: 400,
+      image: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400',
+      specialty: 'Somnath light & sound show, Bhalka Tirth history'
+    },
+
+    // --- TIRUPATI ---
+    {
+      id: 'tir-1',
+      name: 'Lakshmi Narayani',
+      gender: 'Female',
+      city: 'Tirupati',
+      rating: 4.9,
+      reviews: 310,
+      languages: 'Telugu, Tamil, Hindi, English, Kannada',
+      badge: 'TTD Certified Tirumala Pilgrimage Guide',
+      experience: '13+ Years Experience',
+      hourlyRateINR: 500,
+      image: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=400',
+      specialty: 'Special Entry Darshan assistance, Laddu Prasadam, Alipiri path'
+    },
+
+    // --- KEDARNATH ---
+    {
+      id: 'ked-1',
+      name: 'Sunita Joshi',
+      gender: 'Female',
+      city: 'Kedarnath',
+      rating: 4.9,
+      reviews: 175,
+      languages: 'Garhwali, Hindi, English',
+      badge: 'Himalayan High Altitude Certified Guide',
+      experience: '9+ Years Experience',
+      hourlyRateINR: 600,
+      image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400',
+      specialty: 'Trek route guidance, Bhairavnath darshan, medical oxygen safety'
+    },
+
+    // --- JAIPUR ---
+    {
+      id: 'jai-1',
+      name: 'Riddhi Rathore',
+      gender: 'Female',
+      city: 'Jaipur',
+      rating: 5.0,
+      reviews: 280,
+      languages: 'Rajasthani, Hindi, English, Spanish',
+      badge: 'Ministry of Tourism Certified Royal Guide',
+      experience: '12+ Years Experience',
+      hourlyRateINR: 500,
+      image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400',
+      specialty: 'Amer Fort Sheesh Mahal secrets, City Palace, Hawa Mahal'
+    },
+
+    // --- AGRA ---
+    {
+      id: 'agr-1',
+      name: 'Zoya Khan',
+      gender: 'Female',
+      city: 'Agra',
+      rating: 4.9,
+      reviews: 290,
+      languages: 'Urdu, Hindi, English, Italian',
+      badge: 'Taj Mahal & Mughal Architecture Specialist',
+      experience: '10+ Years Experience',
+      hourlyRateINR: 550,
+      image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400',
+      specialty: 'Sunrise Taj Mahal photography points, Agra Fort Diwan-i-Khas'
+    },
+
+    // --- HAMPI ---
+    {
+      id: 'ham-1',
+      name: 'Deepa Hegde',
+      gender: 'Female',
+      city: 'Hampi',
+      rating: 4.9,
+      reviews: 160,
+      languages: 'Kannada, Telugu, Hindi, English',
+      badge: 'UNESCO Heritage Archeology Expert',
+      experience: '8+ Years Experience',
+      hourlyRateINR: 450,
+      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400',
+      specialty: 'Vijaya Vittala Stone Chariot, Musical Pillars, Coracle ride'
+    },
+
+    // --- GOA ---
+    {
+      id: 'goa-1',
+      name: 'Maria Fernandes',
+      gender: 'Female',
+      city: 'Goa',
+      rating: 4.8,
+      reviews: 210,
+      languages: 'Konkani, Portuguese, English, Hindi',
+      badge: 'Portuguese Coastal Heritage Historian',
+      experience: '11+ Years Experience',
+      hourlyRateINR: 500,
+      image: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=400',
+      specialty: 'Old Goa churches, Fort Aguada, Fontainhas Latin quarter'
+    },
+
+    // --- RISHIKESH ---
+    {
+      id: 'rsh-1',
+      name: 'Swamini Gayatri',
+      gender: 'Female',
+      city: 'Rishikesh',
+      rating: 5.0,
+      reviews: 240,
+      languages: 'Hindi, Sanskrit, English',
+      badge: 'Yoga & Himalayan Meditation Instructor',
+      experience: '12+ Years Experience',
+      hourlyRateINR: 500,
+      image: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400',
+      specialty: 'Triveni Ghat Aarti, Beatles Ashram tour, Swarg Ashram'
+    },
+
+    // --- MUNNAR ---
+    {
+      id: 'mun-1',
+      name: 'Anjali Menon',
+      gender: 'Female',
+      city: 'Munnar',
+      rating: 4.9,
+      reviews: 145,
+      languages: 'Malayalam, Tamil, English, Hindi',
+      badge: 'Western Ghats Flora & Tea Plantation Guide',
+      experience: '7+ Years Experience',
+      hourlyRateINR: 450,
+      image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400',
+      specialty: 'Eravikulam Nilgiri Tahr safari, Tata Tea museum walking trail'
+    },
+
+    // --- MANALI ---
+    {
+      id: 'man-1',
+      name: 'Kavita Thakur',
+      gender: 'Female',
+      city: 'Manali',
+      rating: 4.9,
+      reviews: 180,
+      languages: 'Pahari, Hindi, English',
+      badge: 'Himachal Adventure & Culture Guide',
+      experience: '9+ Years Experience',
+      hourlyRateINR: 500,
+      image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400',
+      specialty: 'Hadimba Temple cedar forest walk, Solang valley adventure'
+    },
+
+    // --- LADAKH ---
+    {
+      id: 'lad-1',
+      name: 'Dolma Tsering',
+      gender: 'Female',
+      city: 'Ladakh',
+      rating: 5.0,
+      reviews: 215,
+      languages: 'Ladakhi, Tibetan, Hindi, English',
+      badge: 'Ladakh Monastic & High Altitude Expert',
+      experience: '10+ Years Experience',
+      hourlyRateINR: 600,
+      image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400',
+      specialty: 'Thiksey monastery morning chanting, Pangong Tso permits'
+    },
+
+    // --- DUBAI ---
+    {
+      id: 'dxb-1',
+      name: 'Fatima Al-Zahra',
+      gender: 'Female',
+      city: 'Dubai',
+      rating: 5.0,
+      reviews: 340,
+      languages: 'Arabic, English, Hindi, Urdu',
+      badge: 'DTCM Licensed Professional Dubai Guide',
+      experience: '9+ Years Experience',
+      hourlyRateINR: 1200,
+      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400',
+      specialty: 'Burj Khalifa VIP tour, Desert safari coordination, Old Souks'
+    },
+
+    // --- SWITZERLAND ---
+    {
+      id: 'swz-1',
+      name: 'Elena Weber',
+      gender: 'Female',
+      city: 'Switzerland',
+      rating: 5.0,
+      reviews: 320,
+      languages: 'German, French, English, Italian',
+      badge: 'Swiss Tourism Federation Certified Guide',
+      experience: '13+ Years Experience',
+      hourlyRateINR: 1500,
+      image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400',
+      specialty: 'Jungfraujoch Top of Europe, Lake Lucerne steamboat, Zermatt'
+    },
+
+    // --- BALI ---
+    {
+      id: 'bal-1',
+      name: 'Ni Wayan Puteri',
+      gender: 'Female',
+      city: 'Bali',
+      rating: 4.9,
+      reviews: 290,
+      languages: 'Balinese, Indonesian, English, Hindi basics',
+      badge: 'HPI Bali Licensed Cultural Expert',
+      experience: '8+ Years Experience',
+      hourlyRateINR: 800,
+      image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400',
+      specialty: 'Tanah Lot ocean temple, Uluwatu Kecak dance, Ubud rice terraces'
+    },
+
+    // --- TOKYO ---
+    {
+      id: 'tyo-1',
+      name: 'Yuki Tanaka',
+      gender: 'Female',
+      city: 'Tokyo',
+      rating: 5.0,
+      reviews: 270,
+      languages: 'Japanese, English, Mandarin',
+      badge: 'JNTO National Government Licensed Guide',
+      experience: '11+ Years Experience',
+      hourlyRateINR: 1400,
+      image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400',
+      specialty: 'Sensō-ji Buddhist rituals, Meiji Jingu shrine, Shibuya crossing'
+    },
+
+    // --- PARIS ---
+    {
+      id: 'par-1',
+      name: 'Claire Dubois',
+      gender: 'Female',
+      city: 'Paris',
+      rating: 4.9,
+      reviews: 360,
+      languages: 'French, English, Spanish, Italian',
+      badge: 'French Ministry of Culture Guide-Conférencier',
+      experience: '14+ Years Experience',
+      hourlyRateINR: 1500,
+      image: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=400',
+      specialty: 'Louvre museum masterpieces, Eiffel tower summit history'
+    }
+  ];
+
+  // Filter guides based on selected city + fallback to all
+  const cityGuides = verifiedGuidesList.filter(g => g.city.toLowerCase() === selectedCity.toLowerCase());
+  const displayGuides = cityGuides.length > 0 ? cityGuides : verifiedGuidesList.slice(0, 6);
 
   // Live Crowd Metadata Dictionary per City
   const cityCrowdData = {
@@ -1668,7 +2054,7 @@ export default function App() {
               </p>
             </div>
 
-            {/* 1. LIVE CROWD & QUEUE CONGESTION CARD (DYNAMICALLY LINKED TO SELECTED CITY) */}
+            {/* 1. LIVE CROWD & QUEUE CONGESTION CARD */}
             <div className={`border p-6 rounded-3xl space-y-5 shadow-xs transition-all ${
               isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
             }`}>
@@ -1788,50 +2174,90 @@ export default function App() {
           </div>
         )}
 
-        {/* MODULE 6: GUIDES (WITH REAL BACKEND BOOKING INTEGRATION) */}
+        {/* MODULE 6: VERIFIED VEDIC & HERITAGE GUIDES (WITH EXPANDED FEMALE EXPERTS) */}
         {activeTab === 'guides' && (
           <div className="space-y-6">
-            <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Verified Vedic & Heritage Guides</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              
-              <div className={`border p-5 rounded-3xl shadow-xs flex items-center justify-between ${
-                isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-              }`}>
-                <div className="flex items-center gap-3.5">
-                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400" alt="Guide" className="w-14 h-14 rounded-2xl object-cover border-2 border-emerald-600 shadow-xs" />
-                  <div>
-                    <h4 className={`font-bold text-base ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Pt. Shivam Shastri</h4>
-                    <p className="text-xs text-slate-400">Sanskrit, Hindi, English • Rating: ★ 4.9</p>
-                    <span className="text-[10px] text-emerald-600 font-bold">12+ Years Experience</span>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => handleBookGuide('Pt. Shivam Shastri', 500)} 
-                  className="bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-xs"
-                >
-                  Book Guide (₹500/hr)
-                </button>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  Verified Vedic & Heritage Guides ({selectedCity})
+                </h2>
+                <p className="text-xs text-slate-400">
+                  Govt ASI, TTD & Vedic certified historians with verified female and male leaders.
+                </p>
               </div>
+              <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-600 text-white self-start">
+                {displayGuides.length} Verified Guides Available
+              </span>
+            </div>
 
-              <div className={`border p-5 rounded-3xl shadow-xs flex items-center justify-between ${
-                isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-              }`}>
-                <div className="flex items-center gap-3.5">
-                  <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400" alt="Guide" className="w-14 h-14 rounded-2xl object-cover border-2 border-emerald-600 shadow-xs" />
-                  <div>
-                    <h4 className={`font-bold text-base ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Acharya Radheshyam</h4>
-                    <p className="text-xs text-slate-400">Hindi, English, Tamil • Rating: ★ 5.0</p>
-                    <span className="text-[10px] text-emerald-600 font-bold">ASI Certified Historian</span>
+            {/* Guides Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {displayGuides.map((guide) => {
+                const hourlyConverted = Math.round(guide.hourlyRateINR * activeRate);
+                return (
+                  <div
+                    key={guide.id}
+                    className={`border p-5 rounded-3xl shadow-xs flex flex-col justify-between gap-4 transition-all ${
+                      isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="relative shrink-0">
+                        <img 
+                          src={guide.image} 
+                          alt={guide.name} 
+                          className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-emerald-600 shadow-sm" 
+                        />
+                        <span className={`absolute -bottom-1.5 -right-1.5 text-[9px] font-black px-1.5 py-0.5 rounded-md text-white shadow-xs ${
+                          guide.gender === 'Female' ? 'bg-purple-600' : 'bg-blue-600'
+                        }`}>
+                          {guide.gender}
+                        </span>
+                      </div>
+
+                      <div className="flex-1 min-w-0 space-y-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <h4 className={`font-extrabold text-base truncate ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                            {guide.name}
+                          </h4>
+                          <span className="text-xs font-bold text-amber-500 shrink-0">
+                            ★ {guide.rating} <span className="text-slate-400 font-normal text-[10px]">({guide.reviews})</span>
+                          </span>
+                        </div>
+
+                        <p className="text-[11px] font-bold text-emerald-600">
+                          {guide.badge}
+                        </p>
+
+                        <p className="text-xs text-slate-400 truncate">
+                          🗣️ {guide.languages}
+                        </p>
+
+                        <p className="text-xs text-slate-500 dark:text-slate-300 line-clamp-2 leading-relaxed">
+                          {guide.specialty}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
+                      <div>
+                        <span className="text-[10px] text-slate-400 block font-semibold">{guide.experience}</span>
+                        <span className="text-sm sm:text-base font-black text-emerald-600">
+                          {activeSymbol}{hourlyConverted.toLocaleString()} <span className="text-xs font-normal text-slate-400">/ hour</span>
+                        </span>
+                      </div>
+
+                      <button 
+                        onClick={() => handleBookGuide(guide.name, guide.hourlyRateINR)} 
+                        className="bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition-all shadow-xs"
+                      >
+                        Book {guide.gender === 'Female' ? 'Guide (Female)' : 'Guide'}
+                      </button>
+                    </div>
                   </div>
-                </div>
-                <button 
-                  onClick={() => handleBookGuide('Acharya Radheshyam', 600)} 
-                  className="bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-xs"
-                >
-                  Book Guide (₹600/hr)
-                </button>
-              </div>
-
+                );
+              })}
             </div>
           </div>
         )}
