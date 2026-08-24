@@ -9,10 +9,15 @@ import uuid
 import os
 import sys
 
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, HTMLResponse
+
 # Ensure backend directory is in path
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 from database import get_db_connection, init_db
 from seeds import seed_database
+
+FRONTEND_DIST = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'dist'))
 
 app = FastAPI(
     title="SmartTrip API",
@@ -37,6 +42,9 @@ def startup_event():
 # --- Health Check Endpoints ---
 @app.get("/")
 def read_root():
+    index_file = os.path.join(FRONTEND_DIST, "index.html")
+    if os.path.isfile(index_file):
+        return FileResponse(index_file)
     return {
         "status": "online",
         "service": "SmartTrip Automation Platform API",
@@ -439,6 +447,24 @@ def delete_trip(trip_id: int):
     conn.commit()
     conn.close()
     return {"success": True, "message": f"Trip {trip_id} deleted"}
+
+# --- Static Frontend Serving & Single Page App Fallback ---
+if os.path.exists(FRONTEND_DIST):
+    assets_dir = os.path.join(FRONTEND_DIST, 'assets')
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    @app.get("/{full_path:path}")
+    def serve_frontend(full_path: str):
+        if full_path.startswith("api/") or full_path in ["docs", "openapi.json", "health"]:
+            raise HTTPException(status_code=404, detail="API route not found")
+        file_path = os.path.join(FRONTEND_DIST, full_path)
+        if full_path and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        index_file = os.path.join(FRONTEND_DIST, "index.html")
+        if os.path.isfile(index_file):
+            return FileResponse(index_file)
+        return {"status": "Frontend building..."}
 
 if __name__ == "__main__":
     import uvicorn

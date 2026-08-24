@@ -20,11 +20,8 @@ ENV/
 *.db
 *.sqlite3
 
-# Build outputs
-dist/
-frontend/dist/
-build/
-frontend/build/
+# Build outputs (tracked for deployment)
+# dist/
 
 # OS & Temp
 .DS_Store
