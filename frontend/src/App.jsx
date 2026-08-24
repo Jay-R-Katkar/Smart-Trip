@@ -44,7 +44,6 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [emailInput, setEmailInput] = useState('');
-  const [dropdownNavOpen, setDropdownNavOpen] = useState(false);
 
   // 23+ Destinations Dataset
   const destinationsData = [
@@ -201,480 +200,440 @@ export default function App() {
   ];
 
   return (
-    <div className={`min-h-screen font-sans flex flex-col transition-colors duration-200 ${
+    <div className={`flex h-screen font-sans overflow-hidden transition-colors duration-200 ${
       isDarkMode ? 'bg-[#070d18] text-slate-100' : 'bg-[#f8fafc] text-slate-900'
     }`}>
       
-      {/* 1. TOP NAVBAR (EXACT MATCH FROM SCREENSHOT + THEME BUTTON) */}
-      <header className={`sticky top-0 z-40 border-b shadow-xs transition-colors duration-200 ${
+      {/* 1. LEFT VERTICAL SIDEBAR NAVBAR */}
+      <aside className={`w-64 border-r flex flex-col justify-between h-full p-4 shrink-0 shadow-xs z-30 transition-colors duration-200 ${
         isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/80'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-20">
-            
-            {/* Left: Brand Logo + Nav Links */}
-            <div className="flex items-center gap-6 lg:gap-8">
-              
-              {/* Brand Logo */}
-              <div 
-                onClick={() => setActiveTab('itinerary')}
-                className="flex items-center gap-2.5 cursor-pointer select-none"
-              >
-                <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg shadow-sm">
-                  ST
-                </div>
-                <span className={`text-xl font-extrabold tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-                  Smart<span className="text-emerald-600">Trip</span>
-                </span>
-              </div>
+        <div>
+          {/* Logo */}
+          <div 
+            onClick={() => setActiveTab('itinerary')}
+            className="flex items-center gap-2.5 px-2 py-3 mb-4 cursor-pointer select-none"
+          >
+            <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg shadow-sm">
+              ST
+            </div>
+            <div>
+              <span className={`text-xl font-extrabold tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                Smart<span className="text-emerald-600">Trip</span>
+              </span>
+              <span className="block text-[9px] font-bold text-emerald-600 uppercase tracking-wider">Dharmik & Heritage</span>
+            </div>
+          </div>
 
-              {/* Desktop Nav Links */}
-              <nav className="hidden lg:flex items-center gap-1.5">
-                {navMenuItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = activeTab === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => setActiveTab(item.id)}
-                      className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-                        isActive
-                          ? isDarkMode 
-                            ? 'bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30'
-                            : 'bg-emerald-50 text-emerald-700 font-bold border border-emerald-200/80 shadow-xs'
-                          : isDarkMode
-                            ? 'text-slate-400 hover:text-white hover:bg-slate-800'
-                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                      }`}
-                    >
-                      <Icon size={16} className={isActive ? (isDarkMode ? 'text-emerald-400' : 'text-emerald-600') : 'text-slate-400'} />
-                      <span>{item.label}</span>
-                    </button>
-                  );
-                })}
-              </nav>
-
-              {/* Mobile/Tablet Dropdown Button */}
-              <div className="lg:hidden relative">
+          {/* Navigation Links */}
+          <nav className="flex flex-col gap-1">
+            {navMenuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
                 <button
-                  onClick={() => setDropdownNavOpen(!dropdownNavOpen)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold border ${
-                    isDarkMode ? 'bg-slate-800 text-slate-200 border-slate-700' : 'bg-slate-100 text-slate-700 border-slate-200'
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all text-left ${
+                    isActive
+                      ? isDarkMode 
+                        ? 'bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30'
+                        : 'bg-emerald-50 text-emerald-700 font-bold border border-emerald-200/80 shadow-xs'
+                      : isDarkMode
+                        ? 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                   }`}
                 >
-                  <span>Menu</span>
-                  <ChevronDown size={14} className={`transition-transform ${dropdownNavOpen ? 'rotate-180' : ''}`} />
+                  <Icon size={17} className={isActive ? (isDarkMode ? 'text-emerald-400' : 'text-emerald-600') : 'text-slate-400'} />
+                  <span>{item.label}</span>
                 </button>
+              );
+            })}
+          </nav>
+        </div>
 
-                {dropdownNavOpen && (
-                  <div className={`absolute left-0 mt-2 w-60 border rounded-2xl shadow-xl p-2 z-50 ${
-                    isDarkMode ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'
-                  }`}>
-                    {navMenuItems.map((item) => {
-                      const Icon = item.icon;
-                      const isActive = activeTab === item.id;
-                      return (
-                        <button
-                          key={item.id}
-                          onClick={() => {
-                            setActiveTab(item.id);
-                            setDropdownNavOpen(false);
-                          }}
-                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-left ${
-                            isActive 
-                              ? isDarkMode ? 'bg-emerald-500/20 text-emerald-400 font-bold' : 'bg-emerald-50 text-emerald-700 font-bold' 
-                              : isDarkMode ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-50'
-                          }`}
-                        >
-                          <Icon size={16} className={isActive ? (isDarkMode ? 'text-emerald-400' : 'text-emerald-600') : 'text-slate-400'} />
-                          <span>{item.label}</span>
-                        </button>
-                      );
-                    })}
+        {/* Bottom Hub: Theme Switcher + User Profile + Red SOS Button */}
+        <div className={`pt-4 border-t flex flex-col gap-2.5 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+          
+          {/* Theme Toggle Button */}
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs font-semibold text-slate-400">Appearance</span>
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className={`p-1.5 rounded-xl border transition-all flex items-center gap-1.5 text-xs font-bold ${
+                isDarkMode 
+                  ? 'bg-slate-800 text-amber-400 border-slate-700' 
+                  : 'bg-slate-100 text-slate-700 border-slate-200'
+              }`}
+              title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {isDarkMode ? <Sun size={15} /> : <Moon size={15} />}
+              <span>{isDarkMode ? 'Dark' : 'Light'}</span>
+            </button>
+          </div>
+
+          {/* User Sign In / Profile Card */}
+          <div className={`flex items-center justify-between p-2 rounded-xl border text-xs ${
+            isDarkMode ? 'bg-slate-800/80 border-slate-700 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
+          }`}>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-slate-300 text-slate-800 flex items-center justify-center font-bold text-[10px]">
+                {user ? user.name[0].toUpperCase() : 'G'}
+              </div>
+              <span className="font-medium text-[11px] truncate max-w-[85px]">
+                {user ? user.name : 'Guest User'}
+              </span>
+            </div>
+            <button
+              onClick={() => user ? setUser(null) : setIsAuthOpen(true)}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2 py-1 rounded-lg text-[10px] transition-colors"
+            >
+              {user ? 'Logout' : 'Sign In'}
+            </button>
+          </div>
+
+          {/* Red EMERGENCY SOS Button */}
+          <button
+            onClick={() => alert('🚨 EMERGENCY SOS: Coordinates dispatched to 112 Police and 108 Ambulance.')}
+            className="w-full bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold py-2.5 px-3 rounded-xl text-xs shadow-sm transition-all flex items-center justify-center gap-1.5"
+          >
+            <Flame size={15} />
+            <span>EMERGENCY SOS</span>
+          </button>
+
+        </div>
+      </aside>
+
+      {/* 2. MAIN RIGHT SCROLLABLE CONTENT */}
+      <main className="flex-1 h-full overflow-y-auto p-6 sm:p-8 space-y-6">
+        <div className="max-w-6xl mx-auto space-y-6">
+          
+          {/* MODULE 1: ITINERARY PLANNER (EXACT MATCHING SCREENSHOT) */}
+          {activeTab === 'itinerary' && (
+            <div className="space-y-6">
+              
+              {/* GREEN BANNER (FROM SCREENSHOT) */}
+              <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-800 to-emerald-950 text-white p-6 sm:p-8 shadow-md">
+                <div className="max-w-3xl space-y-2 relative z-10">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/10 text-emerald-300 text-xs font-semibold tracking-wide border border-white/10">
+                    <span>AICTE 2026/02 • DHARMIK & HERITAGE TOURISM BOOSTER</span>
                   </div>
+                  <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+                    Automate Pilgrimage & Spiritual Circuits in Seconds.
+                  </h1>
+                  <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed max-w-2xl font-normal">
+                    Intelligent clustering for Jyotirlingas, Char Dham, Ram Mandir Ayodhya, Ghats, Ashrams, multi-currency budgeting, and verified Vedic guides.
+                  </p>
+                </div>
+              </div>
+
+              {/* SEARCH INPUT BAR */}
+              <div className="relative">
+                <Search className="absolute left-4 top-3.5 text-slate-400" size={18} />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="SEARCH ANY PILGRIMAGE, HERITAGE OR SCENIC DESTINATION... (e.g. Ujjain, Ayodhya, Varanasi, Puri, Rishikesh, Somnath...)"
+                  className={`w-full pl-11 pr-4 py-3 border rounded-2xl text-xs sm:text-sm transition-all shadow-xs ${
+                    isDarkMode 
+                      ? 'bg-slate-900 border-slate-800 text-white placeholder-slate-500' 
+                      : 'bg-white border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-600'
+                  }`}
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery('')} className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600">
+                    <X size={16} />
+                  </button>
                 )}
               </div>
 
-            </div>
+              {/* CATEGORY FILTER PILLS */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
+                {[
+                  { id: 'All', label: 'All Destinations' },
+                  { id: 'Spiritual', label: 'Spiritual & Pilgrimage (Dharmik)' },
+                  { id: 'Heritage', label: 'ASI Heritage & Forts' },
+                  { id: 'Nature', label: 'Nature & Eco-Resorts' },
+                  { id: 'International', label: 'International Circuits' }
+                ].map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className={`px-4 py-2 rounded-full font-bold whitespace-nowrap transition-all text-xs ${
+                      selectedCategory === cat.id
+                        ? 'bg-emerald-700 text-white shadow-xs'
+                        : isDarkMode 
+                          ? 'bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800' 
+                          : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300'
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
 
-            {/* Right: Theme Toggle Button + User Pill + Emergency SOS */}
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              
-              {/* THEME TOGGLE BUTTON (SUN / MOON) */}
-              <button
-                onClick={() => setIsDarkMode(!isDarkMode)}
-                className={`p-2 rounded-xl border transition-all ${
-                  isDarkMode 
-                    ? 'bg-slate-800 hover:bg-slate-700 text-amber-400 border-slate-700' 
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
-                }`}
-                title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              >
-                {isDarkMode ? <Sun size={17} /> : <Moon size={17} />}
-              </button>
-
-              {/* User Sign In / Profile Pill */}
-              <div className={`flex items-center gap-2 border rounded-full px-3 py-1.5 text-xs ${
-                isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-slate-100/90 border-slate-200/80 text-slate-600'
-              }`}>
-                <div className="w-5 h-5 rounded-full bg-slate-300 text-slate-700 flex items-center justify-center font-bold text-[10px]">
-                  {user ? user.name[0].toUpperCase() : 'G'}
+              {/* INTERACTIVE TOURISM GRID */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className={`text-sm font-bold ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>
+                    Interactive Tourism Grid ({filteredDestinations.length} Places)
+                  </h3>
                 </div>
-                <span className="font-medium hidden sm:inline">
-                  {user ? user.name : 'Guest User'}
-                </span>
-                <button
-                  onClick={() => user ? setUser(null) : setIsAuthOpen(true)}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-0.5 rounded-full text-[11px] transition-colors"
-                >
-                  {user ? 'Logout' : 'Sign In'}
-                </button>
-              </div>
 
-              {/* Red EMERGENCY SOS Button */}
-              <button
-                onClick={() => alert('🚨 EMERGENCY SOS: Coordinates dispatched to 112 Police and 108 Ambulance.')}
-                className="bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold px-4 py-2 rounded-xl text-xs sm:text-sm shadow-sm transition-all flex items-center gap-1.5"
-              >
-                <Flame size={15} />
-                <span>EMERGENCY SOS</span>
-              </button>
-
-            </div>
-
-          </div>
-        </div>
-      </header>
-
-      {/* 2. MAIN BODY CONTENT */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        
-        {/* MODULE 1: ITINERARY PLANNER (EXACTLY MATCHING SCREENSHOT) */}
-        {activeTab === 'itinerary' && (
-          <div className="space-y-6">
-            
-            {/* GREEN BANNER (FROM SCREENSHOT) */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-800 to-emerald-950 text-white p-6 sm:p-8 shadow-md">
-              <div className="max-w-3xl space-y-2 relative z-10">
-                <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/10 text-emerald-300 text-xs font-semibold tracking-wide border border-white/10">
-                  <span>AICTE 2026/02 • DHARMIK & HERITAGE TOURISM BOOSTER</span>
-                </div>
-                <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
-                  Automate Pilgrimage & Spiritual Circuits in Seconds.
-                </h1>
-                <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed max-w-2xl font-normal">
-                  Intelligent clustering for Jyotirlingas, Char Dham, Ram Mandir Ayodhya, Ghats, Ashrams, multi-currency budgeting, and verified Vedic guides.
-                </p>
-              </div>
-            </div>
-
-            {/* SEARCH INPUT BAR */}
-            <div className="relative">
-              <Search className="absolute left-4 top-3.5 text-slate-400" size={18} />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="SEARCH ANY PILGRIMAGE, HERITAGE OR SCENIC DESTINATION... (e.g. Ujjain, Ayodhya, Varanasi, Puri, Rishikesh, Somnath...)"
-                className={`w-full pl-11 pr-4 py-3 border rounded-2xl text-xs sm:text-sm transition-all shadow-xs ${
-                  isDarkMode 
-                    ? 'bg-slate-900 border-slate-800 text-white placeholder-slate-500' 
-                    : 'bg-white border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-600'
-                }`}
-              />
-              {searchQuery && (
-                <button onClick={() => setSearchQuery('')} className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600">
-                  <X size={16} />
-                </button>
-              )}
-            </div>
-
-            {/* CATEGORY FILTER PILLS */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
-              {[
-                { id: 'All', label: 'All Destinations' },
-                { id: 'Spiritual', label: 'Spiritual & Pilgrimage (Dharmik)' },
-                { id: 'Heritage', label: 'ASI Heritage & Forts' },
-                { id: 'Nature', label: 'Nature & Eco-Resorts' },
-                { id: 'International', label: 'International Circuits' }
-              ].map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-4 py-2 rounded-full font-bold whitespace-nowrap transition-all text-xs ${
-                    selectedCategory === cat.id
-                      ? 'bg-emerald-700 text-white shadow-xs'
-                      : isDarkMode 
-                        ? 'bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800' 
-                        : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300'
-                  }`}
-                >
-                  {cat.label}
-                </button>
-              ))}
-            </div>
-
-            {/* INTERACTIVE TOURISM GRID */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className={`text-sm font-bold ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>
-                  Interactive Tourism Grid ({filteredDestinations.length} Places)
-                </h3>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 gap-4">
-                {filteredDestinations.slice(0, 8).map((dest) => {
-                  const isSelected = selectedCity === dest.name;
-                  return (
-                    <div
-                      key={dest.id}
-                      onClick={() => {
-                        setSelectedCity(dest.name);
-                        setScheduleGenerated(true);
-                      }}
-                      className={`group relative overflow-hidden rounded-2xl cursor-pointer transition-all border ${
-                        isSelected 
-                          ? 'border-emerald-600 ring-2 ring-emerald-600/30 shadow-md scale-[1.01]' 
-                          : isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 hover:border-slate-300 shadow-xs'
-                      }`}
-                    >
-                      <div className="h-32 sm:h-36 w-full relative">
-                        <img 
-                          src={dest.image} 
-                          alt={dest.name} 
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
-                        
-                        {isSelected && (
-                          <div className="absolute top-2 right-2 bg-emerald-600 text-white p-1 rounded-full shadow-sm">
-                            <Check size={12} strokeWidth={3} />
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 gap-4">
+                  {filteredDestinations.slice(0, 8).map((dest) => {
+                    const isSelected = selectedCity === dest.name;
+                    return (
+                      <div
+                        key={dest.id}
+                        onClick={() => {
+                          setSelectedCity(dest.name);
+                          setScheduleGenerated(true);
+                        }}
+                        className={`group relative overflow-hidden rounded-2xl cursor-pointer transition-all border ${
+                          isSelected 
+                            ? 'border-emerald-600 ring-2 ring-emerald-600/30 shadow-md scale-[1.01]' 
+                            : isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 hover:border-slate-300 shadow-xs'
+                        }`}
+                      >
+                        <div className="h-32 sm:h-36 w-full relative">
+                          <img 
+                            src={dest.image} 
+                            alt={dest.name} 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
+                          
+                          {isSelected && (
+                            <div className="absolute top-2 right-2 bg-emerald-600 text-white p-1 rounded-full shadow-sm">
+                              <Check size={12} strokeWidth={3} />
+                            </div>
+                          )}
+                          
+                          <div className="absolute bottom-2.5 left-3 right-3">
+                            <h4 className="font-extrabold text-white text-base leading-tight">{dest.name}</h4>
+                            <p className="text-[11px] text-emerald-200 truncate font-medium mt-0.5">{dest.title}</p>
                           </div>
-                        )}
-                        
-                        <div className="absolute bottom-2.5 left-3 right-3">
-                          <h4 className="font-extrabold text-white text-base leading-tight">{dest.name}</h4>
-                          <p className="text-[11px] text-emerald-200 truncate font-medium mt-0.5">{dest.title}</p>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* HORIZONTAL TRIP SETTINGS BAR (FROM SCREENSHOT) */}
-            <div className={`border rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 transition-colors ${
-              isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-            }`}>
-              
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full md:w-auto flex-1">
-                
-                {/* 1. Destination */}
-                <div className={`border-r pr-4 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Selected Destination</span>
-                  <span className={`font-black text-base ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{selectedCity}</span>
+                    );
+                  })}
                 </div>
-
-                {/* 2. Currency */}
-                <div className={`border-r pr-4 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Trip Currency</span>
-                  <div className="flex items-center gap-1 mt-0.5">
-                    <button
-                      onClick={() => setCurrency('INR')}
-                      className={`text-xs font-bold px-2 py-0.5 rounded ${currency === 'INR' ? (isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-800') : 'text-slate-500'}`}
-                    >
-                      INR (₹)
-                    </button>
-                    <button
-                      onClick={() => setCurrency('USD')}
-                      className={`text-xs font-bold px-2 py-0.5 rounded ${currency === 'USD' ? (isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-800') : 'text-slate-500'}`}
-                    >
-                      USD ($)
-                    </button>
-                  </div>
-                </div>
-
-                {/* 3. Duration */}
-                <div className={`border-r pr-4 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Duration (Days)</span>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <button onClick={() => setDays(Math.max(1, days - 1))} className={`w-5 h-5 rounded font-bold text-xs flex items-center justify-center ${isDarkMode ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-700'}`}>-</button>
-                    <span className={`font-extrabold text-sm ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{days} Days</span>
-                    <button onClick={() => setDays(Math.min(14, days + 1))} className={`w-5 h-5 rounded font-bold text-xs flex items-center justify-center ${isDarkMode ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-700'}`}>+</button>
-                  </div>
-                </div>
-
-                {/* 4. Total Budget */}
-                <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Budget (INR)</span>
-                  <span className={`font-black text-base ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>
-                    {currency === 'INR' ? `₹${budget.toLocaleString()}` : `$${Math.round(budget/85).toLocaleString()}`}
-                  </span>
-                </div>
-
               </div>
 
-              {/* EXPLORE BUTTON */}
-              <button
-                onClick={() => setScheduleGenerated(true)}
-                className="w-full md:w-auto bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-sm text-sm whitespace-nowrap"
-              >
-                EXPLORE
-              </button>
-
-            </div>
-
-            {/* INTERACTIVE MAP + ITINERARY RESULTS */}
-            {scheduleGenerated && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* HORIZONTAL TRIP SETTINGS BAR (FROM SCREENSHOT) */}
+              <div className={`border rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 transition-colors ${
+                isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+              }`}>
                 
-                {/* Interactive Leaflet Map */}
-                <div className="lg:col-span-6 space-y-3">
-                  <div className={`border p-4 rounded-3xl shadow-sm space-y-3 ${
-                    isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-                  }`}>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <MapPin className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'} size={18} />
-                        <h3 className={`font-extrabold text-base ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Live Route Map: {selectedCity}</h3>
-                      </div>
-                      <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
-                        isDarkMode ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-100 text-emerald-800'
-                      }`}>
-                        {activeDestination.activities?.length || 3} Waypoints
-                      </span>
-                    </div>
-
-                    <InteractiveMap 
-                      destination={selectedCity}
-                      centerCoords={activeDestination.coords}
-                      activities={activeDestination.activities || []}
-                      className="h-80 sm:h-96 w-full"
-                    />
-
-                    <p className="text-[11px] text-slate-400 text-center">
-                      Interactive OpenStreetMap • Numbered stops connected in chronological sequence
-                    </p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full md:w-auto flex-1">
+                  
+                  {/* 1. Destination */}
+                  <div className={`border-r pr-4 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Selected Destination</span>
+                    <span className={`font-black text-base ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{selectedCity}</span>
                   </div>
+
+                  {/* 2. Currency */}
+                  <div className={`border-r pr-4 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Trip Currency</span>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <button
+                        onClick={() => setCurrency('INR')}
+                        className={`text-xs font-bold px-2 py-0.5 rounded ${currency === 'INR' ? (isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-800') : 'text-slate-500'}`}
+                      >
+                        INR (₹)
+                      </button>
+                      <button
+                        onClick={() => setCurrency('USD')}
+                        className={`text-xs font-bold px-2 py-0.5 rounded ${currency === 'USD' ? (isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-800') : 'text-slate-500'}`}
+                      >
+                        USD ($)
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 3. Duration */}
+                  <div className={`border-r pr-4 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Duration (Days)</span>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <button onClick={() => setDays(Math.max(1, days - 1))} className={`w-5 h-5 rounded font-bold text-xs flex items-center justify-center ${isDarkMode ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-700'}`}>-</button>
+                      <span className={`font-extrabold text-sm ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{days} Days</span>
+                      <button onClick={() => setDays(Math.min(14, days + 1))} className={`w-5 h-5 rounded font-bold text-xs flex items-center justify-center ${isDarkMode ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-700'}`}>+</button>
+                    </div>
+                  </div>
+
+                  {/* 4. Total Budget */}
+                  <div>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Budget (INR)</span>
+                    <span className={`font-black text-base ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>
+                      {currency === 'INR' ? `₹${budget.toLocaleString()}` : `$${Math.round(budget/85).toLocaleString()}`}
+                    </span>
+                  </div>
+
                 </div>
 
-                {/* Day-by-Day Schedule Timeline */}
-                <div className="lg:col-span-6 space-y-3">
-                  <div className={`border p-5 rounded-3xl shadow-sm space-y-4 ${
-                    isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-                  }`}>
-                    
-                    <div className={`flex items-center justify-between border-b pb-3 ${
-                      isDarkMode ? 'border-slate-800' : 'border-slate-100'
+                {/* EXPLORE BUTTON */}
+                <button
+                  onClick={() => setScheduleGenerated(true)}
+                  className="w-full md:w-auto bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-sm text-sm whitespace-nowrap"
+                >
+                  EXPLORE
+                </button>
+
+              </div>
+
+              {/* INTERACTIVE MAP + ITINERARY RESULTS */}
+              {scheduleGenerated && (
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                  
+                  {/* Interactive Leaflet Map */}
+                  <div className="lg:col-span-6 space-y-3">
+                    <div className={`border p-4 rounded-3xl shadow-sm space-y-3 ${
+                      isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
                     }`}>
-                      <div>
-                        <h3 className={`font-extrabold text-lg ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{selectedCity} Circuit Plan</h3>
-                        <p className="text-xs text-slate-400">{days} Days Optimized Itinerary</p>
-                      </div>
-                      <span className={`text-xs font-bold px-3 py-1 rounded-full ${
-                        isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-800'
-                      }`}>
-                        {currency === 'INR' ? `₹${(budget/days).toFixed(0)}/day` : `$${(budget/85/days).toFixed(0)}/day`}
-                      </span>
-                    </div>
-
-                    <div className="space-y-3">
-                      {(activeDestination.activities || []).map((act, idx) => (
-                        <div key={idx} className={`border p-3.5 rounded-2xl flex items-start gap-3 transition-colors ${
-                          isDarkMode ? 'bg-slate-800/60 border-slate-700/60' : 'bg-slate-50 border-slate-200/80 hover:border-emerald-300'
-                        }`}>
-                          <div className="w-8 h-8 rounded-full bg-emerald-600 text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5">
-                            {idx + 1}
-                          </div>
-                          <div className="flex-1">
-                            <span className={`text-[10px] font-bold uppercase tracking-wider ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>{act.period || act.time_slot}</span>
-                            <h4 className={`font-bold text-sm mt-0.5 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{act.name}</h4>
-                            <p className="text-xs text-slate-400 mt-0.5">{act.category} • Cost: {act.cost ? `₹${act.cost}` : 'Free Entry'}</p>
-                          </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <MapPin className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'} size={18} />
+                          <h3 className={`font-extrabold text-base ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Live Route Map: {selectedCity}</h3>
                         </div>
-                      ))}
+                        <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
+                          isDarkMode ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-100 text-emerald-800'
+                        }`}>
+                          {activeDestination.activities?.length || 3} Waypoints
+                        </span>
+                      </div>
+
+                      <InteractiveMap 
+                        destination={selectedCity}
+                        centerCoords={activeDestination.coords}
+                        activities={activeDestination.activities || []}
+                        className="h-80 sm:h-96 w-full"
+                      />
+
+                      <p className="text-[11px] text-slate-400 text-center">
+                        Interactive OpenStreetMap • Numbered stops connected in chronological sequence
+                      </p>
                     </div>
-
                   </div>
-                </div>
 
-              </div>
-            )}
+                  {/* Day-by-Day Schedule Timeline */}
+                  <div className="lg:col-span-6 space-y-3">
+                    <div className={`border p-5 rounded-3xl shadow-sm space-y-4 ${
+                      isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                    }`}>
+                      
+                      <div className={`flex items-center justify-between border-b pb-3 ${
+                        isDarkMode ? 'border-slate-800' : 'border-slate-100'
+                      }`}>
+                        <div>
+                          <h3 className={`font-extrabold text-lg ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{selectedCity} Circuit Plan</h3>
+                          <p className="text-xs text-slate-400">{days} Days Optimized Itinerary</p>
+                        </div>
+                        <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+                          isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-800'
+                        }`}>
+                          {currency === 'INR' ? `₹${(budget/days).toFixed(0)}/day` : `$${(budget/85/days).toFixed(0)}/day`}
+                        </span>
+                      </div>
 
-          </div>
-        )}
+                      <div className="space-y-3">
+                        {(activeDestination.activities || []).map((act, idx) => (
+                          <div key={idx} className={`border p-3.5 rounded-2xl flex items-start gap-3 transition-colors ${
+                            isDarkMode ? 'bg-slate-800/60 border-slate-700/60' : 'bg-slate-50 border-slate-200/80 hover:border-emerald-300'
+                          }`}>
+                            <div className="w-8 h-8 rounded-full bg-emerald-600 text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5">
+                              {idx + 1}
+                            </div>
+                            <div className="flex-1">
+                              <span className={`text-[10px] font-bold uppercase tracking-wider ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>{act.period || act.time_slot}</span>
+                              <h4 className={`font-bold text-sm mt-0.5 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{act.name}</h4>
+                              <p className="text-xs text-slate-400 mt-0.5">{act.category} • Cost: {act.cost ? `₹${act.cost}` : 'Free Entry'}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
 
-        {/* MODULE 2: ASHRAMS & STAYS (WITH REAL PHOTOS) */}
-        {activeTab === 'hotels' && (
-          <div className="space-y-6">
-            <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Ashrams, Dharamshalas & Stays</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
-              <div className={`border rounded-3xl overflow-hidden shadow-xs flex flex-col justify-between ${
-                isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-              }`}>
-                <div className="h-44 w-full relative">
-                  <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600" alt="Ashram" className="w-full h-full object-cover" />
-                  <span className="absolute top-3 left-3 text-xs bg-emerald-600 text-white px-3 py-1 rounded-full font-bold">Recommended Ashram</span>
-                </div>
-                <div className="p-5 space-y-2">
-                  <h4 className={`font-extrabold text-lg ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Shri Mahakal Bhakt Ashram</h4>
-                  <p className="text-xs text-slate-400">AC Rooms, Pure Satvik Bhojan, 200m from Mandir</p>
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                    <span className="text-base font-black text-emerald-700">₹1,150 / night</span>
-                    <button onClick={() => alert('Booked successfully!')} className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-xs">Book Ashram</button>
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              <div className={`border rounded-3xl overflow-hidden shadow-xs flex flex-col justify-between ${
-                isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-              }`}>
-                <div className="h-44 w-full relative">
-                  <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600" alt="Heritage Hotel" className="w-full h-full object-cover" />
-                  <span className="absolute top-3 left-3 text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-bold">Heritage Stay</span>
                 </div>
-                <div className="p-5 space-y-2">
-                  <h4 className={`font-extrabold text-lg ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>The Grand Heritage Palace</h4>
-                  <p className="text-xs text-slate-400">Free WiFi, Traditional architecture, River view</p>
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                    <span className="text-base font-black text-emerald-700">₹2,400 / night</span>
-                    <button onClick={() => alert('Booked successfully!')} className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-xs">Book Room</button>
-                  </div>
-                </div>
-              </div>
+              )}
 
             </div>
-          </div>
-        )}
+          )}
 
-        {/* MODULE 3: BUDGET TRACKER */}
-        {activeTab === 'budget' && (
-          <div className="space-y-6">
-            <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Multi-Currency Real-Time Budget Tracker</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className={`border p-5 rounded-2xl shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
-                <p className="text-xs font-bold text-slate-400 uppercase">Total Budget</p>
-                <p className={`text-2xl font-black mt-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>₹{budget.toLocaleString()}</p>
-              </div>
-              <div className={`border p-5 rounded-2xl shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
-                <p className="text-xs font-bold text-slate-400 uppercase">Spent</p>
-                <p className={`text-2xl font-black mt-1 ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>₹{Math.round(budget * 0.45).toLocaleString()}</p>
-              </div>
-              <div className={`border p-5 rounded-2xl shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
-                <p className="text-xs font-bold text-slate-400 uppercase">Remaining</p>
-                <p className="text-2xl font-black text-amber-500 mt-1">₹{Math.round(budget * 0.55).toLocaleString()}</p>
+          {/* MODULE 2: ASHRAMS & STAYS (WITH REAL PHOTOS) */}
+          {activeTab === 'hotels' && (
+            <div className="space-y-6">
+              <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Ashrams, Dharamshalas & Stays</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div className={`border rounded-3xl overflow-hidden shadow-xs flex flex-col justify-between ${
+                  isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                }`}>
+                  <div className="h-44 w-full relative">
+                    <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600" alt="Ashram" className="w-full h-full object-cover" />
+                    <span className="absolute top-3 left-3 text-xs bg-emerald-600 text-white px-3 py-1 rounded-full font-bold">Recommended Ashram</span>
+                  </div>
+                  <div className="p-5 space-y-2">
+                    <h4 className={`font-extrabold text-lg ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Shri Mahakal Bhakt Ashram</h4>
+                    <p className="text-xs text-slate-400">AC Rooms, Pure Satvik Bhojan, 200m from Mandir</p>
+                    <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                      <span className="text-base font-black text-emerald-700">₹1,150 / night</span>
+                      <button onClick={() => alert('Booked successfully!')} className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-xs">Book Ashram</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={`border rounded-3xl overflow-hidden shadow-xs flex flex-col justify-between ${
+                  isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                }`}>
+                  <div className="h-44 w-full relative">
+                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600" alt="Heritage Hotel" className="w-full h-full object-cover" />
+                    <span className="absolute top-3 left-3 text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-bold">Heritage Stay</span>
+                  </div>
+                  <div className="p-5 space-y-2">
+                    <h4 className={`font-extrabold text-lg ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>The Grand Heritage Palace</h4>
+                    <p className="text-xs text-slate-400">Free WiFi, Traditional architecture, River view</p>
+                    <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                      <span className="text-base font-black text-emerald-700">₹2,400 / night</span>
+                      <button onClick={() => alert('Booked successfully!')} className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-xs">Book Room</button>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* MODULE 4: PACKING CHECKLIST */}
-        {activeTab === 'packing' && (
-          <div className="space-y-6">
-            <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Pilgrimage & Heritage Packing Checklist</h2>
-            <div className={`border p-6 rounded-2xl space-y-3 shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+          {/* MODULE 3: BUDGET TRACKER */}
+          {activeTab === 'budget' && (
+            <div className="space-y-6">
+              <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Multi-Currency Real-Time Budget Tracker</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className={`border p-5 rounded-2xl shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+                  <p className="text-xs font-bold text-slate-400 uppercase">Total Budget</p>
+                  <p className={`text-2xl font-black mt-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>₹{budget.toLocaleString()}</p>
+                </div>
+                <div className={`border p-5 rounded-2xl shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+                  <p className="text-xs font-bold text-slate-400 uppercase">Spent</p>
+                  <p className={`text-2xl font-black mt-1 ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>₹{Math.round(budget * 0.45).toLocaleString()}</p>
+                </div>
+                <div className={`border p-5 rounded-2xl shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+                  <p className="text-xs font-bold text-slate-400 uppercase">Remaining</p>
+                  <p className="text-2xl font-black text-amber-500 mt-1">₹{Math.round(budget * 0.55).toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* MODULE 4: PACKING CHECKLIST */}
+          {activeTab === 'packing' && (
+            <div className="space-y-6">
+              <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Pilgrimage & Heritage Packing Checklist</h2>
+              <div className={`border p-6 rounded-2xl space-y-3 shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
               {[
                 'Traditional Attire / Dhoti / Kurta (Mandir Garbhagriha)',
                 'Govt ID Proof (Aadhaar / Voter ID for VIP Darshan)',
@@ -766,6 +725,25 @@ export default function App() {
           </div>
         )}
 
+        {/* FOOTER */}
+        <footer className={`mt-auto border-t py-6 text-center text-xs ${
+          isDarkMode ? 'border-slate-800 bg-slate-950 text-slate-500' : 'border-slate-200 bg-white text-slate-500'
+        }`}>
+          <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded-md bg-emerald-600 text-white flex items-center justify-center font-black text-[10px]">
+                ST
+              </div>
+              <span className={`font-bold ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>SmartTrip</span>
+              <span>• AICTE 2026/02 Pilgrimage & Heritage Tourism Booster</span>
+            </div>
+            <p className="text-[11px] text-slate-400">
+              OpenStreetMap Route Optimization Engine
+            </p>
+          </div>
+        </footer>
+
+        </div>
       </main>
 
       {/* USER AUTH MODAL */}
@@ -799,24 +777,6 @@ export default function App() {
           </div>
         </div>
       )}
-
-      {/* FOOTER */}
-      <footer className={`mt-auto border-t py-6 text-center text-xs ${
-        isDarkMode ? 'border-slate-800 bg-slate-950 text-slate-500' : 'border-slate-200 bg-white text-slate-500'
-      }`}>
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded-md bg-emerald-600 text-white flex items-center justify-center font-black text-[10px]">
-              ST
-            </div>
-            <span className={`font-bold ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>SmartTrip</span>
-            <span>• AICTE 2026/02 Pilgrimage & Heritage Tourism Booster</span>
-          </div>
-          <p className="text-[11px] text-slate-400">
-            OpenStreetMap Route Optimization Engine
-          </p>
-        </div>
-      </footer>
 
     </div>
   );
