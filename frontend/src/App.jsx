@@ -1105,13 +1105,13 @@ export default function App() {
       title: 'Mahakaleshwar Jyotirlinga',
       category: 'Spiritual',
       defaultCurrency: 'INR',
-      image: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800',
       tag: 'Jyotirlinga & Bhasma Aarti',
       coords: [23.1765, 75.7885],
       activities: [
-        { name: 'Mahakaleshwar Temple Bhasma Aarti & Darshan', period: 'Morning (04:00 - 08:30)', time_slot: 'Morning', category: 'Dharmik Darshan', cost: 200, latitude: 23.1827, longitude: 75.7682, image_url: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80' },
-        { name: 'Shree Mahakal Lok Corridor & Sculptures', period: 'Afternoon (14:00 - 16:30)', time_slot: 'Afternoon', category: 'Spiritual Heritage', cost: 0, latitude: 23.1845, longitude: 75.7710, image_url: 'https://images.unsplash.com/photo-1620619767323-b95a89183081?auto=format&fit=crop&w=800&q=80' },
-        { name: 'Ram Ghat Kshipra Aarti & Evening Walk', period: 'Evening (18:00 - 20:30)', time_slot: 'Evening', category: 'Ghat Aarti', cost: 50, latitude: 23.1800, longitude: 75.7650, image_url: 'https://images.unsplash.com/photo-1599839575945-a9e5af0c3fa5?auto=format&fit=crop&w=800&q=80' }
+        { name: 'Mahakaleshwar Temple Bhasma Aarti & Darshan', period: 'Morning (04:00 - 08:30)', time_slot: 'Morning', category: 'Dharmik Darshan', cost: 200, latitude: 23.1827, longitude: 75.7682, image_url: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=800' },
+        { name: 'Shree Mahakal Lok Corridor & Sculptures', period: 'Afternoon (14:00 - 16:30)', time_slot: 'Afternoon', category: 'Spiritual Heritage', cost: 0, latitude: 23.1845, longitude: 75.7710, image_url: 'https://images.unsplash.com/photo-1620619767323-b95a89183081?w=800' },
+        { name: 'Ram Ghat Kshipra Aarti & Evening Walk', period: 'Evening (18:00 - 20:30)', time_slot: 'Evening', category: 'Ghat Aarti', cost: 50, latitude: 23.1800, longitude: 75.7650, image_url: 'https://images.unsplash.com/photo-1599839575945-a9e5af0c3fa5?w=800' }
       ]
     },
     {
@@ -1150,13 +1150,13 @@ export default function App() {
       title: 'Jagannath Dham',
       category: 'Spiritual',
       defaultCurrency: 'INR',
-      image: 'https://images.unsplash.com/photo-1609137144822-04e4604e760c?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1621252179027-94459d278660?w=800',
       tag: 'Char Dham & Beach',
       coords: [19.8135, 85.8312],
       activities: [
-        { name: 'Shree Jagannath Mandir Darshan', period: 'Morning (06:30 - 11:00)', time_slot: 'Morning', category: 'Char Dham', cost: 0, latitude: 19.8049, longitude: 85.8179, image_url: 'https://images.unsplash.com/photo-1609137144822-04e4604e760c?auto=format&fit=crop&w=800&q=80' },
-        { name: 'Konark Sun Temple (ASI Monument)', period: 'Afternoon (13:00 - 16:30)', time_slot: 'Afternoon', category: 'UNESCO Heritage', cost: 40, latitude: 19.8876, longitude: 86.0945, image_url: 'https://images.unsplash.com/photo-1621252179027-94459d278660?auto=format&fit=crop&w=800&q=80' },
-        { name: 'Golden Beach & Mahaprasad Feast', period: 'Evening (17:30 - 20:00)', time_slot: 'Evening', category: 'Prasad & Sunset', cost: 150, latitude: 19.7980, longitude: 85.8250, image_url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80' }
+        { name: 'Shree Jagannath Mandir Darshan', period: 'Morning (06:30 - 11:00)', time_slot: 'Morning', category: 'Char Dham', cost: 0, latitude: 19.8049, longitude: 85.8179, image_url: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800' },
+        { name: 'Konark Sun Temple (ASI Monument)', period: 'Afternoon (13:00 - 16:30)', time_slot: 'Afternoon', category: 'UNESCO Heritage', cost: 40, latitude: 19.8876, longitude: 86.0945, image_url: 'https://images.unsplash.com/photo-1621252179027-94459d278660?w=800' },
+        { name: 'Golden Beach & Mahaprasad Feast', period: 'Evening (17:30 - 20:00)', time_slot: 'Evening', category: 'Prasad & Sunset', cost: 150, latitude: 19.7980, longitude: 85.8250, image_url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800' }
       ]
     },
     {
@@ -1180,13 +1180,90 @@ export default function App() {
       title: 'First Jyotirlinga',
       category: 'Spiritual',
       defaultCurrency: 'INR',
-      image: 'https://images.unsplash.com/photo-1616499370260-485b3e5ed6ca?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1596401057633-54a8fe8ef647?w=800',
       tag: 'Sea Jyotirlinga',
       coords: [20.8880, 70.4012],
       activities: [
-        { name: 'Somnath Mahadev Mandir Darshan', period: 'Morning (07:00 - 11:00)', time_slot: 'Morning', category: 'Jyotirlinga', cost: 0, latitude: 20.8880, longitude: 70.4012, image_url: 'https://images.unsplash.com/photo-1616499370260-485b3e5ed6ca?auto=format&fit=crop&w=800&q=80' },
-        { name: 'Bhalka Tirth & Triveni Sangam', period: 'Afternoon (14:00 - 16:30)', time_slot: 'Afternoon', category: 'Krishna Heritage', cost: 0, latitude: 20.9020, longitude: 70.4080, image_url: 'https://images.unsplash.com/photo-1596401057633-54a8fe8ef647?auto=format&fit=crop&w=800&q=80' },
-        { name: 'Somnath Sea Promenade Light & Sound Show', period: 'Evening (19:30 - 21:00)', time_slot: 'Evening', category: 'Sound & Light', cost: 50, latitude: 20.8870, longitude: 70.4000, image_url: 'https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=800&q=80' }
+        { name: 'Somnath Mahadev Mandir Darshan', period: 'Morning (07:00 - 11:00)', time_slot: 'Morning', category: 'Jyotirlinga', cost: 0, latitude: 20.8880, longitude: 70.4012, image_url: 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?w=800' },
+        { name: 'Bhalka Tirth & Triveni Sangam', period: 'Afternoon (14:00 - 16:30)', time_slot: 'Afternoon', category: 'Krishna Heritage', cost: 0, latitude: 20.9020, longitude: 70.4080, image_url: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=800' },
+        { name: 'Somnath Sea Promenade Light & Sound Show', period: 'Evening (19:30 - 21:00)', time_slot: 'Evening', category: 'Sound & Light', cost: 50, latitude: 20.8870, longitude: 70.4000, image_url: 'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=800' }
+      ]
+    },
+    {
+      id: 'tirupati',
+      name: 'Tirupati',
+      title: 'Sri Venkateswara Swamy Temple',
+      category: 'Spiritual',
+      defaultCurrency: 'INR',
+      image: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=600',
+      tag: 'Balaji & Tirumala Hills',
+      coords: [13.6833, 79.3472],
+      activities: [
+        { name: 'Tirumala Balaji Special Darshan', period: 'Morning (05:30 - 10:30)', time_slot: 'Morning', category: 'Lord Venkateswara', cost: 300, latitude: 13.6833, longitude: 79.3472, image_url: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=600' },
+        { name: 'Sri Padmavathi Ammavari Temple', period: 'Afternoon (14:00 - 16:30)', time_slot: 'Afternoon', category: 'Holy Mandir', cost: 50, latitude: 13.6150, longitude: 79.4320, image_url: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=600' },
+        { name: 'Kapila Theertham Waterfalls', period: 'Evening (17:30 - 19:30)', time_slot: 'Evening', category: 'Nature & Temple', cost: 0, latitude: 13.6510, longitude: 79.4210, image_url: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=600' }
+      ]
+    },
+    {
+      id: 'kedarnath',
+      name: 'Kedarnath',
+      title: 'Himalayan Jyotirlinga',
+      category: 'Spiritual',
+      defaultCurrency: 'INR',
+      image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800',
+      tag: 'Char Dham & Glaciers',
+      coords: [30.7352, 79.0669],
+      activities: [
+        { name: 'Kedarnath Jyotirlinga Maha Puja', period: 'Morning (06:00 - 10:00)', time_slot: 'Morning', category: 'Jyotirlinga', cost: 0, latitude: 30.7352, longitude: 79.0669, image_url: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800' },
+        { name: 'Bhairavnath Temple Trek', period: 'Afternoon (13:00 - 15:30)', time_slot: 'Afternoon', category: 'Himalayan Trail', cost: 0, latitude: 30.7370, longitude: 79.0710, image_url: 'https://images.unsplash.com/photo-1588416936097-41850ab3d86d?w=800' },
+        { name: 'Mandakini Valley Sunset Meditation', period: 'Evening (17:00 - 19:00)', time_slot: 'Evening', category: 'Spiritual Silence', cost: 0, latitude: 30.7340, longitude: 79.0650, image_url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800' }
+      ]
+    },
+
+    // --- 2. ASI HERITAGE & FORTS ---
+    {
+      id: 'jaipur',
+      name: 'Jaipur',
+      title: 'The Pink City & Forts',
+      category: 'Heritage',
+      defaultCurrency: 'INR',
+      image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=600',
+      tag: 'Amer Fort & Hawa Mahal',
+      coords: [26.9124, 75.7873],
+      activities: [
+        { name: 'Amer Fort & Sheesh Mahal', period: 'Morning (08:30 - 12:00)', time_slot: 'Morning', category: 'UNESCO Fort', cost: 100, latitude: 26.9855, longitude: 75.8513, image_url: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=600' },
+        { name: 'Hawa Mahal & City Palace Museum', period: 'Afternoon (14:00 - 16:30)', time_slot: 'Afternoon', category: 'Royal Architecture', cost: 150, latitude: 26.9239, longitude: 75.8267, image_url: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=600' },
+        { name: 'Nahargarh Fort Sunset Viewpoint', period: 'Evening (17:30 - 20:00)', time_slot: 'Evening', category: 'Panoramic Fort', cost: 50, latitude: 26.9387, longitude: 75.8155, image_url: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=600' }
+      ]
+    },
+    {
+      id: 'agra',
+      name: 'Agra',
+      title: 'Taj Mahal & Mughal Splendor',
+      category: 'Heritage',
+      defaultCurrency: 'INR',
+      image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=600',
+      tag: 'UNESCO World Wonder',
+      coords: [27.1767, 78.0081],
+      activities: [
+        { name: 'Taj Mahal Sunrise Tour', period: 'Morning (06:00 - 09:30)', time_slot: 'Morning', category: 'World Wonder', cost: 50, latitude: 27.1751, longitude: 78.0421, image_url: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=600' },
+        { name: 'Agra Fort & Diwan-i-Khas', period: 'Afternoon (13:30 - 16:00)', time_slot: 'Afternoon', category: 'ASI Monument', cost: 50, latitude: 27.1795, longitude: 78.0211, image_url: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=600' },
+        { name: 'Mehtab Bagh River Sunset', period: 'Evening (17:30 - 19:30)', time_slot: 'Evening', category: 'Garden Viewpoint', cost: 25, latitude: 27.1800, longitude: 78.0425, image_url: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=600' }
+      ]
+    },
+    {
+      id: 'hampi',
+      name: 'Hampi',
+      title: 'Vijayanagara Ruins & Stone Chariot',
+      category: 'Heritage',
+      defaultCurrency: 'INR',
+      image: 'https://images.unsplash.com/photo-1620766182966-c6eb5ed2b788?w=800',
+      tag: 'UNESCO Ancient Capital',
+      coords: [15.3350, 76.4600],
+      activities: [
+        { name: 'Vijaya Vittala Temple & Stone Chariot', period: 'Morning (07:30 - 11:00)', time_slot: 'Morning', category: 'Ancient Architecture', cost: 40, latitude: 15.3370, longitude: 76.4780, image_url: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=800' },
+        { name: 'Virupaksha Temple & Hampi Bazaar', period: 'Afternoon (14:00 - 16:30)', time_slot: 'Afternoon', category: 'Living Heritage', cost: 0, latitude: 15.3350, longitude: 76.4600, image_url: 'https://images.unsplash.com/photo-1620766182966-c6eb5ed2b788?w=800' },
+        { name: 'Matanga Hill Sunset Coracle Ride', period: 'Evening (17:30 - 19:30)', time_slot: 'Evening', category: 'River Heritage', cost: 100, latitude: 15.3320, longitude: 76.4680, image_url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800' }
       ]
     },
     {
@@ -2054,6 +2131,9 @@ export default function App() {
                           <img 
                             src={dest.image} 
                             alt={dest.name} 
+                            onError={(e) => {
+                              e.currentTarget.src = 'https://images.unsplash.com/photo-1548013146-72479768bada?w=800';
+                            }}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
@@ -2558,6 +2638,9 @@ export default function App() {
                         <img 
                           src={stay.image} 
                           alt={stay.name} 
+                          onError={(e) => {
+                            e.currentTarget.src = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600';
+                          }}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
                         />
                         
