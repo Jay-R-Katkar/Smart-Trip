@@ -56,7 +56,7 @@ export default function App() {
   const [chatMessages, setChatMessages] = useState([
     {
       sender: 'bot',
-      text: 'Namaste! 🙏 I am your SmartTrip AI Guide. Ask me anything about pilgrimage timings, VIP Darshan, satvik ashrams, dress codes, or custom circuit itineraries!'
+      text: 'Namaste! 🙏 I am your SmartTrip AI Guide. Ask me anything about pilgrimage timings, VIP Darshan, satvik ashrams, heritage forts, international circuits, or custom budget plans!'
     }
   ]);
   const [chatInput, setChatInput] = useState('');
@@ -66,7 +66,7 @@ export default function App() {
     'Bhasma Aarti timings in Ujjain?',
     '2-Day Varanasi budget plan',
     'Dress code for Ram Mandir Ayodhya',
-    'Best Ashrams in Puri Jagannath'
+    'Best spots in Bali & Dubai'
   ];
 
   useEffect(() => {
@@ -83,7 +83,6 @@ export default function App() {
     setChatMessages(newMessages);
     if (!textToSend) setChatInput('');
 
-    // Generate intelligent AI response based on query
     setTimeout(() => {
       let botReply = '';
       const q = query.toLowerCase();
@@ -96,18 +95,21 @@ export default function App() {
         botReply = '🌊 **Kashi Vishwanath & Ganga Ghats:**\n• Dashashwamedh Ghat Ganga Aarti starts daily at 06:45 PM.\n• Kashi Vishwanath Corridor is open 24/7 with special Sugam Darshan tickets.\n• Recommended Budget: ₹3,500 - ₹5,000/day for boat rides, satvik food, and heritage guide.';
       } else if (q.includes('puri') || q.includes('jagannath')) {
         botReply = '🚩 **Puri Jagannath Dham:**\n• Morning Dwarka Darshan begins at 06:00 AM.\n• Mahaprasad (Anand Bazaar) is available daily from 12:30 PM onwards.\n• Also visit Konark Sun Temple (35 km scenic marine drive).';
+      } else if (q.includes('bali') || q.includes('dubai') || q.includes('paris') || q.includes('international')) {
+        botReply = '✈️ **International Circuit Travel Tips:**\n• Bali: Visit Tanah Lot & Uluwatu Temple, visa on arrival available for Indian passport holders.\n• Dubai: Burj Khalifa observation deck & Desert Safari.\n• Paris: Eiffel Tower & Louvre Museum (book tickets 2 weeks in advance).';
       } else if (q.includes('budget') || q.includes('cost') || q.includes('price')) {
-        botReply = `💰 **Estimated Circuit Budget for ${selectedCity}:**\n• Average 2-Day trip: ₹${budget.toLocaleString()} (Includes stay, satvik meals, local cabs & darshan tokens).\n• Daily estimate: ₹${(budget/days).toFixed(0)} per day for ${days} days.`;
+        botReply = `💰 **Estimated Circuit Budget for ${selectedCity}:**\n• Average 2-Day trip: ₹${budget.toLocaleString()} (Includes stay, meals, local transport & entry tokens).\n• Daily estimate: ₹${(budget/days).toFixed(0)} per day for ${days} days.`;
       } else {
-        botReply = `✨ **SmartTrip AI Assistant:** For ${selectedCity}, I have mapped an optimized itinerary with ${activeDestination.activities.length} waypoints, verified Ashrams, and local Vedic guides! Click on the *Itinerary Planner* or *Ashrams* tab on the left menu to view full details.`;
+        botReply = `✨ **SmartTrip AI Assistant:** For ${selectedCity}, I have mapped an optimized itinerary with ${activeDestination.activities.length} waypoints, verified stays, and guides! Click on the *Itinerary Planner* or *Ashrams* tab on the left menu to view full details.`;
       }
 
       setChatMessages(prev => [...prev, { sender: 'bot', text: botReply }]);
     }, 600);
   };
 
-  // 23+ Destinations Dataset
+  // Comprehensive Dataset across Spiritual, Heritage, Nature, and International Circuits
   const destinationsData = [
+    // --- 1. SPIRITUAL & DHARMIK ---
     {
       id: 'ujjain',
       name: 'Ujjain',
@@ -165,20 +167,6 @@ export default function App() {
       ]
     },
     {
-      id: 'rishikesh',
-      name: 'Rishikesh',
-      title: 'Triveni Ghat & Ganga',
-      category: 'Nature',
-      image: 'https://images.unsplash.com/photo-1588416936097-41850ab3d86d?w=600',
-      tag: 'Yoga & Ganga Aarti',
-      coords: [30.0869, 78.2676],
-      activities: [
-        { name: 'Ram Jhula & Swarg Ashram Walk', period: 'Morning (07:00 - 10:30)', time_slot: 'Morning', category: 'Ashram Heritage', cost: 0, latitude: 30.1235, longitude: 78.3168, image_url: 'https://images.unsplash.com/photo-1588416936097-41850ab3d86d?w=600' },
-        { name: 'Beatles Ashram (Chaurasi Kutia)', period: 'Afternoon (14:00 - 16:30)', time_slot: 'Afternoon', category: 'Eco Culture', cost: 150, latitude: 30.1190, longitude: 78.3240, image_url: 'https://images.unsplash.com/photo-1588416936097-41850ab3d86d?w=600' },
-        { name: 'Triveni Ghat Maha Aarti', period: 'Evening (18:00 - 20:00)', time_slot: 'Evening', category: 'Ghat Aarti', cost: 0, latitude: 30.0980, longitude: 78.2930, image_url: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=600' }
-      ]
-    },
-    {
       id: 'amritsar',
       name: 'Amritsar',
       title: 'Golden Temple (Harmandir Sahib)',
@@ -207,6 +195,78 @@ export default function App() {
       ]
     },
     {
+      id: 'tirupati',
+      name: 'Tirupati',
+      title: 'Sri Venkateswara Swamy Temple',
+      category: 'Spiritual',
+      image: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=600',
+      tag: 'Balaji & Tirumala Hills',
+      coords: [13.6833, 79.3472],
+      activities: [
+        { name: 'Tirumala Balaji Special Darshan', period: 'Morning (05:30 - 10:30)', time_slot: 'Morning', category: 'Lord Venkateswara', cost: 300, latitude: 13.6833, longitude: 79.3472, image_url: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=600' },
+        { name: 'Sri Padmavathi Ammavari Temple', period: 'Afternoon (14:00 - 16:30)', time_slot: 'Afternoon', category: 'Holy Mandir', cost: 50, latitude: 13.6150, longitude: 79.4320, image_url: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=600' },
+        { name: 'Kapila Theertham Waterfalls', period: 'Evening (17:30 - 19:30)', time_slot: 'Evening', category: 'Nature & Temple', cost: 0, latitude: 13.6510, longitude: 79.4210, image_url: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=600' }
+      ]
+    },
+    {
+      id: 'kedarnath',
+      name: 'Kedarnath',
+      title: 'Himalayan Jyotirlinga',
+      category: 'Spiritual',
+      image: 'https://images.unsplash.com/photo-1605649487212-47bdab064df8?w=600',
+      tag: 'Char Dham & Glaciers',
+      coords: [30.7352, 79.0669],
+      activities: [
+        { name: 'Kedarnath Jyotirlinga Maha Puja', period: 'Morning (06:00 - 10:00)', time_slot: 'Morning', category: 'Jyotirlinga', cost: 0, latitude: 30.7352, longitude: 79.0669, image_url: 'https://images.unsplash.com/photo-1605649487212-47bdab064df8?w=600' },
+        { name: 'Bhairavnath Temple Trek', period: 'Afternoon (13:00 - 15:30)', time_slot: 'Afternoon', category: 'Himalayan Trail', cost: 0, latitude: 30.7370, longitude: 79.0710, image_url: 'https://images.unsplash.com/photo-1588416936097-41850ab3d86d?w=600' },
+        { name: 'Mandakini Valley Sunset Meditation', period: 'Evening (17:00 - 19:00)', time_slot: 'Evening', category: 'Spiritual Silence', cost: 0, latitude: 30.7340, longitude: 79.0650, image_url: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=600' }
+      ]
+    },
+
+    // --- 2. ASI HERITAGE & FORTS ---
+    {
+      id: 'jaipur',
+      name: 'Jaipur',
+      title: 'The Pink City & Forts',
+      category: 'Heritage',
+      image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=600',
+      tag: 'Amer Fort & Hawa Mahal',
+      coords: [26.9124, 75.7873],
+      activities: [
+        { name: 'Amer Fort & Sheesh Mahal', period: 'Morning (08:30 - 12:00)', time_slot: 'Morning', category: 'UNESCO Fort', cost: 100, latitude: 26.9855, longitude: 75.8513, image_url: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=600' },
+        { name: 'Hawa Mahal & City Palace Museum', period: 'Afternoon (14:00 - 16:30)', time_slot: 'Afternoon', category: 'Royal Architecture', cost: 150, latitude: 26.9239, longitude: 75.8267, image_url: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=600' },
+        { name: 'Nahargarh Fort Sunset Viewpoint', period: 'Evening (17:30 - 20:00)', time_slot: 'Evening', category: 'Panoramic Fort', cost: 50, latitude: 26.9387, longitude: 75.8155, image_url: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=600' }
+      ]
+    },
+    {
+      id: 'agra',
+      name: 'Agra',
+      title: 'Taj Mahal & Mughal Splendor',
+      category: 'Heritage',
+      image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=600',
+      tag: 'UNESCO World Wonder',
+      coords: [27.1767, 78.0081],
+      activities: [
+        { name: 'Taj Mahal Sunrise Tour', period: 'Morning (06:00 - 09:30)', time_slot: 'Morning', category: 'World Wonder', cost: 50, latitude: 27.1751, longitude: 78.0421, image_url: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=600' },
+        { name: 'Agra Fort & Diwan-i-Khas', period: 'Afternoon (13:30 - 16:00)', time_slot: 'Afternoon', category: 'ASI Monument', cost: 50, latitude: 27.1795, longitude: 78.0211, image_url: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=600' },
+        { name: 'Mehtab Bagh River Sunset', period: 'Evening (17:30 - 19:30)', time_slot: 'Evening', category: 'Garden Viewpoint', cost: 25, latitude: 27.1800, longitude: 78.0425, image_url: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=600' }
+      ]
+    },
+    {
+      id: 'hampi',
+      name: 'Hampi',
+      title: 'Vijayanagara Ruins & Stone Chariot',
+      category: 'Heritage',
+      image: 'https://images.unsplash.com/photo-1600100397608-f010f4439130?w=600',
+      tag: 'UNESCO Ancient Capital',
+      coords: [15.3350, 76.4600],
+      activities: [
+        { name: 'Vijaya Vittala Temple & Stone Chariot', period: 'Morning (07:30 - 11:00)', time_slot: 'Morning', category: 'Ancient Architecture', cost: 40, latitude: 15.3370, longitude: 76.4780, image_url: 'https://images.unsplash.com/photo-1600100397608-f010f4439130?w=600' },
+        { name: 'Virupaksha Temple & Hampi Bazaar', period: 'Afternoon (14:00 - 16:30)', time_slot: 'Afternoon', category: 'Living Heritage', cost: 0, latitude: 15.3350, longitude: 76.4600, image_url: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=600' },
+        { name: 'Matanga Hill Sunset Coracle Ride', period: 'Evening (17:30 - 19:30)', time_slot: 'Evening', category: 'River Heritage', cost: 100, latitude: 15.3320, longitude: 76.4680, image_url: 'https://images.unsplash.com/photo-1600100397608-f010f4439130?w=600' }
+      ]
+    },
+    {
       id: 'goa',
       name: 'Goa',
       title: 'Old Goa & Coastal Forts',
@@ -218,6 +278,122 @@ export default function App() {
         { name: 'Basilica of Bom Jesus (UNESCO)', period: 'Morning (09:00 - 12:00)', time_slot: 'Morning', category: 'ASI Heritage', cost: 0, latitude: 15.5009, longitude: 73.9116, image_url: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=600' },
         { name: 'Fort Aguada Portuguese Lighthouse', period: 'Afternoon (14:00 - 16:30)', time_slot: 'Afternoon', category: 'Coastal Fort', cost: 50, latitude: 15.4926, longitude: 73.7737, image_url: 'https://images.unsplash.com/photo-1587974928442-77dc3e0dba72?w=600' },
         { name: 'Baga Promenade & Sunset Shacks', period: 'Evening (17:30 - 20:30)', time_slot: 'Evening', category: 'Coastline', cost: 0, latitude: 15.5553, longitude: 73.7517, image_url: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=600' }
+      ]
+    },
+
+    // --- 3. NATURE & ECO-RESORTS ---
+    {
+      id: 'rishikesh',
+      name: 'Rishikesh',
+      title: 'Triveni Ghat & Ganga Nature',
+      category: 'Nature',
+      image: 'https://images.unsplash.com/photo-1588416936097-41850ab3d86d?w=600',
+      tag: 'Yoga, Hills & Ganga Aarti',
+      coords: [30.0869, 78.2676],
+      activities: [
+        { name: 'Ram Jhula & Swarg Ashram Walk', period: 'Morning (07:00 - 10:30)', time_slot: 'Morning', category: 'Ashram Heritage', cost: 0, latitude: 30.1235, longitude: 78.3168, image_url: 'https://images.unsplash.com/photo-1588416936097-41850ab3d86d?w=600' },
+        { name: 'Beatles Ashram (Chaurasi Kutia)', period: 'Afternoon (14:00 - 16:30)', time_slot: 'Afternoon', category: 'Eco Culture', cost: 150, latitude: 30.1190, longitude: 78.3240, image_url: 'https://images.unsplash.com/photo-1588416936097-41850ab3d86d?w=600' },
+        { name: 'Triveni Ghat Maha Aarti', period: 'Evening (18:00 - 20:00)', time_slot: 'Evening', category: 'Ghat Aarti', cost: 0, latitude: 30.0980, longitude: 78.2930, image_url: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=600' }
+      ]
+    },
+    {
+      id: 'munnar',
+      name: 'Munnar',
+      title: 'Misty Tea Gardens & Waterfalls',
+      category: 'Nature',
+      image: 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2?w=600',
+      tag: 'Western Ghats & Tea Estates',
+      coords: [10.0889, 77.0595],
+      activities: [
+        { name: 'Eravikulam National Park & Nilgiri Tahr', period: 'Morning (08:00 - 11:30)', time_slot: 'Morning', category: 'Wildlife Sanctuary', cost: 200, latitude: 10.1500, longitude: 77.0600, image_url: 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2?w=600' },
+        { name: 'Tata Tea Museum & Plantation Trail', period: 'Afternoon (13:30 - 16:00)', time_slot: 'Afternoon', category: 'Eco Tourism', cost: 125, latitude: 10.0889, longitude: 77.0595, image_url: 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2?w=600' },
+        { name: 'Mattupetty Dam & Eco Point Boating', period: 'Evening (16:30 - 18:30)', time_slot: 'Evening', category: 'Lake & Hills', cost: 150, latitude: 10.1080, longitude: 77.1240, image_url: 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2?w=600' }
+      ]
+    },
+    {
+      id: 'manali',
+      name: 'Manali',
+      title: 'Solang Valley & Snow Peaks',
+      category: 'Nature',
+      image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600',
+      tag: 'Himalayas & Pine Forests',
+      coords: [32.2432, 77.1892],
+      activities: [
+        { name: 'Solang Valley Adventure & Cable Car', period: 'Morning (09:00 - 13:00)', time_slot: 'Morning', category: 'Snow Valley', cost: 500, latitude: 32.3160, longitude: 77.1570, image_url: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600' },
+        { name: 'Hadimba Devi Ancient Wooden Temple', period: 'Afternoon (14:30 - 16:30)', time_slot: 'Afternoon', category: 'Forest Temple', cost: 0, latitude: 32.2480, longitude: 77.1810, image_url: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=600' },
+        { name: 'Old Manali Riverside Cafes & Stroll', period: 'Evening (17:30 - 20:00)', time_slot: 'Evening', category: 'Mountain Vibe', cost: 0, latitude: 32.2530, longitude: 77.1840, image_url: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600' }
+      ]
+    },
+    {
+      id: 'ladakh',
+      name: 'Ladakh',
+      title: 'Pangong Lake & Monasteries',
+      category: 'Nature',
+      image: 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?w=600',
+      tag: 'High Altitude Desert',
+      coords: [34.1526, 77.5771],
+      activities: [
+        { name: 'Thiksey Monastery Morning Chanting', period: 'Morning (06:30 - 09:30)', time_slot: 'Morning', category: 'Buddhist Monastery', cost: 50, latitude: 34.0583, longitude: 77.6667, image_url: 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?w=600' },
+        { name: 'Shanti Stupa Panoramic View', period: 'Afternoon (14:00 - 16:30)', time_slot: 'Afternoon', category: 'Peace Monument', cost: 0, latitude: 34.1642, longitude: 77.5847, image_url: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=600' },
+        { name: 'Pangong Tso Blue Water Sunset', period: 'Evening (17:00 - 19:30)', time_slot: 'Evening', category: 'Himalayan Lake', cost: 0, latitude: 33.7595, longitude: 78.6674, image_url: 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?w=600' }
+      ]
+    },
+
+    // --- 4. INTERNATIONAL CIRCUITS ---
+    {
+      id: 'paris',
+      name: 'Paris',
+      title: 'City of Light & Art',
+      category: 'International',
+      image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600',
+      tag: 'Eiffel Tower & Louvre',
+      coords: [48.8566, 2.3522],
+      activities: [
+        { name: 'Eiffel Tower Summit View', period: 'Morning (09:00 - 12:00)', time_slot: 'Morning', category: 'Global Landmark', cost: 2500, latitude: 48.8584, longitude: 2.2945, image_url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600' },
+        { name: 'Louvre Museum Mona Lisa Tour', period: 'Afternoon (13:30 - 17:00)', time_slot: 'Afternoon', category: 'World Art Museum', cost: 1800, latitude: 48.8606, longitude: 2.3376, image_url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600' },
+        { name: 'Seine River Sunset Cruise', period: 'Evening (18:30 - 20:30)', time_slot: 'Evening', category: 'River Romance', cost: 1500, latitude: 48.8570, longitude: 2.3510, image_url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600' }
+      ]
+    },
+    {
+      id: 'dubai',
+      name: 'Dubai',
+      title: 'Futuristic Oasis & Desert',
+      category: 'International',
+      image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600',
+      tag: 'Burj Khalifa & Desert Safari',
+      coords: [25.2048, 55.2708],
+      activities: [
+        { name: 'Burj Khalifa 124th Floor Observation', period: 'Morning (09:30 - 12:30)', time_slot: 'Morning', category: 'Tallest Skyscraper', cost: 3500, latitude: 25.1972, longitude: 55.2744, image_url: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600' },
+        { name: 'Dubai Mall & Fountain Show', period: 'Afternoon (14:00 - 17:00)', time_slot: 'Afternoon', category: 'Mega Mall', cost: 0, latitude: 25.1985, longitude: 55.2796, image_url: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600' },
+        { name: 'Red Dune Desert Safari & BBQ Dinner', period: 'Evening (17:30 - 21:30)', time_slot: 'Evening', category: 'Desert Adventure', cost: 2800, latitude: 24.9500, longitude: 55.5000, image_url: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600' }
+      ]
+    },
+    {
+      id: 'bali',
+      name: 'Bali',
+      title: 'Island of the Gods',
+      category: 'International',
+      image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600',
+      tag: 'Uluwatu Temple & Beaches',
+      coords: [-8.4095, 115.1889],
+      activities: [
+        { name: 'Ubud Sacred Monkey Forest & Rice Terraces', period: 'Morning (08:30 - 12:00)', time_slot: 'Morning', category: 'Tropical Nature', cost: 500, latitude: -8.5190, longitude: 115.2600, image_url: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600' },
+        { name: 'Tanah Lot Sea Temple', period: 'Afternoon (14:00 - 16:30)', time_slot: 'Afternoon', category: 'Ocean Sanctuary', cost: 350, latitude: -8.6212, longitude: 115.0868, image_url: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600' },
+        { name: 'Uluwatu Cliff Kecak Fire Dance', period: 'Evening (17:30 - 19:30)', time_slot: 'Evening', category: 'Cultural Dance', cost: 800, latitude: -8.8290, longitude: 115.0849, image_url: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600' }
+      ]
+    },
+    {
+      id: 'tokyo',
+      name: 'Tokyo',
+      title: 'Tradition Meets Tomorrow',
+      category: 'International',
+      image: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600',
+      tag: 'Sensō-ji Temple & Shibuya',
+      coords: [35.6762, 139.6503],
+      activities: [
+        { name: 'Sensō-ji Ancient Asakusa Temple', period: 'Morning (08:30 - 11:30)', time_slot: 'Morning', category: 'Historic Buddhist', cost: 0, latitude: 35.7148, longitude: 139.7967, image_url: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600' },
+        { name: 'Meiji Jingu Shrine & Forest Walk', period: 'Afternoon (13:30 - 16:00)', time_slot: 'Afternoon', category: 'Shinto Shrine', cost: 0, latitude: 35.6764, longitude: 139.6993, image_url: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600' },
+        { name: 'Shibuya Scramble Crossing & Sky Deck', period: 'Evening (17:30 - 20:30)', time_slot: 'Evening', category: 'Neon Metropolis', cost: 1200, latitude: 35.6595, longitude: 139.7005, image_url: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600' }
       ]
     }
   ];
@@ -306,7 +482,7 @@ export default function App() {
               <span className={`text-xl font-extrabold tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
                 Smart<span className="text-emerald-600">Trip</span>
               </span>
-              <span className="block text-[9px] font-bold text-emerald-600 uppercase tracking-wider">Dharmik & Heritage</span>
+              <span className="block text-[9px] font-bold text-emerald-600 uppercase tracking-wider">Global & Dharmik Circuits</span>
             </div>
           </div>
 
@@ -422,7 +598,7 @@ export default function App() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="SEARCH ANY PILGRIMAGE, HERITAGE OR SCENIC DESTINATION... (e.g. Ujjain, Ayodhya, Varanasi, Puri, Rishikesh, Somnath...)"
+                  placeholder="SEARCH ANY PILGRIMAGE, HERITAGE OR SCENIC DESTINATION... (e.g. Ujjain, Ayodhya, Varanasi, Puri, Jaipur, Bali, Paris, Munnar...)"
                   className={`w-full pl-11 pr-4 py-3 border rounded-2xl text-xs sm:text-sm transition-all shadow-xs ${
                     isDarkMode 
                       ? 'bg-slate-900 border-slate-800 text-white placeholder-slate-500' 
@@ -461,16 +637,16 @@ export default function App() {
                 ))}
               </div>
 
-              {/* INTERACTIVE TOURISM GRID */}
+              {/* INTERACTIVE TOURISM GRID (SHOWS ALL EXPANDED PLACES) */}
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <h3 className={`text-sm font-bold ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>
-                    Interactive Tourism Grid ({filteredDestinations.length} Places)
+                    Interactive Tourism Grid ({filteredDestinations.length} Destinations Available)
                   </h3>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 gap-4">
-                  {filteredDestinations.slice(0, 8).map((dest) => {
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
+                  {filteredDestinations.map((dest) => {
                     const isSelected = selectedCity === dest.name;
                     return (
                       <div
@@ -498,6 +674,12 @@ export default function App() {
                               <Check size={12} strokeWidth={3} />
                             </div>
                           )}
+
+                          <div className="absolute top-2 left-2">
+                            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-black/50 backdrop-blur-xs text-white border border-white/20">
+                              {dest.category}
+                            </span>
+                          </div>
                           
                           <div className="absolute bottom-2.5 left-3 right-3">
                             <h4 className="font-extrabold text-white text-base leading-tight">{dest.name}</h4>
@@ -554,7 +736,7 @@ export default function App() {
 
                   {/* 4. Total Budget */}
                   <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Budget (INR)</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Budget ({currency})</span>
                     <span className={`font-black text-base ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>
                       {currency === 'INR' ? `₹${budget.toLocaleString()}` : `$${Math.round(budget/85).toLocaleString()}`}
                     </span>
