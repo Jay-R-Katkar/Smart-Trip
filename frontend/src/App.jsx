@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { InteractiveMap } from './components/InteractiveMap';
 import { 
   MapPin, 
@@ -28,7 +28,12 @@ import {
   Calendar,
   Sun,
   Moon,
-  Star
+  Star,
+  MessageSquare,
+  Send,
+  Bot,
+  User as UserIcon,
+  CornerDownLeft
 } from 'lucide-react';
 
 export default function App() {
@@ -44,6 +49,62 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [emailInput, setEmailInput] = useState('');
+  const [sidebarOpenMobile, setSidebarOpenMobile] = useState(false);
+
+  // Chatbot State
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState([
+    {
+      sender: 'bot',
+      text: 'Namaste! 🙏 I am your SmartTrip AI Guide. Ask me anything about pilgrimage timings, VIP Darshan, satvik ashrams, dress codes, or custom circuit itineraries!'
+    }
+  ]);
+  const [chatInput, setChatInput] = useState('');
+  const chatEndRef = useRef(null);
+
+  const quickQuestions = [
+    'Bhasma Aarti timings in Ujjain?',
+    '2-Day Varanasi budget plan',
+    'Dress code for Ram Mandir Ayodhya',
+    'Best Ashrams in Puri Jagannath'
+  ];
+
+  useEffect(() => {
+    if (isChatOpen) {
+      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chatMessages, isChatOpen]);
+
+  const handleSendMessage = (textToSend) => {
+    const query = textToSend || chatInput;
+    if (!query.trim()) return;
+
+    const newMessages = [...chatMessages, { sender: 'user', text: query }];
+    setChatMessages(newMessages);
+    if (!textToSend) setChatInput('');
+
+    // Generate intelligent AI response based on query
+    setTimeout(() => {
+      let botReply = '';
+      const q = query.toLowerCase();
+
+      if (q.includes('bhasma') || q.includes('ujjain') || q.includes('mahakal')) {
+        botReply = '🔱 **Mahakaleshwar Ujjain Darshan Info:**\n• Bhasma Aarti: 04:00 AM - 06:00 AM (Requires prior online/counter booking).\n• Regular Darshan: 06:00 AM - 11:00 PM.\n• Dress Code for Garbhagriha: Traditional Saree for women, Dhoti-Kurta (unstitched dhoti) for men.\n• Recommendation: Stay at *Shri Mahakal Bhakt Ashram* (200m from temple).';
+      } else if (q.includes('ayodhya') || q.includes('ram mandir')) {
+        botReply = '🛕 **Shri Ram Janmabhoomi Ayodhya:**\n• Darshan Timings: 07:00 AM to 11:30 AM & 02:00 PM to 07:00 PM.\n• Aarti: Shringar Aarti (06:30 AM), Sandhya Aarti (07:30 PM).\n• Mobiles, leather belts & electronic items are stored at free lockers outside.\n• Must-visit: Hanuman Garhi & Saryu River Maha Aarti.';
+      } else if (q.includes('varanasi') || q.includes('kashi') || q.includes('ganga')) {
+        botReply = '🌊 **Kashi Vishwanath & Ganga Ghats:**\n• Dashashwamedh Ghat Ganga Aarti starts daily at 06:45 PM.\n• Kashi Vishwanath Corridor is open 24/7 with special Sugam Darshan tickets.\n• Recommended Budget: ₹3,500 - ₹5,000/day for boat rides, satvik food, and heritage guide.';
+      } else if (q.includes('puri') || q.includes('jagannath')) {
+        botReply = '🚩 **Puri Jagannath Dham:**\n• Morning Dwarka Darshan begins at 06:00 AM.\n• Mahaprasad (Anand Bazaar) is available daily from 12:30 PM onwards.\n• Also visit Konark Sun Temple (35 km scenic marine drive).';
+      } else if (q.includes('budget') || q.includes('cost') || q.includes('price')) {
+        botReply = `💰 **Estimated Circuit Budget for ${selectedCity}:**\n• Average 2-Day trip: ₹${budget.toLocaleString()} (Includes stay, satvik meals, local cabs & darshan tokens).\n• Daily estimate: ₹${(budget/days).toFixed(0)} per day for ${days} days.`;
+      } else {
+        botReply = `✨ **SmartTrip AI Assistant:** For ${selectedCity}, I have mapped an optimized itinerary with ${activeDestination.activities.length} waypoints, verified Ashrams, and local Vedic guides! Click on the *Itinerary Planner* or *Ashrams* tab on the left menu to view full details.`;
+      }
+
+      setChatMessages(prev => [...prev, { sender: 'bot', text: botReply }]);
+    }, 600);
+  };
 
   // 23+ Destinations Dataset
   const destinationsData = [
@@ -200,18 +261,42 @@ export default function App() {
   ];
 
   return (
-    <div className={`flex h-screen font-sans overflow-hidden transition-colors duration-200 ${
+    <div className={`min-h-screen flex transition-colors duration-200 ${
       isDarkMode ? 'bg-[#070d18] text-slate-100' : 'bg-[#f8fafc] text-slate-900'
     }`}>
       
-      {/* 1. LEFT VERTICAL SIDEBAR NAVBAR */}
-      <aside className={`w-64 border-r flex flex-col justify-between h-full p-4 shrink-0 shadow-xs z-30 transition-colors duration-200 ${
-        isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/80'
+      {/* MOBILE HAMBURGER TOP BAR */}
+      <div className={`md:hidden fixed top-0 left-0 right-0 z-40 px-4 py-3 border-b flex items-center justify-between shadow-xs ${
+        isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
       }`}>
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-sm">
+            ST
+          </div>
+          <span className="font-extrabold text-base tracking-tight">Smart<span className="text-emerald-600">Trip</span></span>
+        </div>
+
+        <button 
+          onClick={() => setSidebarOpenMobile(!sidebarOpenMobile)}
+          className={`p-2 rounded-xl border ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200'}`}
+        >
+          {sidebarOpenMobile ? <X size={18} /> : <Menu size={18} />}
+        </button>
+      </div>
+
+      {/* 1. LEFT VERTICAL SIDEBAR (DESKTOP FIXED + MOBILE SLIDEOUT) */}
+      <aside className={`
+        fixed md:sticky top-0 left-0 bottom-0 h-screen w-64 border-r flex flex-col justify-between p-4 z-50 transition-all duration-300 shadow-sm
+        ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}
+        ${sidebarOpenMobile ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
         <div>
           {/* Logo */}
           <div 
-            onClick={() => setActiveTab('itinerary')}
+            onClick={() => {
+              setActiveTab('itinerary');
+              setSidebarOpenMobile(false);
+            }}
             className="flex items-center gap-2.5 px-2 py-3 mb-4 cursor-pointer select-none"
           >
             <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg shadow-sm">
@@ -233,7 +318,10 @@ export default function App() {
               return (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id)}
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    setSidebarOpenMobile(false);
+                  }}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all text-left ${
                     isActive
                       ? isDarkMode 
@@ -257,17 +345,17 @@ export default function App() {
           
           {/* Theme Toggle Button */}
           <div className="flex items-center justify-between px-1">
-            <span className="text-xs font-semibold text-slate-400">Appearance</span>
+            <span className="text-xs font-semibold text-slate-400">Theme</span>
             <button
               onClick={() => setIsDarkMode(!isDarkMode)}
-              className={`p-1.5 rounded-xl border transition-all flex items-center gap-1.5 text-xs font-bold ${
+              className={`px-3 py-1.5 rounded-xl border transition-all flex items-center gap-1.5 text-xs font-bold ${
                 isDarkMode 
                   ? 'bg-slate-800 text-amber-400 border-slate-700' 
                   : 'bg-slate-100 text-slate-700 border-slate-200'
               }`}
               title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
-              {isDarkMode ? <Sun size={15} /> : <Moon size={15} />}
+              {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
               <span>{isDarkMode ? 'Dark' : 'Light'}</span>
             </button>
           </div>
@@ -305,7 +393,7 @@ export default function App() {
       </aside>
 
       {/* 2. MAIN RIGHT SCROLLABLE CONTENT */}
-      <main className="flex-1 h-full overflow-y-auto p-6 sm:p-8 space-y-6">
+      <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 pt-16 md:pt-8 space-y-6">
         <div className="max-w-6xl mx-auto space-y-6">
           
           {/* MODULE 1: ITINERARY PLANNER (EXACT MATCHING SCREENSHOT) */}
@@ -745,6 +833,131 @@ export default function App() {
 
         </div>
       </main>
+
+      {/* 3. FLOATING AI CHATBOT COMPONENT */}
+      <div className="fixed bottom-6 right-6 z-50">
+        
+        {/* Chat Window */}
+        {isChatOpen && (
+          <div className={`mb-4 w-80 sm:w-96 rounded-3xl border shadow-2xl overflow-hidden flex flex-col transition-all duration-200 ${
+            isDarkMode ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'
+          }`} style={{ height: '480px' }}>
+            
+            {/* Header */}
+            <div className="bg-gradient-to-r from-emerald-700 to-emerald-900 p-4 text-white flex items-center justify-between shadow-xs">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-black text-xs">
+                  <Bot size={18} />
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-sm leading-tight">SmartTrip AI Guide</h4>
+                  <span className="text-[10px] text-emerald-200 flex items-center gap-1 font-medium">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
+                    Online • Vedic & Darshan Bot
+                  </span>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => setIsChatOpen(false)}
+                className="p-1 rounded-full hover:bg-white/10 text-white transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Messages Area */}
+            <div className={`flex-1 p-4 overflow-y-auto space-y-3 text-xs ${
+              isDarkMode ? 'bg-slate-950/40' : 'bg-slate-50'
+            }`}>
+              {chatMessages.map((msg, idx) => (
+                <div 
+                  key={idx} 
+                  className={`flex items-start gap-2 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  {msg.sender === 'bot' && (
+                    <div className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 text-[10px] font-bold mt-0.5">
+                      AI
+                    </div>
+                  )}
+
+                  <div className={`max-w-[80%] p-3 rounded-2xl whitespace-pre-line leading-relaxed ${
+                    msg.sender === 'user'
+                      ? 'bg-emerald-600 text-white rounded-br-none shadow-xs'
+                      : isDarkMode 
+                        ? 'bg-slate-800 text-slate-100 rounded-bl-none border border-slate-700/60 shadow-xs' 
+                        : 'bg-white text-slate-800 rounded-bl-none border border-slate-200 shadow-xs'
+                  }`}>
+                    {msg.text}
+                  </div>
+                </div>
+              ))}
+              <div ref={chatEndRef} />
+            </div>
+
+            {/* Quick Prompts */}
+            <div className={`p-2 border-t flex items-center gap-1.5 overflow-x-auto no-scrollbar ${
+              isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-100'
+            }`}>
+              {quickQuestions.map((q, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleSendMessage(q)}
+                  className={`text-[10px] whitespace-nowrap px-2.5 py-1 rounded-full border transition-colors ${
+                    isDarkMode 
+                      ? 'bg-slate-800 border-slate-700 text-slate-300 hover:text-emerald-400' 
+                      : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700'
+                  }`}
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+
+            {/* Input Bar */}
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSendMessage();
+              }}
+              className={`p-3 border-t flex items-center gap-2 ${
+                isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+              }`}
+            >
+              <input
+                type="text"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                placeholder="Ask about Mandir timings, hotels, budget..."
+                className={`flex-1 px-3.5 py-2 rounded-xl text-xs border focus:outline-none transition-all ${
+                  isDarkMode 
+                    ? 'bg-slate-800 border-slate-700 text-white placeholder-slate-500 focus:border-emerald-500' 
+                    : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-emerald-600'
+                }`}
+              />
+              <button
+                type="submit"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white p-2 rounded-xl transition-transform active:scale-95 shadow-xs"
+              >
+                <Send size={15} />
+              </button>
+            </form>
+
+          </div>
+        )}
+
+        {/* Floating Bubble Button */}
+        <button
+          onClick={() => setIsChatOpen(!isChatOpen)}
+          className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white p-3.5 sm:p-4 rounded-2xl shadow-xl flex items-center gap-2 transition-all group"
+          title="SmartTrip AI Assistant"
+        >
+          <Bot size={22} className="group-hover:rotate-12 transition-transform" />
+          <span className="font-bold text-xs hidden sm:inline">Ask AI Guide</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-300 animate-ping absolute top-2 right-2" />
+        </button>
+
+      </div>
 
       {/* USER AUTH MODAL */}
       {isAuthOpen && (
