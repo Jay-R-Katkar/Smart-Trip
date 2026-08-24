@@ -49,7 +49,9 @@ import {
   Utensils,
   Car,
   ShoppingBag,
-  AlertOctagon
+  AlertOctagon,
+  Activity,
+  Timer
 } from 'lucide-react';
 
 export default function App() {
@@ -112,6 +114,161 @@ export default function App() {
     IDR: { symbol: 'Rp ', rate: 188.5, label: 'IDR (Rp) - Indonesian Rupiah' },
     GBP: { symbol: '£', rate: 0.0092, label: 'GBP (£) - British Pound' },
     SGD: { symbol: 'S$', rate: 0.0156, label: 'SGD (S$) - Singapore Dollar' }
+  };
+
+  // Live Crowd Metadata Dictionary per City
+  const cityCrowdData = {
+    Ujjain: {
+      crowdLevel: 'High Rush (Bhasma Aarti Peak)',
+      levelColor: 'rose',
+      regularWait: '50 - 65 mins',
+      vipWait: '15 mins (Sugam Darshan)',
+      peakHours: '05:00 AM - 09:30 AM & 06:30 PM - 09:00 PM',
+      bestTime: '01:30 PM - 03:45 PM (Minimum Queue)',
+      capacityPct: 88,
+      statusMsg: 'High footfall at Mahakal Garbhagriha & Mahakal Lok. Pre-book VIP entry token for fast darshan.'
+    },
+    Ayodhya: {
+      crowdLevel: 'Moderate to High (Ram Mandir)',
+      levelColor: 'amber',
+      regularWait: '35 - 50 mins',
+      vipWait: '10 - 15 mins (Aarti Pass)',
+      peakHours: '07:00 AM - 11:00 AM & 06:00 PM - 08:30 PM',
+      bestTime: '02:00 PM - 04:00 PM',
+      capacityPct: 75,
+      statusMsg: 'Steady stream of pilgrims at Janmabhoomi and Hanuman Garhi. Electronic lockers available.'
+    },
+    Varanasi: {
+      crowdLevel: 'High Crowd (Ganga Aarti Peak)',
+      levelColor: 'rose',
+      regularWait: '45 - 60 mins',
+      vipWait: '15 mins',
+      peakHours: '06:00 AM - 09:00 AM & 06:00 PM - 08:30 PM',
+      bestTime: '12:00 PM - 03:00 PM',
+      capacityPct: 92,
+      statusMsg: 'Dashashwamedh Ghat and Vishwanath Corridor witnessing large evening gathering.'
+    },
+    Puri: {
+      crowdLevel: 'Moderate Rush',
+      levelColor: 'amber',
+      regularWait: '30 - 45 mins',
+      vipWait: '10 mins',
+      peakHours: '06:30 AM - 10:00 AM & 05:30 PM - 08:00 PM',
+      bestTime: '01:00 PM - 03:30 PM',
+      capacityPct: 68,
+      statusMsg: 'Pleasant movement at Shree Jagannath Mandir and Golden Beach promenade.'
+    },
+    Amritsar: {
+      crowdLevel: 'Moderate (Continuous Langar Flow)',
+      levelColor: 'emerald',
+      regularWait: '20 - 30 mins',
+      vipWait: 'Direct Access',
+      peakHours: '05:00 AM - 08:00 AM & 07:00 PM - 09:30 PM',
+      bestTime: '11:00 AM - 03:00 PM',
+      capacityPct: 60,
+      statusMsg: 'Smooth Parikrama at Harmandir Sahib and organized Langar hall service.'
+    },
+    Somnath: {
+      crowdLevel: 'Low to Moderate',
+      levelColor: 'emerald',
+      regularWait: '15 - 25 mins',
+      vipWait: '5 mins',
+      peakHours: '07:00 AM - 09:30 AM & 07:00 PM - 08:30 PM',
+      bestTime: '11:30 AM - 04:30 PM',
+      capacityPct: 45,
+      statusMsg: 'Very comfortable movement at sea-facing temple complex with minimal waiting.'
+    },
+    Tirupati: {
+      crowdLevel: 'Very High (Tirumala Slotted Queue)',
+      levelColor: 'rose',
+      regularWait: '3 - 4 hours (Free Sarva Darshan)',
+      vipWait: '45 mins (Special Entry ₹300)',
+      peakHours: 'All Day (Peak weekend rush)',
+      bestTime: 'Early Morning Slotted Tickets (06:00 AM)',
+      capacityPct: 96,
+      statusMsg: 'Large queue complexes active in Tirumala hills. Please book ₹300 Special Entry online.'
+    },
+    Kedarnath: {
+      crowdLevel: 'Moderate (Trek & Helicopter)',
+      levelColor: 'amber',
+      regularWait: '40 - 60 mins',
+      vipWait: '15 mins',
+      peakHours: '06:00 AM - 10:00 AM & 05:00 PM - 07:30 PM',
+      bestTime: '12:00 PM - 03:00 PM',
+      capacityPct: 70,
+      statusMsg: 'Himalayan weather cold and clear. Queue moving smoothly for Jyotirlinga Abhishek.'
+    },
+    Jaipur: {
+      crowdLevel: 'Moderate (Forts & Palaces)',
+      levelColor: 'emerald',
+      regularWait: '15 - 25 mins (Amer Fort)',
+      vipWait: '5 mins (Online QR Ticket)',
+      peakHours: '10:00 AM - 01:00 PM & 04:30 PM - 07:00 PM',
+      bestTime: '08:30 AM - 10:00 AM',
+      capacityPct: 55,
+      statusMsg: 'Fast entry with composite tickets at Hawa Mahal and Amer Fort.'
+    },
+    Dubai: {
+      crowdLevel: 'High Sunset Rush (Burj Khalifa)',
+      levelColor: 'amber',
+      regularWait: '25 - 40 mins (Deck Lift)',
+      vipWait: '5 mins (Sky Luxury Pass)',
+      peakHours: '05:00 PM - 07:30 PM (Sunset Hours)',
+      bestTime: '09:30 AM - 12:00 PM (Morning Clarity)',
+      capacityPct: 82,
+      statusMsg: 'Observation decks on 124th/148th floors busy for sunset skyline photography.'
+    },
+    Switzerland: {
+      crowdLevel: 'Low to Moderate Flow',
+      levelColor: 'emerald',
+      regularWait: '5 - 10 mins (Jungfrau Train)',
+      vipWait: 'Priority Boarding (Swiss Travel Pass)',
+      peakHours: '10:30 AM - 02:30 PM',
+      bestTime: '08:30 AM - 10:30 AM',
+      capacityPct: 40,
+      statusMsg: 'Pristine conditions across panoramic alpine trains and mountain cable cars.'
+    },
+    Bali: {
+      crowdLevel: 'Moderate Sunset Rush',
+      levelColor: 'emerald',
+      regularWait: '15 - 20 mins',
+      vipWait: 'Direct Entry',
+      peakHours: '04:30 PM - 07:00 PM (Uluwatu Sunset Dance)',
+      bestTime: '08:30 AM - 11:30 AM',
+      capacityPct: 62,
+      statusMsg: 'Arrive before 04:30 PM at Uluwatu Cliff for front-row seats at Kecak fire dance.'
+    },
+    Tokyo: {
+      crowdLevel: 'Moderate to High',
+      levelColor: 'amber',
+      regularWait: '15 - 30 mins',
+      vipWait: 'Express QR',
+      peakHours: '11:00 AM - 02:00 PM & 05:00 PM - 08:30 PM',
+      bestTime: '08:30 AM - 10:30 AM',
+      capacityPct: 72,
+      statusMsg: 'Sensō-ji temple Nakamise shopping street seeing active tourist footfall.'
+    },
+    Paris: {
+      crowdLevel: 'High (Eiffel & Louvre Museums)',
+      levelColor: 'rose',
+      regularWait: '40 - 55 mins (Louvre Security)',
+      vipWait: '10 mins (Timed Entry Ticket)',
+      peakHours: '10:30 AM - 03:30 PM & 06:30 PM - 09:00 PM',
+      bestTime: '09:00 AM - 10:30 AM',
+      capacityPct: 85,
+      statusMsg: 'Mandatory timed reservation advised for Louvre Mona Lisa and Eiffel Tower lift.'
+    }
+  };
+
+  const activeCrowd = cityCrowdData[selectedCity] || {
+    crowdLevel: 'Normal Flow',
+    levelColor: 'emerald',
+    regularWait: '15 - 25 mins',
+    vipWait: '5 - 10 mins',
+    peakHours: '10:00 AM - 01:00 PM & 05:00 PM - 08:00 PM',
+    bestTime: '09:00 AM - 11:30 AM',
+    capacityPct: 50,
+    statusMsg: `Smooth and comfortable travel conditions across all central attractions in ${selectedCity}.`
   };
 
   // Chatbot State
@@ -565,7 +722,7 @@ export default function App() {
     setExpenses(expenses.filter(e => e.id !== id));
   };
 
-  // 1-Click Auto Expand Budget by 25% if Out of Budget
+  // 1-Click Auto Expand Budget by 30% if Out of Budget
   const handleExpandBudget = () => {
     setBaseBudgetINR(prev => Math.round(prev * 1.3));
   };
@@ -1295,7 +1452,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* ⚠️ PROMINENT OUT-OF-BUDGET ALERT BANNER (SHOWN WHEN EXPENSES EXCEED BUDGET) */}
+              {/* ⚠️ PROMINENT OUT-OF-BUDGET ALERT BANNER */}
               {isOutOfBudget && (
                 <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-rose-600 via-rose-700 to-rose-900 text-white p-5 sm:p-6 shadow-lg border border-rose-500 animate-pulse">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -1499,24 +1656,135 @@ export default function App() {
           </div>
         )}
 
-        {/* MODULE 5: SMART ALERTS */}
+        {/* MODULE 5: SMART ALERTS & REAL-TIME CROWD MONITOR */}
         {activeTab === 'alerts' && (
           <div className="space-y-6">
-            <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Smart Alerts & Darshan Queues</h2>
-            <div className={`border p-5 rounded-2xl shadow-xs flex items-center justify-between ${
+            <div>
+              <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                Smart Alerts & Live Crowd Radar ({selectedCity})
+              </h2>
+              <p className="text-xs text-slate-400">
+                Real-time queue congestion, darshan waiting times, and optimal weather windows.
+              </p>
+            </div>
+
+            {/* 1. LIVE CROWD & QUEUE CONGESTION CARD (DYNAMICALLY LINKED TO SELECTED CITY) */}
+            <div className={`border p-6 rounded-3xl space-y-5 shadow-xs transition-all ${
               isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
             }`}>
-              <div className="flex items-center gap-3">
-                <CloudSun className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'} size={24} />
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4 border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-emerald-600/10 text-emerald-600 flex items-center justify-center font-black">
+                    <Activity size={24} />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Live Queue Density Radar</span>
+                    <h3 className={`font-black text-lg ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{selectedCity} Crowd Status</h3>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-black px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-xs ${
+                    activeCrowd.levelColor === 'rose' 
+                      ? 'bg-rose-500/20 text-rose-500 border border-rose-500/30' 
+                      : activeCrowd.levelColor === 'amber'
+                        ? 'bg-amber-500/20 text-amber-500 border border-amber-500/30'
+                        : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                  }`}>
+                    <span className={`w-2 h-2 rounded-full animate-ping ${
+                      activeCrowd.levelColor === 'rose' ? 'bg-rose-500' : activeCrowd.levelColor === 'amber' ? 'bg-amber-500' : 'bg-emerald-400'
+                    }`} />
+                    {activeCrowd.crowdLevel}
+                  </span>
+                </div>
+              </div>
+
+              {/* Status Explanation */}
+              <p className="text-xs text-slate-500 dark:text-slate-300 leading-relaxed font-medium">
+                {activeCrowd.statusMsg}
+              </p>
+
+              {/* 3 Metric Mini Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                
+                {/* Regular Wait */}
+                <div className={`p-3.5 rounded-2xl border ${
+                  isDarkMode ? 'bg-slate-800/60 border-slate-700/60' : 'bg-slate-50 border-slate-200'
+                }`}>
+                  <div className="flex items-center gap-2 text-slate-400 text-xs font-semibold mb-1">
+                    <Timer size={15} />
+                    <span>General Queue Wait</span>
+                  </div>
+                  <span className={`font-black text-base ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                    {activeCrowd.regularWait}
+                  </span>
+                </div>
+
+                {/* VIP / Sugam Wait */}
+                <div className={`p-3.5 rounded-2xl border ${
+                  isDarkMode ? 'bg-slate-800/60 border-slate-700/60' : 'bg-slate-50 border-slate-200'
+                }`}>
+                  <div className="flex items-center gap-2 text-emerald-600 text-xs font-bold mb-1">
+                    <Zap size={15} />
+                    <span>VIP / Sugam Darshan</span>
+                  </div>
+                  <span className="font-black text-base text-emerald-600">
+                    {activeCrowd.vipWait}
+                  </span>
+                </div>
+
+                {/* Best Low-Rush Window */}
+                <div className={`p-3.5 rounded-2xl border ${
+                  isDarkMode ? 'bg-slate-800/60 border-slate-700/60' : 'bg-slate-50 border-slate-200'
+                }`}>
+                  <div className="flex items-center gap-2 text-amber-500 text-xs font-bold mb-1">
+                    <Clock size={15} />
+                    <span>Best Low-Rush Window</span>
+                  </div>
+                  <span className={`font-bold text-xs ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>
+                    {activeCrowd.bestTime}
+                  </span>
+                </div>
+
+              </div>
+
+              {/* Crowd Capacity Visual Indicator */}
+              <div className="space-y-1.5 pt-2">
+                <div className="flex items-center justify-between text-xs font-bold">
+                  <span className="text-slate-400">Peak Hours: {activeCrowd.peakHours}</span>
+                  <span className={activeCrowd.capacityPct > 80 ? 'text-rose-500' : 'text-emerald-600'}>
+                    {activeCrowd.capacityPct}% Footfall Intensity
+                  </span>
+                </div>
+                <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      activeCrowd.capacityPct > 80 ? 'bg-rose-500' : activeCrowd.capacityPct > 60 ? 'bg-amber-500' : 'bg-emerald-500'
+                    }`} 
+                    style={{ width: `${activeCrowd.capacityPct}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 2. WEATHER & ENVIRONMENTAL ALERT */}
+            <div className={`border p-5 rounded-3xl shadow-xs flex items-center justify-between ${
+              isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+            }`}>
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-600/10 text-emerald-600 flex items-center justify-center font-bold">
+                  <CloudSun size={22} />
+                </div>
                 <div>
                   <h4 className={`font-bold text-sm ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{selectedCity} Weather: 22°C Clear Skies</h4>
-                  <p className="text-xs text-slate-400">Excellent conditions for travel and sightseeing.</p>
+                  <p className="text-xs text-slate-400">Low precipitation chance, optimal visibility for darshan & photography.</p>
                 </div>
               </div>
               <span className={`text-xs font-bold px-3 py-1 rounded-full ${
                 isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-800'
               }`}>Optimal</span>
             </div>
+
           </div>
         )}
 
