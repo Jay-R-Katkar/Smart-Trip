@@ -60,7 +60,10 @@ import {
   Coffee,
   Wifi,
   Tv,
-  Crown
+  Crown,
+  ChevronRight,
+  Layers,
+  Wallet
 } from 'lucide-react';
 
 export default function App() {
@@ -70,6 +73,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedStayType, setSelectedStayType] = useState('All');
+  const [activeDayView, setActiveDayView] = useState('all'); // 'all', 1, 2, 3...
   const [currency, setCurrency] = useState('INR');
   const [days, setDays] = useState(2);
   const [baseBudgetINR, setBaseBudgetINR] = useState(15000);
@@ -1502,6 +1506,68 @@ export default function App() {
     setIsAuthOpen(false);
   };
 
+  // Generate Structured Day-Wise Itinerary Plan & Budget Breakdown
+  const generateDayWiseSchedule = () => {
+    const acts = activeDestination.activities || [];
+    const dayWiseList = [];
+
+    const dayThemes = [
+      { title: 'Sanctum Darshan & Holy Ghat Parikrama', sub: 'Arrival, primary temple visit, evening river aarti' },
+      { title: 'Corridor Walk, Ancient Teerths & Heritage', sub: 'Historical exploration, local markets & satvik feast' },
+      { title: 'Excursion Trails & Scenic Panoramic Vistas', sub: 'Outskirt teerths, boat parikrama & tranquil spots' },
+      { title: 'Spiritual Discourses & Ashram Meditation', sub: 'Deep Vedic interactions, meditation & local souvenirs' },
+      { title: 'Grand Farewell & Sacred Souvenir Parikrama', sub: 'Morning final prayers, prasad packaging & departure' }
+    ];
+
+    for (let d = 1; d <= days; d++) {
+      const themeIndex = (d - 1) % dayThemes.length;
+      const theme = dayThemes[themeIndex];
+      
+      // Calculate realistic day expenditure breakdown based on total defined budget
+      const rawDayBudget = Math.round(convertedTotalBudget / days);
+      const stayShare = Math.round(rawDayBudget * 0.35);
+      const foodShare = Math.round(rawDayBudget * 0.25);
+      const transitShare = Math.round(rawDayBudget * 0.18);
+      const darshanShare = rawDayBudget - (stayShare + foodShare + transitShare);
+
+      // Activities tailored for this day
+      let dayActivities = [];
+      if (d === 1) {
+        dayActivities = acts.slice(0, 3);
+      } else if (d === 2) {
+        dayActivities = acts.length > 3 ? acts.slice(3, 6) : [
+          { name: `${selectedCity} Heritage Corridor & Ancient Shrines`, period: 'Morning (06:30 - 10:30)', time_slot: 'Morning', category: 'Spiritual Heritage', cost: Math.round(100 * activeRate) },
+          { name: `Local Satvik Annakshetra & Handicraft Bazaar`, period: 'Afternoon (13:00 - 16:00)', time_slot: 'Afternoon', category: 'Cultural Walk', cost: Math.round(150 * activeRate) },
+          { name: `Grand Maha Sandhya Aarti & Riverfront Illumination`, period: 'Evening (18:30 - 20:30)', time_slot: 'Evening', category: 'Ghat Ceremony', cost: 0 }
+        ];
+      } else {
+        dayActivities = [
+          { name: `${selectedCity} Surroundings & Nature Parikrama`, period: 'Morning (07:00 - 11:00)', time_slot: 'Morning', category: 'Scenic & Dharmik', cost: Math.round(80 * activeRate) },
+          { name: `Traditional Vedic Ashram Meditation & Satsang`, period: 'Afternoon (14:00 - 16:30)', time_slot: 'Afternoon', category: 'Ashram Life', cost: 0 },
+          { name: `Sunset Panorama Point & Departure Preparations`, period: 'Evening (17:30 - 20:00)', time_slot: 'Evening', category: 'Sunset Vista', cost: Math.round(50 * activeRate) }
+        ];
+      }
+
+      dayWiseList.push({
+        dayNumber: d,
+        themeTitle: theme.title,
+        themeSub: theme.sub,
+        dayBudget: rawDayBudget,
+        breakdown: {
+          stay: stayShare,
+          food: foodShare,
+          transit: transitShare,
+          darshan: darshanShare
+        },
+        activities: dayActivities
+      });
+    }
+
+    return dayWiseList;
+  };
+
+  const dayWiseSchedule = generateDayWiseSchedule();
+
   const navMenuItems = [
     { id: 'itinerary', label: 'Itinerary Planner', icon: MapPin },
     { id: 'hotels', label: 'Ashrams & Stays', icon: Building2 },
@@ -1675,7 +1741,7 @@ export default function App() {
       <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 pt-16 md:pt-8 space-y-6">
         <div className="max-w-6xl mx-auto space-y-6">
           
-          {/* MODULE 1: ITINERARY PLANNER (EXACT MATCHING SCREENSHOT) */}
+          {/* MODULE 1: ITINERARY PLANNER (WITH DYNAMIC DAY-WISE ITINERARY & MONEY BREAKDOWN) */}
           {activeTab === 'itinerary' && (
             <div className="space-y-6">
               
@@ -1960,110 +2026,246 @@ export default function App() {
 
               </div>
 
-              {/* INTERACTIVE MAP + ITINERARY RESULTS */}
+              {/* INTERACTIVE MAP + DAY-WISE ITINERARY RESULTS */}
               {scheduleGenerated && (
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <div className="space-y-6">
                   
-                  {/* Interactive Leaflet Map */}
-                  <div className="lg:col-span-6 space-y-3">
-                    <div className={`border p-4 rounded-3xl shadow-sm space-y-3 ${
-                      isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-                    }`}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <MapPin className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'} size={18} />
-                          <h3 className={`font-extrabold text-base ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Live Route Map: {selectedCity}</h3>
+                  {/* Top Bar: Leaflet Map */}
+                  <div className={`border p-4 sm:p-5 rounded-3xl shadow-sm space-y-3 ${
+                    isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                  }`}>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <MapPin className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'} size={20} />
+                        <div>
+                          <h3 className={`font-extrabold text-base ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
+                            Live Interactive Route Map: {selectedCity}
+                          </h3>
+                          <p className="text-xs text-slate-400">
+                            Connected waypoints for {days} Days Spiritual & Sightseeing Parikrama
+                          </p>
                         </div>
-                        <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
-                          isDarkMode ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-100 text-emerald-800'
-                        }`}>
-                          {activeDestination.activities?.length || 3} Waypoints
-                        </span>
                       </div>
-
-                      <InteractiveMap 
-                        destination={selectedCity}
-                        centerCoords={activeDestination.coords}
-                        activities={activeDestination.activities || []}
-                        className="h-80 sm:h-96 w-full"
-                      />
-
-                      <p className="text-[11px] text-slate-400 text-center">
-                        Interactive OpenStreetMap • Numbered stops connected in chronological sequence
-                      </p>
+                      <span className={`text-xs font-bold px-3 py-1 rounded-full self-start ${
+                        isDarkMode ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-100 text-emerald-800'
+                      }`}>
+                        {activeDestination.activities?.length || 3} Waypoints Active
+                      </span>
                     </div>
+
+                    <InteractiveMap 
+                      destination={selectedCity}
+                      centerCoords={activeDestination.coords}
+                      activities={activeDestination.activities || []}
+                      className="h-72 sm:h-80 w-full"
+                    />
                   </div>
 
-                  {/* Day-by-Day Schedule Timeline Adapted to User Budget */}
-                  <div className="lg:col-span-6 space-y-3">
-                    <div className={`border p-5 rounded-3xl shadow-sm space-y-4 ${
-                      isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                  {/* DAY-WISE ITINERARY & MONEY BREAKDOWN SECTION */}
+                  <div className={`border p-5 sm:p-6 rounded-3xl shadow-sm space-y-5 ${
+                    isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                  }`}>
+                    
+                    {/* Header: Overview Summary & Tier */}
+                    <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 ${
+                      isDarkMode ? 'border-slate-800' : 'border-slate-100'
                     }`}>
-                      
-                      <div className={`flex items-center justify-between border-b pb-3 ${
-                        isDarkMode ? 'border-slate-800' : 'border-slate-100'
-                      }`}>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className={`font-extrabold text-lg ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{selectedCity} Circuit Plan</h3>
-                            <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md text-white ${
-                              budgetTier === 'luxury' ? 'bg-amber-600' : budgetTier === 'budget' ? 'bg-blue-600' : 'bg-emerald-600'
-                            }`}>
-                              {budgetTier === 'luxury' ? 'VIP Luxury' : budgetTier === 'budget' ? 'Pocket-Friendly' : 'Standard'}
-                            </span>
-                          </div>
-                          <p className="text-xs text-slate-400">{days} Days Custom Budget Schedule</p>
-                        </div>
-                        
-                        <div className="text-right">
-                          <span className={`text-xs font-black block ${
-                            isBudgetTooLow ? 'text-rose-500' : isDarkMode ? 'text-emerald-400' : 'text-emerald-700'
+                      <div>
+                        <div className="flex items-center gap-2.5">
+                          <h3 className={`font-extrabold text-xl ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                            {selectedCity} Day-Wise Itinerary & Expense Plan
+                          </h3>
+                          <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-md text-white ${
+                            budgetTier === 'luxury' ? 'bg-amber-600' : budgetTier === 'budget' ? 'bg-blue-600' : 'bg-emerald-600'
                           }`}>
-                            {activeSymbol}{convertedPerDayBudget.toLocaleString()}/day
+                            {budgetTier === 'luxury' ? '👑 VIP Luxury' : budgetTier === 'budget' ? '🎒 Pocket-Friendly' : '⚖️ Standard'}
                           </span>
-                          <span className="text-[10px] text-slate-400 font-semibold">Allocated Daily</span>
                         </div>
+                        <p className="text-xs text-slate-400 mt-0.5">
+                          Generated custom schedule across {days} Days • Total Budget: {activeSymbol}{convertedTotalBudget.toLocaleString()}
+                        </p>
                       </div>
 
-                      {/* Itinerary Adaptation Banner */}
-                      <div className={`p-3 rounded-2xl border text-xs leading-relaxed flex items-start gap-2.5 ${
-                        budgetTier === 'luxury'
-                          ? isDarkMode ? 'bg-amber-500/10 border-amber-500/30 text-amber-300' : 'bg-amber-50 border-amber-200 text-amber-800'
-                          : budgetTier === 'budget'
-                            ? isDarkMode ? 'bg-blue-500/10 border-blue-500/30 text-blue-300' : 'bg-blue-50 border-blue-200 text-blue-800'
-                            : isDarkMode ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                      }`}>
-                        <Sparkles size={16} className="shrink-0 mt-0.5" />
-                        <div>
-                          <strong>{budgetTier === 'luxury' ? '👑 VIP Circuit Activated' : budgetTier === 'budget' ? '🎒 Budget Optimization Active' : '⚖️ Balanced Comfort Mode'}:</strong>{' '}
-                          {budgetTier === 'luxury' 
-                            ? 'Includes VIP Protocol Darshan, AC Heritage suites, private AC cab transfers, and full-day Vedic Acharya guidance.'
-                            : budgetTier === 'budget'
-                              ? 'Prioritizing zero-entry spiritual ghats, shared satvik ashrams, free langar darshans, and public e-rickshaws.'
-                              : 'Includes Sugam Darshan passes, AC stay rooms, satvik thali meals, and local auto/cab transfers.'}
-                        </div>
-                      </div>
-
-                      <div className="space-y-3">
-                        {(activeDestination.activities || []).map((act, idx) => (
-                          <div key={idx} className={`border p-3.5 rounded-2xl flex items-start gap-3 transition-colors ${
-                            isDarkMode ? 'bg-slate-800/60 border-slate-700/60' : 'bg-slate-50 border-slate-200/80 hover:border-emerald-300'
-                          }`}>
-                            <div className="w-8 h-8 rounded-full bg-emerald-600 text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5">
-                              {idx + 1}
-                            </div>
-                            <div className="flex-1">
-                              <span className={`text-[10px] font-bold uppercase tracking-wider ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>{act.period || act.time_slot}</span>
-                              <h4 className={`font-bold text-sm mt-0.5 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{act.name}</h4>
-                              <p className="text-xs text-slate-400 mt-0.5">
-                                {act.category} • Entry: {act.cost ? `${activeSymbol}${Math.round(act.cost * (currency === 'INR' ? 1 : activeRate)).toLocaleString()}` : 'Free Entry'}
-                              </p>
-                            </div>
-                          </div>
+                      {/* Day Filter Pills */}
+                      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+                        <button
+                          onClick={() => setActiveDayView('all')}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                            activeDayView === 'all'
+                              ? 'bg-emerald-600 text-white shadow-xs'
+                              : isDarkMode ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                          }`}
+                        >
+                          All {days} Days
+                        </button>
+                        {Array.from({ length: days }, (_, i) => i + 1).map((dNum) => (
+                          <button
+                            key={dNum}
+                            onClick={() => setActiveDayView(dNum)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                              activeDayView === dNum
+                                ? 'bg-emerald-600 text-white shadow-xs'
+                                : isDarkMode ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                            }`}
+                          >
+                            Day {dNum}
+                          </button>
                         ))}
                       </div>
-
                     </div>
+
+                    {/* Adaptation Banner */}
+                    <div className={`p-3.5 rounded-2xl border text-xs leading-relaxed flex items-start gap-2.5 ${
+                      budgetTier === 'luxury'
+                        ? isDarkMode ? 'bg-amber-500/10 border-amber-500/30 text-amber-300' : 'bg-amber-50 border-amber-200 text-amber-800'
+                        : budgetTier === 'budget'
+                          ? isDarkMode ? 'bg-blue-500/10 border-blue-500/30 text-blue-300' : 'bg-blue-50 border-blue-200 text-blue-800'
+                          : isDarkMode ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                    }`}>
+                      <Sparkles size={16} className="shrink-0 mt-0.5" />
+                      <div>
+                        <strong>{budgetTier === 'luxury' ? '👑 VIP Day-Wise Allocation' : budgetTier === 'budget' ? '🎒 Budget Satvik Mode' : '⚖️ Standard Comfort Plan'}:</strong>{' '}
+                        {budgetTier === 'luxury' 
+                          ? 'Each day allocates funds for VIP Protocol Darshan, 4-star stay, private cab, and personal Vedic Acharya guide.'
+                          : budgetTier === 'budget'
+                            ? 'Each day optimizes zero-entry shrines, shared ashram stays, satvik langar thalis, and local e-rickshaws.'
+                            : 'Each day balances Sugam Darshan passes, AC stay rooms, satvik meals, and convenient auto/cab transfers.'}
+                      </div>
+                    </div>
+
+                    {/* DAY CARDS CONTAINER */}
+                    <div className="space-y-6">
+                      {dayWiseSchedule
+                        .filter(dayItem => activeDayView === 'all' || activeDayView === dayItem.dayNumber)
+                        .map((dayItem) => (
+                          <div 
+                            key={dayItem.dayNumber}
+                            className={`border rounded-3xl p-5 space-y-4 transition-all ${
+                              isDarkMode ? 'bg-slate-800/40 border-slate-700/80' : 'bg-slate-50/80 border-slate-200'
+                            }`}
+                          >
+                            
+                            {/* DAY HEADER & MONEY ESTIMATION BAR */}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3 border-slate-200 dark:border-slate-700">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white font-black text-sm flex items-center justify-center shadow-xs">
+                                  D{dayItem.dayNumber}
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <h4 className={`font-black text-base ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                                      Day {dayItem.dayNumber}: {dayItem.themeTitle}
+                                    </h4>
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600/10 text-emerald-600 dark:text-emerald-400">
+                                      Day {dayItem.dayNumber} of {days}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-slate-400 mt-0.5">{dayItem.themeSub}</p>
+                                </div>
+                              </div>
+
+                              {/* Day Money Badge */}
+                              <div className="text-left sm:text-right bg-white dark:bg-slate-900 px-4 py-2 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xs">
+                                <span className="text-[10px] text-slate-400 font-bold uppercase block">
+                                  Day {dayItem.dayNumber} Est. Expenditure
+                                </span>
+                                <span className="text-base font-black text-emerald-600">
+                                  {activeSymbol}{dayItem.dayBudget.toLocaleString()}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* DAY ESTIMATED EXPENSE CATEGORY BREAKDOWN TAGS */}
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                              
+                              <div className={`p-2.5 rounded-xl border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400">
+                                  <Building2 size={13} className="text-blue-500" />
+                                  <span>Stay / Ashram</span>
+                                </div>
+                                <span className="text-xs font-black text-slate-800 dark:text-slate-200 mt-0.5 block">
+                                  {activeSymbol}{dayItem.breakdown.stay.toLocaleString()}
+                                </span>
+                              </div>
+
+                              <div className={`p-2.5 rounded-xl border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400">
+                                  <Utensils size={13} className="text-amber-500" />
+                                  <span>Satvik Meals</span>
+                                </div>
+                                <span className="text-xs font-black text-slate-800 dark:text-slate-200 mt-0.5 block">
+                                  {activeSymbol}{dayItem.breakdown.food.toLocaleString()}
+                                </span>
+                              </div>
+
+                              <div className={`p-2.5 rounded-xl border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400">
+                                  <Car size={13} className="text-emerald-500" />
+                                  <span>Local Transit</span>
+                                </div>
+                                <span className="text-xs font-black text-slate-800 dark:text-slate-200 mt-0.5 block">
+                                  {activeSymbol}{dayItem.breakdown.transit.toLocaleString()}
+                                </span>
+                              </div>
+
+                              <div className={`p-2.5 rounded-xl border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400">
+                                  <Ticket size={13} className="text-purple-500" />
+                                  <span>Darshan & Entry</span>
+                                </div>
+                                <span className="text-xs font-black text-slate-800 dark:text-slate-200 mt-0.5 block">
+                                  {activeSymbol}{dayItem.breakdown.darshan.toLocaleString()}
+                                </span>
+                              </div>
+
+                            </div>
+
+                            {/* DAY ACTIVITIES TIMELINE */}
+                            <div className="space-y-2.5 pt-1">
+                              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                                Day {dayItem.dayNumber} Timeline Schedule
+                              </span>
+                              
+                              {dayItem.activities.map((act, actIdx) => (
+                                <div 
+                                  key={actIdx}
+                                  className={`p-3 rounded-2xl border flex items-start justify-between gap-3 ${
+                                    isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-2xs'
+                                  }`}
+                                >
+                                  <div className="flex items-start gap-3 min-w-0">
+                                    <div className="w-6 h-6 rounded-lg bg-emerald-600 text-white font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5">
+                                      {actIdx + 1}
+                                    </div>
+                                    <div className="min-w-0">
+                                      <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                                        isDarkMode ? 'text-emerald-400' : 'text-emerald-700'
+                                      }`}>
+                                        {act.period || act.time_slot}
+                                      </span>
+                                      <h5 className={`font-bold text-xs sm:text-sm mt-0.5 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                                        {act.name}
+                                      </h5>
+                                      <p className="text-[11px] text-slate-400 mt-0.5">
+                                        Category: {act.category}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  <div className="shrink-0 text-right">
+                                    <span className="text-xs font-black text-emerald-600 block">
+                                      {act.cost ? `${activeSymbol}${Math.round(act.cost * (currency === 'INR' ? 1 : activeRate)).toLocaleString()}` : 'Free Entry'}
+                                    </span>
+                                    <span className="text-[9px] text-slate-400 font-semibold">Entry / Puja</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                          </div>
+                        ))}
+                    </div>
+
                   </div>
 
                 </div>
