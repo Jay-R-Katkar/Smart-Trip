@@ -324,3 +324,25 @@ export const api = {
     }));
   }
 };
+
+export default api;
+export const {
+  getDestinations,
+  generateItinerary,
+  getHotels,
+  getFlights,
+  createBooking,
+  getBudgetSummary,
+  addExpense,
+  deleteExpense,
+  getAlerts,
+  markAlertRead,
+  getGuides,
+  bookGuide,
+  getSafetyInfo,
+  triggerSOS,
+  getSavedTrips,
+  saveTrip,
+  deleteTrip
+} = api;
+
