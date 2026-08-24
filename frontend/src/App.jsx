@@ -1105,7 +1105,7 @@ export default function App() {
       title: 'Mahakaleshwar Jyotirlinga',
       category: 'Spiritual',
       defaultCurrency: 'INR',
-      image: 'https://images.unsplash.com/photo-1620619767323-b95a89183081?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=800&q=80',
       tag: 'Jyotirlinga & Bhasma Aarti',
       coords: [23.1765, 75.7885],
       activities: [
@@ -1150,7 +1150,7 @@ export default function App() {
       title: 'Jagannath Dham',
       category: 'Spiritual',
       defaultCurrency: 'INR',
-      image: 'https://images.unsplash.com/photo-1621252179027-94459d278660?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1609137144822-04e4604e760c?auto=format&fit=crop&w=800&q=80',
       tag: 'Char Dham & Beach',
       coords: [19.8135, 85.8312],
       activities: [
@@ -1180,7 +1180,7 @@ export default function App() {
       title: 'First Jyotirlinga',
       category: 'Spiritual',
       defaultCurrency: 'INR',
-      image: 'https://images.unsplash.com/photo-1596401057633-54a8fe8ef647?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1616499370260-485b3e5ed6ca?auto=format&fit=crop&w=800&q=80',
       tag: 'Sea Jyotirlinga',
       coords: [20.8880, 70.4012],
       activities: [
