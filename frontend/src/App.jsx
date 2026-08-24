@@ -44,19 +44,32 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [currency, setCurrency] = useState('INR');
   const [days, setDays] = useState(2);
-  const [budget, setBudget] = useState(15000);
+  const [baseBudgetINR, setBaseBudgetINR] = useState(15000);
   const [scheduleGenerated, setScheduleGenerated] = useState(true);
   const [user, setUser] = useState(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [emailInput, setEmailInput] = useState('');
   const [sidebarOpenMobile, setSidebarOpenMobile] = useState(false);
 
+  // Currency Exchange Rates (Base INR)
+  const currencyRates = {
+    INR: { symbol: '₹', rate: 1, label: 'INR (₹) - Indian Rupee' },
+    USD: { symbol: '$', rate: 0.0116, label: 'USD ($) - US Dollar' },
+    EUR: { symbol: '€', rate: 0.0108, label: 'EUR (€) - Euro' },
+    AED: { symbol: 'AED ', rate: 0.0427, label: 'AED (د.إ) - UAE Dirham' },
+    CHF: { symbol: 'CHF ', rate: 0.0103, label: 'CHF (Fr) - Swiss Franc' },
+    JPY: { symbol: '¥', rate: 1.78, label: 'JPY (¥) - Japanese Yen' },
+    IDR: { symbol: 'Rp ', rate: 188.5, label: 'IDR (Rp) - Indonesian Rupiah' },
+    GBP: { symbol: '£', rate: 0.0092, label: 'GBP (£) - British Pound' },
+    SGD: { symbol: 'S$', rate: 0.0156, label: 'SGD (S$) - Singapore Dollar' }
+  };
+
   // Chatbot State
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState([
     {
       sender: 'bot',
-      text: 'Namaste! 🙏 I am your SmartTrip AI Guide. Ask me anything about pilgrimage timings, VIP Darshan, satvik ashrams, heritage forts, international circuits, or custom budget plans!'
+      text: 'Namaste! 🙏 I am your SmartTrip AI Guide. Ask me anything about pilgrimage timings, VIP Darshan, satvik ashrams, Switzerland alpine passes, Dubai safaris, or custom currency budgets!'
     }
   ]);
   const [chatInput, setChatInput] = useState('');
@@ -64,9 +77,9 @@ export default function App() {
 
   const quickQuestions = [
     'Bhasma Aarti timings in Ujjain?',
-    '2-Day Varanasi budget plan',
-    'Dress code for Ram Mandir Ayodhya',
-    'Best spots in Bali & Dubai'
+    'Top spots in Switzerland',
+    'Dubai Desert Safari budget',
+    'Dress code for Ram Mandir Ayodhya'
   ];
 
   useEffect(() => {
@@ -89,25 +102,25 @@ export default function App() {
 
       if (q.includes('bhasma') || q.includes('ujjain') || q.includes('mahakal')) {
         botReply = '🔱 **Mahakaleshwar Ujjain Darshan Info:**\n• Bhasma Aarti: 04:00 AM - 06:00 AM (Requires prior online/counter booking).\n• Regular Darshan: 06:00 AM - 11:00 PM.\n• Dress Code for Garbhagriha: Traditional Saree for women, Dhoti-Kurta (unstitched dhoti) for men.\n• Recommendation: Stay at *Shri Mahakal Bhakt Ashram* (200m from temple).';
+      } else if (q.includes('switzerland') || q.includes('swiss') || q.includes('alps')) {
+        botReply = '🏔️ **Switzerland Circuit Highlights:**\n• Top Attractions: Jungfraujoch (Top of Europe), Matterhorn in Zermatt, Lake Lucerne cruise.\n• Currency: Swiss Franc (CHF).\n• Pro Tip: Get the Swiss Travel Pass for unlimited scenic train rides across panoramic routes.';
+      } else if (q.includes('dubai') || q.includes('burj')) {
+        botReply = '🏙️ **Dubai International Circuit:**\n• Highlights: Burj Khalifa 124th/148th floor deck, Red Dune Desert Safari with BBQ, Dubai Mall Fountain.\n• Currency: UAE Dirham (AED).\n• Best Time: October to April for pleasant outdoor weather.';
+      } else if (q.includes('bali')) {
+        botReply = '🏝️ **Bali Island Circuit:**\n• Highlights: Tanah Lot sea temple, Uluwatu Kecak cliff dance, Ubud Tegallalang rice terraces.\n• Currency: Indonesian Rupiah (IDR).\n• Visa: Visa on Arrival available for Indian travelers.';
       } else if (q.includes('ayodhya') || q.includes('ram mandir')) {
         botReply = '🛕 **Shri Ram Janmabhoomi Ayodhya:**\n• Darshan Timings: 07:00 AM to 11:30 AM & 02:00 PM to 07:00 PM.\n• Aarti: Shringar Aarti (06:30 AM), Sandhya Aarti (07:30 PM).\n• Mobiles, leather belts & electronic items are stored at free lockers outside.\n• Must-visit: Hanuman Garhi & Saryu River Maha Aarti.';
       } else if (q.includes('varanasi') || q.includes('kashi') || q.includes('ganga')) {
         botReply = '🌊 **Kashi Vishwanath & Ganga Ghats:**\n• Dashashwamedh Ghat Ganga Aarti starts daily at 06:45 PM.\n• Kashi Vishwanath Corridor is open 24/7 with special Sugam Darshan tickets.\n• Recommended Budget: ₹3,500 - ₹5,000/day for boat rides, satvik food, and heritage guide.';
-      } else if (q.includes('puri') || q.includes('jagannath')) {
-        botReply = '🚩 **Puri Jagannath Dham:**\n• Morning Dwarka Darshan begins at 06:00 AM.\n• Mahaprasad (Anand Bazaar) is available daily from 12:30 PM onwards.\n• Also visit Konark Sun Temple (35 km scenic marine drive).';
-      } else if (q.includes('bali') || q.includes('dubai') || q.includes('paris') || q.includes('international')) {
-        botReply = '✈️ **International Circuit Travel Tips:**\n• Bali: Visit Tanah Lot & Uluwatu Temple, visa on arrival available for Indian passport holders.\n• Dubai: Burj Khalifa observation deck & Desert Safari.\n• Paris: Eiffel Tower & Louvre Museum (book tickets 2 weeks in advance).';
-      } else if (q.includes('budget') || q.includes('cost') || q.includes('price')) {
-        botReply = `💰 **Estimated Circuit Budget for ${selectedCity}:**\n• Average 2-Day trip: ₹${budget.toLocaleString()} (Includes stay, meals, local transport & entry tokens).\n• Daily estimate: ₹${(budget/days).toFixed(0)} per day for ${days} days.`;
       } else {
-        botReply = `✨ **SmartTrip AI Assistant:** For ${selectedCity}, I have mapped an optimized itinerary with ${activeDestination.activities.length} waypoints, verified stays, and guides! Click on the *Itinerary Planner* or *Ashrams* tab on the left menu to view full details.`;
+        botReply = `✨ **SmartTrip AI Assistant:** For ${selectedCity}, I have mapped an optimized itinerary with ${activeDestination.activities.length} waypoints and auto-selected ${activeDestination.defaultCurrency || 'INR'} currency! Click on the *Itinerary Planner* or *Ashrams* tab on the left menu to view full details.`;
       }
 
       setChatMessages(prev => [...prev, { sender: 'bot', text: botReply }]);
     }, 600);
   };
 
-  // Comprehensive Dataset across Spiritual, Heritage, Nature, and International Circuits
+  // Comprehensive Dataset with default currency for automatic selection
   const destinationsData = [
     // --- 1. SPIRITUAL & DHARMIK ---
     {
@@ -115,6 +128,7 @@ export default function App() {
       name: 'Ujjain',
       title: 'Mahakaleshwar Jyotirlinga',
       category: 'Spiritual',
+      defaultCurrency: 'INR',
       image: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=600',
       tag: 'Jyotirlinga & Bhasma Aarti',
       coords: [23.1765, 75.7885],
@@ -129,6 +143,7 @@ export default function App() {
       name: 'Ayodhya',
       title: 'Shri Ram Janmabhoomi',
       category: 'Spiritual',
+      defaultCurrency: 'INR',
       image: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=600',
       tag: 'Ram Mandir & Saryu',
       coords: [26.7922, 82.1998],
@@ -143,6 +158,7 @@ export default function App() {
       name: 'Varanasi',
       title: 'Kashi Vishwanath Dham',
       category: 'Spiritual',
+      defaultCurrency: 'INR',
       image: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=600',
       tag: 'Ganga Aarti & Ghats',
       coords: [25.3176, 82.9739],
@@ -157,6 +173,7 @@ export default function App() {
       name: 'Puri',
       title: 'Jagannath Dham',
       category: 'Spiritual',
+      defaultCurrency: 'INR',
       image: 'https://images.unsplash.com/photo-1621252179027-94459d278660?w=600',
       tag: 'Char Dham & Beach',
       coords: [19.8135, 85.8312],
@@ -171,6 +188,7 @@ export default function App() {
       name: 'Amritsar',
       title: 'Golden Temple (Harmandir Sahib)',
       category: 'Spiritual',
+      defaultCurrency: 'INR',
       image: 'https://images.unsplash.com/photo-1514222134-b57cbb8ce073?w=600',
       tag: 'Spiritual & Langar',
       coords: [31.6200, 74.8765],
@@ -185,6 +203,7 @@ export default function App() {
       name: 'Somnath',
       title: 'First Jyotirlinga',
       category: 'Spiritual',
+      defaultCurrency: 'INR',
       image: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=600',
       tag: 'Sea Jyotirlinga',
       coords: [20.8880, 70.4012],
@@ -199,6 +218,7 @@ export default function App() {
       name: 'Tirupati',
       title: 'Sri Venkateswara Swamy Temple',
       category: 'Spiritual',
+      defaultCurrency: 'INR',
       image: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=600',
       tag: 'Balaji & Tirumala Hills',
       coords: [13.6833, 79.3472],
@@ -213,6 +233,7 @@ export default function App() {
       name: 'Kedarnath',
       title: 'Himalayan Jyotirlinga',
       category: 'Spiritual',
+      defaultCurrency: 'INR',
       image: 'https://images.unsplash.com/photo-1605649487212-47bdab064df8?w=600',
       tag: 'Char Dham & Glaciers',
       coords: [30.7352, 79.0669],
@@ -229,6 +250,7 @@ export default function App() {
       name: 'Jaipur',
       title: 'The Pink City & Forts',
       category: 'Heritage',
+      defaultCurrency: 'INR',
       image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=600',
       tag: 'Amer Fort & Hawa Mahal',
       coords: [26.9124, 75.7873],
@@ -243,6 +265,7 @@ export default function App() {
       name: 'Agra',
       title: 'Taj Mahal & Mughal Splendor',
       category: 'Heritage',
+      defaultCurrency: 'INR',
       image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=600',
       tag: 'UNESCO World Wonder',
       coords: [27.1767, 78.0081],
@@ -257,6 +280,7 @@ export default function App() {
       name: 'Hampi',
       title: 'Vijayanagara Ruins & Stone Chariot',
       category: 'Heritage',
+      defaultCurrency: 'INR',
       image: 'https://images.unsplash.com/photo-1600100397608-f010f4439130?w=600',
       tag: 'UNESCO Ancient Capital',
       coords: [15.3350, 76.4600],
@@ -271,6 +295,7 @@ export default function App() {
       name: 'Goa',
       title: 'Old Goa & Coastal Forts',
       category: 'Heritage',
+      defaultCurrency: 'INR',
       image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=600',
       tag: 'UNESCO Heritage & Beaches',
       coords: [15.4926, 73.8180],
@@ -287,6 +312,7 @@ export default function App() {
       name: 'Rishikesh',
       title: 'Triveni Ghat & Ganga Nature',
       category: 'Nature',
+      defaultCurrency: 'INR',
       image: 'https://images.unsplash.com/photo-1588416936097-41850ab3d86d?w=600',
       tag: 'Yoga, Hills & Ganga Aarti',
       coords: [30.0869, 78.2676],
@@ -301,6 +327,7 @@ export default function App() {
       name: 'Munnar',
       title: 'Misty Tea Gardens & Waterfalls',
       category: 'Nature',
+      defaultCurrency: 'INR',
       image: 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2?w=600',
       tag: 'Western Ghats & Tea Estates',
       coords: [10.0889, 77.0595],
@@ -315,6 +342,7 @@ export default function App() {
       name: 'Manali',
       title: 'Solang Valley & Snow Peaks',
       category: 'Nature',
+      defaultCurrency: 'INR',
       image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600',
       tag: 'Himalayas & Pine Forests',
       coords: [32.2432, 77.1892],
@@ -329,6 +357,7 @@ export default function App() {
       name: 'Ladakh',
       title: 'Pangong Lake & Monasteries',
       category: 'Nature',
+      defaultCurrency: 'INR',
       image: 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?w=600',
       tag: 'High Altitude Desert',
       coords: [34.1526, 77.5771],
@@ -339,47 +368,50 @@ export default function App() {
       ]
     },
 
-    // --- 4. INTERNATIONAL CIRCUITS ---
-    {
-      id: 'paris',
-      name: 'Paris',
-      title: 'City of Light & Art',
-      category: 'International',
-      image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600',
-      tag: 'Eiffel Tower & Louvre',
-      coords: [48.8566, 2.3522],
-      activities: [
-        { name: 'Eiffel Tower Summit View', period: 'Morning (09:00 - 12:00)', time_slot: 'Morning', category: 'Global Landmark', cost: 2500, latitude: 48.8584, longitude: 2.2945, image_url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600' },
-        { name: 'Louvre Museum Mona Lisa Tour', period: 'Afternoon (13:30 - 17:00)', time_slot: 'Afternoon', category: 'World Art Museum', cost: 1800, latitude: 48.8606, longitude: 2.3376, image_url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600' },
-        { name: 'Seine River Sunset Cruise', period: 'Evening (18:30 - 20:30)', time_slot: 'Evening', category: 'River Romance', cost: 1500, latitude: 48.8570, longitude: 2.3510, image_url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600' }
-      ]
-    },
+    // --- 4. INTERNATIONAL CIRCUITS (DUBAI, SWITZERLAND, BALI, TOKYO, PARIS, LONDON) ---
     {
       id: 'dubai',
       name: 'Dubai',
       title: 'Futuristic Oasis & Desert',
       category: 'International',
+      defaultCurrency: 'AED',
       image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600',
       tag: 'Burj Khalifa & Desert Safari',
       coords: [25.2048, 55.2708],
       activities: [
-        { name: 'Burj Khalifa 124th Floor Observation', period: 'Morning (09:30 - 12:30)', time_slot: 'Morning', category: 'Tallest Skyscraper', cost: 3500, latitude: 25.1972, longitude: 55.2744, image_url: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600' },
+        { name: 'Burj Khalifa 124th Floor Observation Deck', period: 'Morning (09:30 - 12:30)', time_slot: 'Morning', category: 'Tallest Skyscraper', cost: 160, latitude: 25.1972, longitude: 55.2744, image_url: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600' },
         { name: 'Dubai Mall & Fountain Show', period: 'Afternoon (14:00 - 17:00)', time_slot: 'Afternoon', category: 'Mega Mall', cost: 0, latitude: 25.1985, longitude: 55.2796, image_url: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600' },
-        { name: 'Red Dune Desert Safari & BBQ Dinner', period: 'Evening (17:30 - 21:30)', time_slot: 'Evening', category: 'Desert Adventure', cost: 2800, latitude: 24.9500, longitude: 55.5000, image_url: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600' }
+        { name: 'Red Dune Desert Safari & BBQ Dinner', period: 'Evening (17:30 - 21:30)', time_slot: 'Evening', category: 'Desert Adventure', cost: 120, latitude: 24.9500, longitude: 55.5000, image_url: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600' }
+      ]
+    },
+    {
+      id: 'switzerland',
+      name: 'Switzerland',
+      title: 'Alpine Wonderland & Jungfraujoch',
+      category: 'International',
+      defaultCurrency: 'CHF',
+      image: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?w=600',
+      tag: 'Matterhorn & Swiss Alps',
+      coords: [46.8182, 8.2275],
+      activities: [
+        { name: 'Jungfraujoch - Top of Europe Cogwheel Train', period: 'Morning (08:30 - 13:00)', time_slot: 'Morning', category: 'Alpine Summit', cost: 120, latitude: 46.5475, longitude: 7.9822, image_url: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?w=600' },
+        { name: 'Lake Lucerne Scenic Steamboat Cruise', period: 'Afternoon (14:30 - 17:00)', time_slot: 'Afternoon', category: 'Swiss Lakes', cost: 45, latitude: 47.0502, longitude: 8.3093, image_url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600' },
+        { name: 'Zermatt Village & Matterhorn Sunset', period: 'Evening (17:30 - 20:00)', time_slot: 'Evening', category: 'Alpine Village', cost: 0, latitude: 45.9765, longitude: 7.7491, image_url: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?w=600' }
       ]
     },
     {
       id: 'bali',
       name: 'Bali',
-      title: 'Island of the Gods',
+      title: 'Island of the Gods & Temples',
       category: 'International',
+      defaultCurrency: 'IDR',
       image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600',
       tag: 'Uluwatu Temple & Beaches',
       coords: [-8.4095, 115.1889],
       activities: [
-        { name: 'Ubud Sacred Monkey Forest & Rice Terraces', period: 'Morning (08:30 - 12:00)', time_slot: 'Morning', category: 'Tropical Nature', cost: 500, latitude: -8.5190, longitude: 115.2600, image_url: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600' },
-        { name: 'Tanah Lot Sea Temple', period: 'Afternoon (14:00 - 16:30)', time_slot: 'Afternoon', category: 'Ocean Sanctuary', cost: 350, latitude: -8.6212, longitude: 115.0868, image_url: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600' },
-        { name: 'Uluwatu Cliff Kecak Fire Dance', period: 'Evening (17:30 - 19:30)', time_slot: 'Evening', category: 'Cultural Dance', cost: 800, latitude: -8.8290, longitude: 115.0849, image_url: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600' }
+        { name: 'Ubud Sacred Monkey Forest & Rice Terraces', period: 'Morning (08:30 - 12:00)', time_slot: 'Morning', category: 'Tropical Nature', cost: 80000, latitude: -8.5190, longitude: 115.2600, image_url: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600' },
+        { name: 'Tanah Lot Ocean Rock Temple', period: 'Afternoon (14:00 - 16:30)', time_slot: 'Afternoon', category: 'Ocean Sanctuary', cost: 60000, latitude: -8.6212, longitude: 115.0868, image_url: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600' },
+        { name: 'Uluwatu Cliff Kecak Fire Dance at Sunset', period: 'Evening (17:30 - 19:30)', time_slot: 'Evening', category: 'Cultural Dance', cost: 150000, latitude: -8.8290, longitude: 115.0849, image_url: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600' }
       ]
     },
     {
@@ -387,13 +419,29 @@ export default function App() {
       name: 'Tokyo',
       title: 'Tradition Meets Tomorrow',
       category: 'International',
+      defaultCurrency: 'JPY',
       image: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600',
       tag: 'Sensō-ji Temple & Shibuya',
       coords: [35.6762, 139.6503],
       activities: [
         { name: 'Sensō-ji Ancient Asakusa Temple', period: 'Morning (08:30 - 11:30)', time_slot: 'Morning', category: 'Historic Buddhist', cost: 0, latitude: 35.7148, longitude: 139.7967, image_url: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600' },
         { name: 'Meiji Jingu Shrine & Forest Walk', period: 'Afternoon (13:30 - 16:00)', time_slot: 'Afternoon', category: 'Shinto Shrine', cost: 0, latitude: 35.6764, longitude: 139.6993, image_url: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600' },
-        { name: 'Shibuya Scramble Crossing & Sky Deck', period: 'Evening (17:30 - 20:30)', time_slot: 'Evening', category: 'Neon Metropolis', cost: 1200, latitude: 35.6595, longitude: 139.7005, image_url: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600' }
+        { name: 'Shibuya Scramble Crossing & Sky Deck', period: 'Evening (17:30 - 20:30)', time_slot: 'Evening', category: 'Neon Metropolis', cost: 2200, latitude: 35.6595, longitude: 139.7005, image_url: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600' }
+      ]
+    },
+    {
+      id: 'paris',
+      name: 'Paris',
+      title: 'City of Light & Art',
+      category: 'International',
+      defaultCurrency: 'EUR',
+      image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600',
+      tag: 'Eiffel Tower & Louvre',
+      coords: [48.8566, 2.3522],
+      activities: [
+        { name: 'Eiffel Tower Summit View', period: 'Morning (09:00 - 12:00)', time_slot: 'Morning', category: 'Global Landmark', cost: 28, latitude: 48.8584, longitude: 2.2945, image_url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600' },
+        { name: 'Louvre Museum Mona Lisa Tour', period: 'Afternoon (13:30 - 17:00)', time_slot: 'Afternoon', category: 'World Art Museum', cost: 22, latitude: 48.8606, longitude: 2.3376, image_url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600' },
+        { name: 'Seine River Sunset Cruise', period: 'Evening (18:30 - 20:30)', time_slot: 'Evening', category: 'River Romance', cost: 18, latitude: 48.8570, longitude: 2.3510, image_url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600' }
       ]
     }
   ];
@@ -414,6 +462,21 @@ export default function App() {
   });
 
   const activeDestination = destinationsData.find(d => d.name === selectedCity) || destinationsData[0];
+
+  // Handle destination selection with automatic currency update
+  const handleSelectDestination = (dest) => {
+    setSelectedCity(dest.name);
+    if (dest.defaultCurrency && currencyRates[dest.defaultCurrency]) {
+      setCurrency(dest.defaultCurrency);
+    }
+    setScheduleGenerated(true);
+  };
+
+  // Convert Base INR Budget to Selected Currency
+  const activeRate = currencyRates[currency]?.rate || 1;
+  const activeSymbol = currencyRates[currency]?.symbol || '₹';
+  const convertedTotalBudget = Math.round(baseBudgetINR * activeRate);
+  const convertedPerDayBudget = Math.round((baseBudgetINR / days) * activeRate);
 
   const handleAuth = () => {
     if (user) {
@@ -580,13 +643,13 @@ export default function App() {
               <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-800 to-emerald-950 text-white p-6 sm:p-8 shadow-md">
                 <div className="max-w-3xl space-y-2 relative z-10">
                   <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/10 text-emerald-300 text-xs font-semibold tracking-wide border border-white/10">
-                    <span>AICTE 2026/02 • DHARMIK & HERITAGE TOURISM BOOSTER</span>
+                    <span>AICTE 2026/02 • DHARMIK & GLOBAL HERITAGE BOOSTER</span>
                   </div>
                   <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
                     Automate Pilgrimage & Spiritual Circuits in Seconds.
                   </h1>
                   <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed max-w-2xl font-normal">
-                    Intelligent clustering for Jyotirlingas, Char Dham, Ram Mandir Ayodhya, Ghats, Ashrams, multi-currency budgeting, and verified Vedic guides.
+                    Intelligent clustering for Jyotirlingas, Char Dham, Ram Mandir Ayodhya, Ghats, Switzerland, Dubai, Bali, Ashrams, multi-currency budgeting, and verified Vedic guides.
                   </p>
                 </div>
               </div>
@@ -598,7 +661,7 @@ export default function App() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="SEARCH ANY PILGRIMAGE, HERITAGE OR SCENIC DESTINATION... (e.g. Ujjain, Ayodhya, Varanasi, Puri, Jaipur, Bali, Paris, Munnar...)"
+                  placeholder="SEARCH ANY PILGRIMAGE, HERITAGE OR SCENIC DESTINATION... (e.g. Ujjain, Switzerland, Dubai, Bali, Tokyo, Ayodhya, Varanasi...)"
                   className={`w-full pl-11 pr-4 py-3 border rounded-2xl text-xs sm:text-sm transition-all shadow-xs ${
                     isDarkMode 
                       ? 'bg-slate-900 border-slate-800 text-white placeholder-slate-500' 
@@ -637,7 +700,7 @@ export default function App() {
                 ))}
               </div>
 
-              {/* INTERACTIVE TOURISM GRID (SHOWS ALL EXPANDED PLACES) */}
+              {/* INTERACTIVE TOURISM GRID */}
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <h3 className={`text-sm font-bold ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>
@@ -651,10 +714,7 @@ export default function App() {
                     return (
                       <div
                         key={dest.id}
-                        onClick={() => {
-                          setSelectedCity(dest.name);
-                          setScheduleGenerated(true);
-                        }}
+                        onClick={() => handleSelectDestination(dest)}
                         className={`group relative overflow-hidden rounded-2xl cursor-pointer transition-all border ${
                           isSelected 
                             ? 'border-emerald-600 ring-2 ring-emerald-600/30 shadow-md scale-[1.01]' 
@@ -675,9 +735,12 @@ export default function App() {
                             </div>
                           )}
 
-                          <div className="absolute top-2 left-2">
-                            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-black/50 backdrop-blur-xs text-white border border-white/20">
+                          <div className="absolute top-2 left-2 flex items-center gap-1">
+                            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-xs text-white border border-white/20">
                               {dest.category}
+                            </span>
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-600/80 text-white">
+                              {dest.defaultCurrency || 'INR'}
                             </span>
                           </div>
                           
@@ -692,7 +755,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* HORIZONTAL TRIP SETTINGS BAR (FROM SCREENSHOT) */}
+              {/* HORIZONTAL TRIP SETTINGS BAR WITH CURRENCY DROPDOWN */}
               <div className={`border rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 transition-colors ${
                 isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
               }`}>
@@ -705,22 +768,25 @@ export default function App() {
                     <span className={`font-black text-base ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{selectedCity}</span>
                   </div>
 
-                  {/* 2. Currency */}
+                  {/* 2. Currency Dropdown Menu */}
                   <div className={`border-r pr-4 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Trip Currency</span>
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <button
-                        onClick={() => setCurrency('INR')}
-                        className={`text-xs font-bold px-2 py-0.5 rounded ${currency === 'INR' ? (isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-800') : 'text-slate-500'}`}
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Trip Currency (Auto)</span>
+                    <div className="relative mt-0.5">
+                      <select
+                        value={currency}
+                        onChange={(e) => setCurrency(e.target.value)}
+                        className={`w-full text-xs font-bold py-1.5 px-2.5 rounded-xl border focus:outline-none transition-all cursor-pointer ${
+                          isDarkMode 
+                            ? 'bg-slate-800 border-slate-700 text-emerald-400 focus:border-emerald-500' 
+                            : 'bg-emerald-50 border-emerald-200 text-emerald-800 focus:border-emerald-500'
+                        }`}
                       >
-                        INR (₹)
-                      </button>
-                      <button
-                        onClick={() => setCurrency('USD')}
-                        className={`text-xs font-bold px-2 py-0.5 rounded ${currency === 'USD' ? (isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-800') : 'text-slate-500'}`}
-                      >
-                        USD ($)
-                      </button>
+                        {Object.entries(currencyRates).map(([code, item]) => (
+                          <option key={code} value={code} className={isDarkMode ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}>
+                            {item.label}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
 
@@ -734,11 +800,11 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* 4. Total Budget */}
+                  {/* 4. Total Budget Converted */}
                   <div>
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Budget ({currency})</span>
                     <span className={`font-black text-base ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>
-                      {currency === 'INR' ? `₹${budget.toLocaleString()}` : `$${Math.round(budget/85).toLocaleString()}`}
+                      {activeSymbol}{convertedTotalBudget.toLocaleString()}
                     </span>
                   </div>
 
@@ -804,7 +870,7 @@ export default function App() {
                         <span className={`text-xs font-bold px-3 py-1 rounded-full ${
                           isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-800'
                         }`}>
-                          {currency === 'INR' ? `₹${(budget/days).toFixed(0)}/day` : `$${(budget/85/days).toFixed(0)}/day`}
+                          {activeSymbol}{convertedPerDayBudget.toLocaleString()}/day
                         </span>
                       </div>
 
@@ -819,7 +885,9 @@ export default function App() {
                             <div className="flex-1">
                               <span className={`text-[10px] font-bold uppercase tracking-wider ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>{act.period || act.time_slot}</span>
                               <h4 className={`font-bold text-sm mt-0.5 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{act.name}</h4>
-                              <p className="text-xs text-slate-400 mt-0.5">{act.category} • Cost: {act.cost ? `₹${act.cost}` : 'Free Entry'}</p>
+                              <p className="text-xs text-slate-400 mt-0.5">
+                                {act.category} • Entry: {act.cost ? `${activeSymbol}${Math.round(act.cost * (currency === 'INR' ? 1 : activeRate)).toLocaleString()}` : 'Free Entry'}
+                              </p>
                             </div>
                           </div>
                         ))}
@@ -884,16 +952,22 @@ export default function App() {
               <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Multi-Currency Real-Time Budget Tracker</h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className={`border p-5 rounded-2xl shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
-                  <p className="text-xs font-bold text-slate-400 uppercase">Total Budget</p>
-                  <p className={`text-2xl font-black mt-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>₹{budget.toLocaleString()}</p>
+                  <p className="text-xs font-bold text-slate-400 uppercase">Total Budget ({currency})</p>
+                  <p className={`text-2xl font-black mt-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                    {activeSymbol}{convertedTotalBudget.toLocaleString()}
+                  </p>
                 </div>
                 <div className={`border p-5 rounded-2xl shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
-                  <p className="text-xs font-bold text-slate-400 uppercase">Spent</p>
-                  <p className={`text-2xl font-black mt-1 ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>₹{Math.round(budget * 0.45).toLocaleString()}</p>
+                  <p className="text-xs font-bold text-slate-400 uppercase">Estimated Spend</p>
+                  <p className={`text-2xl font-black mt-1 ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>
+                    {activeSymbol}{Math.round(convertedTotalBudget * 0.45).toLocaleString()}
+                  </p>
                 </div>
                 <div className={`border p-5 rounded-2xl shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
-                  <p className="text-xs font-bold text-slate-400 uppercase">Remaining</p>
-                  <p className="text-2xl font-black text-amber-500 mt-1">₹{Math.round(budget * 0.55).toLocaleString()}</p>
+                  <p className="text-xs font-bold text-slate-400 uppercase">Remaining Balance</p>
+                  <p className="text-2xl font-black text-amber-500 mt-1">
+                    {activeSymbol}{Math.round(convertedTotalBudget * 0.55).toLocaleString()}
+                  </p>
                 </div>
               </div>
             </div>
@@ -906,10 +980,10 @@ export default function App() {
               <div className={`border p-6 rounded-2xl space-y-3 shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
               {[
                 'Traditional Attire / Dhoti / Kurta (Mandir Garbhagriha)',
-                'Govt ID Proof (Aadhaar / Voter ID for VIP Darshan)',
-                'Comfortable Walking Sandals (Easy removal at premises)',
+                'Govt ID Proof & Passport (For International / VIP Darshan)',
+                'Comfortable Walking Footwear & Adapters',
                 'Water Bottle & Electrolytes',
-                'Power Bank & Mobile Charger',
+                'Universal Power Bank & Multi-Plug Converter',
                 'Emergency First Aid & Personal Prescription Meds'
               ].map((item, idx) => (
                 <label key={idx} className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer border ${
@@ -933,13 +1007,13 @@ export default function App() {
               <div className="flex items-center gap-3">
                 <CloudSun className={isDarkMode ? 'text-emerald-400' : 'text-emerald-600'} size={24} />
                 <div>
-                  <h4 className={`font-bold text-sm ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{selectedCity} Weather: 24°C Pleasant</h4>
-                  <p className="text-xs text-slate-400">Zero rain probability. Ideal for evening parikrama.</p>
+                  <h4 className={`font-bold text-sm ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{selectedCity} Weather: 22°C Clear Skies</h4>
+                  <p className="text-xs text-slate-400">Excellent conditions for travel and sightseeing.</p>
                 </div>
               </div>
               <span className={`text-xs font-bold px-3 py-1 rounded-full ${
                 isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-800'
-              }`}>Good Condition</span>
+              }`}>Optimal</span>
             </div>
           </div>
         )}
@@ -961,7 +1035,7 @@ export default function App() {
                     <span className="text-[10px] text-emerald-600 font-bold">12+ Years Experience</span>
                   </div>
                 </div>
-                <button onClick={() => alert('Guide booked!')} className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-xs">Book (₹500/hr)</button>
+                <button onClick={() => alert('Guide booked!')} className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-xs">Book Guide</button>
               </div>
 
               <div className={`border p-5 rounded-3xl shadow-xs flex items-center justify-between ${
@@ -975,7 +1049,7 @@ export default function App() {
                     <span className="text-[10px] text-emerald-600 font-bold">ASI Certified Historian</span>
                   </div>
                 </div>
-                <button onClick={() => alert('Guide booked!')} className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-xs">Book (₹600/hr)</button>
+                <button onClick={() => alert('Guide booked!')} className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-xs">Book Guide</button>
               </div>
 
             </div>
@@ -1005,7 +1079,7 @@ export default function App() {
                 ST
               </div>
               <span className={`font-bold ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>SmartTrip</span>
-              <span>• AICTE 2026/02 Pilgrimage & Heritage Tourism Booster</span>
+              <span>• AICTE 2026/02 Pilgrimage & Global Heritage Booster</span>
             </div>
             <p className="text-[11px] text-slate-400">
               OpenStreetMap Route Optimization Engine
@@ -1035,7 +1109,7 @@ export default function App() {
                   <h4 className="font-extrabold text-sm leading-tight">SmartTrip AI Guide</h4>
                   <span className="text-[10px] text-emerald-200 flex items-center gap-1 font-medium">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
-                    Online • Vedic & Darshan Bot
+                    Online • Vedic & Global Bot
                   </span>
                 </div>
               </div>
