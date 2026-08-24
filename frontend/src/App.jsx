@@ -55,7 +55,12 @@ import {
   BadgeCheck,
   Coins,
   Sliders,
-  Sparkle
+  Sparkle,
+  Bed,
+  Coffee,
+  Wifi,
+  Tv,
+  Crown
 } from 'lucide-react';
 
 export default function App() {
@@ -64,6 +69,7 @@ export default function App() {
   const [selectedCity, setSelectedCity] = useState('Ujjain');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedStayType, setSelectedStayType] = useState('All');
   const [currency, setCurrency] = useState('INR');
   const [days, setDays] = useState(2);
   const [baseBudgetINR, setBaseBudgetINR] = useState(15000);
@@ -164,6 +170,126 @@ export default function App() {
     : convertedTotalBudget > (convertedMinRequired * 3)
       ? 'luxury'
       : 'standard';
+
+  // Comprehensive Ashrams, Stays & Luxury Hotels Dataset (Min 5 per destination)
+  const allStaysData = {
+    Ujjain: [
+      { id: 'uj-st-1', name: 'Shri Mahakal Bhakt Ashram', type: 'Satvik Ashram', category: 'Ashram', priceINR: 1150, rating: 4.8, reviews: 310, distance: '150m from Mahakaleshwar Temple', amenities: 'Pure Satvik Bhojan, AC Rooms, Hot Water, Mandir Shuttle', image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600' },
+      { id: 'uj-st-2', name: 'Shree Ujjaini Pilgrim Niwas', type: 'Pilgrim Niwas', category: 'Budget', priceINR: 850, rating: 4.6, reviews: 220, distance: '300m from Ram Ghat', amenities: 'Clean Non-AC/AC, Lockers, Drinking Water, Traditional Thali', image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600' },
+      { id: 'uj-st-3', name: 'The Grand Heritage Palace Ujjain', type: 'Heritage Stay', category: 'Heritage', priceINR: 2400, rating: 4.9, reviews: 185, distance: '1.2 km from Mahakal Lok', amenities: 'Traditional Decor, River View Balcony, Free WiFi, Banquet', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600' },
+      { id: 'uj-st-4', name: 'Hotel Shipra Residency (MPT)', type: 'Premium 4-Star', category: 'Premium', priceINR: 4200, rating: 4.7, reviews: 290, distance: 'Central City, Near Station', amenities: 'Swimming Pool, Multi-Cuisine Veg Restaurant, 24x7 Room Service', image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600' },
+      { id: 'uj-st-5', name: 'Anjushree Luxury Resort & Spa', type: '5-Star Luxury', category: 'Luxury', priceINR: 8500, rating: 5.0, reviews: 410, distance: 'Outer Ring Road, Green Oasis', amenities: 'Luxury Suites, Ayurvedic Wellness Spa, Helipad Facilitation, VIP Cab', image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600' }
+    ],
+    Ayodhya: [
+      { id: 'ay-st-1', name: 'Shri Ram Janmabhoomi Sewa Ashram', type: 'Satvik Ashram', category: 'Ashram', priceINR: 950, rating: 4.9, reviews: 380, distance: '200m from Ram Mandir Complex', amenities: 'Satvik Bhojanalaya, Daily Ramcharitmanas Path, Clean AC Rooms', image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600' },
+      { id: 'ay-st-2', name: 'Saryu Riverview Dharamshala', type: 'Pilgrim Niwas', category: 'Budget', priceINR: 750, rating: 4.5, reviews: 190, distance: 'Near Nayaghat & Saryu Aarti', amenities: 'Ghat Proximity, Dorm & Private Rooms, Locker Facility', image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600' },
+      { id: 'ay-st-3', name: 'Kanak Bhawan Heritage Haveli', type: 'Heritage Stay', category: 'Heritage', priceINR: 2600, rating: 4.8, reviews: 240, distance: '400m from Hanuman Garhi', amenities: 'Awadhi Courtyard, Organic Satvik Kitchen, Cultural Library', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600' },
+      { id: 'ay-st-4', name: 'Ramayana Hotel & Suites', type: 'Premium 4-Star', category: 'Premium', priceINR: 5200, rating: 4.8, reviews: 310, distance: '1.5 km from Mandir', amenities: 'Modern Luxury, Airport Shuttle, Multi-Cuisine Fine Dine', image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600' },
+      { id: 'ay-st-5', name: 'The Royal Heritage Palace Ayodhya', type: '5-Star Luxury', category: 'Luxury', priceINR: 9800, rating: 5.0, reviews: 290, distance: 'Private Saryu Front Estate', amenities: 'VIP Temple Protocol Transfer, Royal Suites, Butler Service', image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600' }
+    ],
+    Varanasi: [
+      { id: 'var-st-1', name: 'Sri Kashi Vishwanath Bhakt Ashram', type: 'Satvik Ashram', category: 'Ashram', priceINR: 1050, rating: 4.8, reviews: 420, distance: '100m from Vishwanath Corridor Gate 4', amenities: 'Satvik Annakshetra, Ganga Snan Access, Vedic Ambiance', image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600' },
+      { id: 'var-st-2', name: 'Dashashwamedh Pilgrim Niwas', type: 'Pilgrim Niwas', category: 'Budget', priceINR: 850, rating: 4.6, reviews: 280, distance: '50m from Main Ganga Ghat', amenities: 'Rooftop Aarti View, AC/Non-AC, Boating Assistance', image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600' },
+      { id: 'var-st-3', name: 'Brijrama Heritage Palace (18th Century)', type: 'Heritage Stay', category: 'Heritage', priceINR: 14500, rating: 5.0, reviews: 560, distance: 'Directly on Darbhanga Ghat', amenities: 'Private Boat Arrival, Sheesh Mahal Dining, Classical Sitar Nights', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600' },
+      { id: 'var-st-4', name: 'Taj Ganges Varanasi', type: '5-Star Luxury', category: 'Luxury', priceINR: 16000, rating: 4.9, reviews: 620, distance: 'Nadesar Palace Gardens', amenities: '12-Acre Verdant Grounds, Royal Suites, World-Class Dining', image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600' },
+      { id: 'var-st-5', name: 'Radisson Hotel Varanasi Cantonment', type: 'Premium 4-Star', category: 'Premium', priceINR: 6200, rating: 4.7, reviews: 340, distance: 'Cantonment Area', amenities: 'Pool, Spa, Global Buffet, Airport Express', image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600' }
+    ],
+    Puri: [
+      { id: 'pur-st-1', name: 'Shree Jagannath Bhakta Nivas', type: 'Satvik Ashram', category: 'Ashram', priceINR: 900, rating: 4.7, reviews: 290, distance: '250m from Simhadwara Gate', amenities: 'Mahaprasad Dining Hall, Pure Satvik, Temple Guidance', image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600' },
+      { id: 'pur-st-2', name: 'Golden Beachfront Pilgrim Stay', type: 'Pilgrim Niwas', category: 'Budget', priceINR: 800, rating: 4.5, reviews: 180, distance: 'Opposite Puri Sea Beach', amenities: 'Sea Facing Balcony, Safe Lockers, Free Filter Water', image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600' },
+      { id: 'pur-st-3', name: 'Chanakya BNR Heritage Hotel', type: 'Heritage Stay', category: 'Heritage', priceINR: 3600, rating: 4.8, reviews: 240, distance: 'Chakratirtha Road', amenities: 'Colonial British Architecture, Manicured Lawns, Pool', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600' },
+      { id: 'pur-st-4', name: 'Mayfair Heritage Puri Resort', type: '5-Star Luxury', category: 'Luxury', priceINR: 11500, rating: 5.0, reviews: 490, distance: 'Private Beachfront Strip', amenities: 'Private Beach Access, Seafront Cottages, Ayurvedic Spa', image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600' },
+      { id: 'pur-st-5', name: 'Sterling Puri Coastal Resort', type: 'Premium 4-Star', category: 'Premium', priceINR: 5800, rating: 4.7, reviews: 310, distance: 'Brahmagiri Estuary View', amenities: 'Infinity Pool, Kids Play Zone, Estuary Sunset Cruise', image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600' }
+    ],
+    Amritsar: [
+      { id: 'amr-st-1', name: 'Guru Arjan Dev Niwas (SGPC)', type: 'Satvik Ashram', category: 'Ashram', priceINR: 500, rating: 4.9, reviews: 580, distance: 'Inside Golden Temple Complex', amenities: '24x7 Langar Access, Gurmat Discipline, Clean Accommodations', image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600' },
+      { id: 'amr-st-2', name: 'Heritage Heritage Street Pilgrim Inn', type: 'Pilgrim Niwas', category: 'Budget', priceINR: 950, rating: 4.6, reviews: 210, distance: '150m from Harmandir Sahib', amenities: 'AC Deluxe, Walk to Jallianwala Bagh, Pure Punjabi Thali', image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600' },
+      { id: 'amr-st-3', name: 'Ranjit Svaasa Heritage Haveli', type: 'Heritage Stay', category: 'Heritage', priceINR: 4800, rating: 4.9, reviews: 290, distance: 'Mall Road', amenities: '200-Year Old Haveli, Organic Spa, Courtyard High Tea', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600' },
+      { id: 'amr-st-4', name: 'Taj Swarna Amritsar', type: '5-Star Luxury', category: 'Luxury', priceINR: 9500, rating: 4.9, reviews: 490, distance: 'Circular Road, Cantonment', amenities: 'Luxury Spa, Global Cuisine, Heated Pool, Wagah Border Cab', image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600' },
+      { id: 'amr-st-5', name: 'Hyatt Regency Amritsar', type: 'Premium 4-Star', category: 'Premium', priceINR: 6500, rating: 4.8, reviews: 360, distance: 'MBM Farms, GT Road', amenities: 'Vitality Pool, Steam Room, 24hr Fitness, Golden Temple Shuttle', image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600' }
+    ],
+    Somnath: [
+      { id: 'som-st-1', name: 'Shree Somnath Trust Sagar Darshan', type: 'Satvik Ashram', category: 'Ashram', priceINR: 1200, rating: 4.8, reviews: 340, distance: 'Directly Facing Somnath Sea Temple', amenities: 'VIP Temple Gate, Sea View Rooms, Pure Satvik Bhojanalaya', image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600' },
+      { id: 'som-st-2', name: 'Triveni Sangam Pilgrim Niwas', type: 'Pilgrim Niwas', category: 'Budget', priceINR: 750, rating: 4.5, reviews: 150, distance: 'Near Triveni Ghat & Bhalka Tirth', amenities: 'Clean Beds, Parking, Quiet Spiritual Atmosphere', image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600' },
+      { id: 'som-st-3', name: 'The Fern Residency Somnath', type: 'Premium 4-Star', category: 'Premium', priceINR: 3800, rating: 4.7, reviews: 260, distance: '1 km from Temple', amenities: 'Eco-Friendly, Pure Veg Restaurant, Fitness Center', image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600' },
+      { id: 'som-st-4', name: 'Lords Inn Somnath', type: 'Heritage Stay', category: 'Heritage', priceINR: 3200, rating: 4.6, reviews: 210, distance: 'Veraval Highway', amenities: 'Swimming Pool, Sea Breeze Dining, Banquet Hall', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600' },
+      { id: 'som-st-5', name: 'VITS Imperial Somnath Palace', type: '5-Star Luxury', category: 'Luxury', priceINR: 6500, rating: 4.9, reviews: 310, distance: 'Somnath Bypass', amenities: 'Royal Suites, Spa & Sauna, Private Temple Shuttle', image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600' }
+    ],
+    Tirupati: [
+      { id: 'tir-st-1', name: 'TTD Srinivasam Complex Pilgrim Niwas', type: 'Satvik Ashram', category: 'Ashram', priceINR: 600, rating: 4.7, reviews: 620, distance: 'Opposite Tirupati Central Bus Station', amenities: 'TTD Laddu Token Counter, 24x7 Hot Water, Satvik Canteen', image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600' },
+      { id: 'tir-st-2', name: 'Alipiri Footpath Pilgrim Guest House', type: 'Pilgrim Niwas', category: 'Budget', priceINR: 850, rating: 4.6, reviews: 230, distance: 'Start of 3500 Steps Tirumala Trek', amenities: 'Luggage Transfer to Hilltop, Free Filtered Water, Lockers', image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600' },
+      { id: 'tir-st-3', name: 'Fortune Select Grand Ridge (ITC)', type: 'Premium 4-Star', category: 'Premium', priceINR: 4800, rating: 4.8, reviews: 390, distance: 'Shilparamam Junction', amenities: 'Swimming Pool, South Indian Fine Dine, Tirumala Cab Desk', image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600' },
+      { id: 'tir-st-4', name: 'Taj Tirupati', type: '5-Star Luxury', category: 'Luxury', priceINR: 9200, rating: 5.0, reviews: 510, distance: 'Tirupati Highway', amenities: 'Signature Jiva Spa, Hillview Infinity Pool, Temple Protocol Transfer', image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600' },
+      { id: 'tir-st-5', name: 'Marasa Sarovar Premiere', type: 'Heritage Stay', category: 'Heritage', priceINR: 5500, rating: 4.8, reviews: 330, distance: 'Near Karakambadi Road', amenities: 'Navarasa Inspired Themed Architecture, Wellness Center', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600' }
+    ],
+    Kedarnath: [
+      { id: 'ked-st-1', name: 'GMVN Kedarnath Swargarohini Complex', type: 'Satvik Ashram', category: 'Ashram', priceINR: 1800, rating: 4.8, reviews: 450, distance: '100m from Kedarnath Jyotirlinga', amenities: 'Heated Bedding, Pure Satvik Kitchen, Oxygen Cylinders on standby', image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600' },
+      { id: 'ked-st-2', name: 'Bhairav Valley Himalayan Camp', type: 'Pilgrim Niwas', category: 'Budget', priceINR: 1200, rating: 4.5, reviews: 210, distance: 'Near Helipad, Kedarnath Base', amenities: 'Weatherproof Alpine Tents, Thermal Blankets, Hot Chai', image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600' },
+      { id: 'ked-st-3', name: 'Kedar River Retreat Guptkashi', type: 'Heritage Stay', category: 'Heritage', priceINR: 4200, rating: 4.7, reviews: 180, distance: 'Guptkashi Helipad Base', amenities: 'Mountain River View, Organic Garhwali Food, Helipad Shuttle', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600' },
+      { id: 'ked-st-4', name: 'Char Dham Camp Guptkashi', type: 'Premium 4-Star', category: 'Premium', priceINR: 6800, rating: 4.9, reviews: 290, distance: 'Private Valley Estate', amenities: 'Luxury Weatherproof Swiss Cottages, Bonfire, VIP Trek Guides', image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600' },
+      { id: 'ked-st-5', name: 'Kedar Heights Luxury Heli-Resort', type: '5-Star Luxury', category: 'Luxury', priceINR: 12500, rating: 5.0, reviews: 310, distance: 'Phata Heli Base', amenities: 'Private Helipad Priority, Heated Luxury Chalets, Concierge Trekker', image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600' }
+    ],
+    Jaipur: [
+      { id: 'jai-st-1', name: 'Govind Dev Ji Mandir Pilgrim Niwas', type: 'Satvik Ashram', category: 'Ashram', priceINR: 850, rating: 4.7, reviews: 240, distance: 'Inside City Palace Complex', amenities: 'Pure Vegetarian, Morning Aarti Access, Simple AC Rooms', image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600' },
+      { id: 'jai-st-2', name: 'Pink City Heritage Haveli Inn', type: 'Pilgrim Niwas', category: 'Budget', priceINR: 1400, rating: 4.6, reviews: 190, distance: '400m from Hawa Mahal', amenities: 'Traditional Jharokha Windows, Rooftop Fort View Cafe', image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600' },
+      { id: 'jai-st-3', name: 'Samode Haveli Jaipur', type: 'Heritage Stay', category: 'Heritage', priceINR: 11000, rating: 5.0, reviews: 480, distance: 'Gangapole, Old City', amenities: 'Hand-Painted Frescoes, Royal Courtyard Pool, Vintage Car Rides', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600' },
+      { id: 'jai-st-4', name: 'ITC Rajputana Luxury Hotel', type: 'Premium 4-Star', category: 'Premium', priceINR: 8500, rating: 4.8, reviews: 520, distance: 'Palace Road', amenities: 'Peshawri Dining, Royal Spa, Traditional Folk Dance Evenings', image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600' },
+      { id: 'jai-st-5', name: 'The Oberoi Rajvilas 5-Star Palace', type: '5-Star Luxury', category: 'Luxury', priceINR: 38000, rating: 5.0, reviews: 670, distance: 'Goner Road Estate (32 Acres)', amenities: 'Luxury Tents with Private Pool, 280-Year Old Shiva Temple, Butler', image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600' }
+    ],
+    Dubai: [
+      { id: 'dxb-st-1', name: 'Deira Heritage Creek Guest House', type: 'Pilgrim Niwas', category: 'Budget', priceINR: 3200, rating: 4.5, reviews: 280, distance: 'Near Gold Souk & Abra Station', amenities: 'Metro Proximity, Free WiFi, Traditional Arabic Tea', image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600' },
+      { id: 'dxb-st-2', name: 'Rove Downtown Dubai', type: 'Heritage Stay', category: 'Heritage', priceINR: 7500, rating: 4.8, reviews: 620, distance: 'Walking distance to Dubai Mall & Burj Khalifa', amenities: 'Burj Khalifa View Pool, Modern Gamer Lounge, 24x7 Cafe', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600' },
+      { id: 'dxb-st-3', name: 'Bab Al Shams Desert Oasis Resort', type: 'Premium 4-Star', category: 'Premium', priceINR: 18500, rating: 4.9, reviews: 490, distance: 'Al Qudra Desert Dunes', amenities: 'Infinity Desert Pool, Falconry, Camel Rides, Arabian Nights BBQ', image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600' },
+      { id: 'dxb-st-4', name: 'Atlantis, The Palm Luxury Resort', type: '5-Star Luxury', category: 'Luxury', priceINR: 32000, rating: 5.0, reviews: 880, distance: 'Palm Jumeirah Crescent', amenities: 'Aquaventure Waterpark Access, Underwater Suites, Michelin Dining', image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600' },
+      { id: 'dxb-st-5', name: 'Burj Al Arab 7-Star Ultra Luxury', type: '5-Star Luxury', category: 'Luxury', priceINR: 95000, rating: 5.0, reviews: 920, distance: 'Private Island Jumeirah', amenities: 'Chauffeur Rolls-Royce, 24k Gold Decor, Private Beach Cabana', image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600' }
+    ],
+    Switzerland: [
+      { id: 'swz-st-1', name: 'Interlaken Alpine Backpacker Lodge', type: 'Pilgrim Niwas', category: 'Budget', priceINR: 5200, rating: 4.6, reviews: 310, distance: 'Near Interlaken Ost Railway Station', amenities: 'Free Swiss Transit Bus Card, Shared Kitchen, Alpine Garden', image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600' },
+      { id: 'swz-st-2', name: 'Lucerne Lakeview Swiss Chalet', type: 'Heritage Stay', category: 'Heritage', priceINR: 11500, rating: 4.9, reviews: 430, distance: 'Facing Lake Lucerne & Chapel Bridge', amenities: 'Authentic Timber Chalet, Swiss Fondue Dining, Steamboat Pier', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600' },
+      { id: 'swz-st-3', name: 'Grindelwald Glacier Panorama Inn', type: 'Premium 4-Star', category: 'Premium', priceINR: 19500, rating: 4.9, reviews: 390, distance: 'Eiger North Face Footsteps', amenities: 'Heated Indoor Alpine Pool, Panoramic Sauna, Jungfrau Ski Access', image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600' },
+      { id: 'swz-st-4', name: 'The Chedi Andermatt 5-Star Luxury', type: '5-Star Luxury', category: 'Luxury', priceINR: 58000, rating: 5.0, reviews: 520, distance: 'Swiss Alps Heart', amenities: '2,400 sq.m Spa & Hydrothermal Pools, Ski Butler, Michelin Star Wine', image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600' },
+      { id: 'swz-st-5', name: 'Zermatt Matterhorn Peak Chalet Resort', type: '5-Star Luxury', category: 'Luxury', priceINR: 42000, rating: 5.0, reviews: 610, distance: 'Car-free Zermatt Village', amenities: 'Matterhorn Sunrise View from Bed, Open Fireplace, Heli-Skiing', image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600' }
+    ],
+    Bali: [
+      { id: 'bal-st-1', name: 'Ubud Sacred Bamboo Eco Ashram', type: 'Satvik Ashram', category: 'Ashram', priceINR: 1800, rating: 4.8, reviews: 310, distance: 'Inside Tegallalang Rice Terraces', amenities: 'Daily Yoga & Meditation, Organic Vegan Kitchen, Jungle Stream', image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600' },
+      { id: 'bal-st-2', name: 'Canggu Coastal Bohemian Villa', type: 'Pilgrim Niwas', category: 'Budget', priceINR: 3200, rating: 4.7, reviews: 290, distance: '300m from Echo Beach', amenities: 'Private Plunge Pool, Scooter Rental, High-Speed Starlink WiFi', image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600' },
+      { id: 'bal-st-3', name: 'Tanah Lot Ocean Sanctuary Resort', type: 'Heritage Stay', category: 'Heritage', priceINR: 7500, rating: 4.9, reviews: 380, distance: 'Facing Tanah Lot Sea Temple', amenities: 'Balinese Temple Architecture, Sunset Cliff Infinity Pool', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600' },
+      { id: 'bal-st-4', name: 'Ayana Resort & Rock Bar Bali', type: '5-Star Luxury', category: 'Luxury', priceINR: 26000, rating: 5.0, reviews: 890, distance: 'Jimbaran Sunset Cliffs', amenities: '12 Swimming Pools, Private Beach, World-Famous Rock Bar VIP Pass', image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600' },
+      { id: 'bal-st-5', name: 'The Mulia Nusa Dua Oceanfront Palace', type: '5-Star Luxury', category: 'Luxury', priceINR: 34000, rating: 5.0, reviews: 760, distance: 'Nusa Dua White Sands', amenities: 'World Top Ocean Pools, Private Butler 24/7, Luxury Hydrotherapy', image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600' }
+    ],
+    Tokyo: [
+      { id: 'tyo-st-1', name: 'Asakusa Ryokan & Tatami Inn', type: 'Pilgrim Niwas', category: 'Budget', priceINR: 3800, rating: 4.7, reviews: 340, distance: '200m from Sensō-ji Buddhist Temple', amenities: 'Traditional Futon, Japanese Onsen Bath, Yukata Robes Provided', image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600' },
+      { id: 'tyo-st-2', name: 'Shinjuku Modern Capsule Pod Hotel', type: 'Pilgrim Niwas', category: 'Budget', priceINR: 2600, rating: 4.6, reviews: 420, distance: '5 mins from Shinjuku Station', amenities: 'Futuristic Sleeping Pods, Sauna, High-Speed Fiber Internet', image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600' },
+      { id: 'tyo-st-3', name: 'Ginza Grand Heritage Boutique Hotel', type: 'Heritage Stay', category: 'Heritage', priceINR: 12000, rating: 4.8, reviews: 390, distance: 'Heart of Ginza Shopping District', amenities: 'Japanese Kaiseki Breakfast, Concierge Art Tour, Metro Link', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600' },
+      { id: 'tyo-st-4', name: 'Park Hyatt Tokyo (Skyline Luxury)', type: '5-Star Luxury', category: 'Luxury', priceINR: 38000, rating: 5.0, reviews: 780, distance: 'Shinjuku High-Rise Tower', amenities: 'Floor 52 New York Bar, Mount Fuji Views, Peak Health Club & Spa', image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600' },
+      { id: 'tyo-st-5', name: 'Hoshinoya Tokyo Traditional 5-Star Ryokan', type: '5-Star Luxury', category: 'Luxury', priceINR: 62000, rating: 5.0, reviews: 590, distance: 'Otemachi Financial Center', amenities: 'Natural Hot Spring Under the Stars, Tea Ceremony, Kimono Butler', image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600' }
+    ],
+    Paris: [
+      { id: 'par-st-1', name: 'Montmartre Artist Boutique Inn', type: 'Pilgrim Niwas', category: 'Budget', priceINR: 4200, rating: 4.6, reviews: 310, distance: 'Near Sacré-Cœur Basilica', amenities: 'Free Croissant & Espresso, Metro Direct, Bohemian Courtyard', image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600' },
+      { id: 'par-st-2', name: 'Latin Quarter Heritage Hotel', type: 'Heritage Stay', category: 'Heritage', priceINR: 9500, rating: 4.8, reviews: 390, distance: '500m from Notre-Dame Cathedral', amenities: '17th Century Stone Walls, French Wine Lounge, Seine Walks', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600' },
+      { id: 'par-st-3', name: 'Pullman Paris Tour Eiffel', type: 'Premium 4-Star', category: 'Premium', priceINR: 22000, rating: 4.9, reviews: 720, distance: 'Directly under the Eiffel Tower', amenities: 'Direct Eiffel Tower Balcony View, Rooftop Lounge, Fitness Center', image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600' },
+      { id: 'par-st-4', name: 'Le Meurice Palace Hotel (Dorchester)', type: '5-Star Luxury', category: 'Luxury', priceINR: 75000, rating: 5.0, reviews: 810, distance: 'Opposite Tuileries Garden & Louvre', amenities: 'Alain Ducasse 2-Star Dining, 18th Century Opulence, Valet', image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600' },
+      { id: 'par-st-5', name: 'Ritz Paris (Place Vendôme)', type: '5-Star Luxury', category: 'Luxury', priceINR: 110000, rating: 5.0, reviews: 950, distance: 'Place Vendôme', amenities: 'Chanel Spa, Bar Hemingway, Private French Gardens, Concierge', image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600' }
+    ]
+  };
+
+  // Active stays list for current city (Fallback to generic 5 if city not explicitly listed)
+  const currentCityStays = allStaysData[selectedCity] || [
+    { id: 'gen-st-1', name: `${selectedCity} Central Satvik Ashram`, type: 'Satvik Ashram', category: 'Ashram', priceINR: 950, rating: 4.8, reviews: 190, distance: `Central ${selectedCity}`, amenities: 'Satvik Food, Clean Beds, Spiritual Environment', image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600' },
+    { id: 'gen-st-2', name: `${selectedCity} Pilgrim Niwas`, type: 'Pilgrim Niwas', category: 'Budget', priceINR: 750, rating: 4.5, reviews: 140, distance: `Near ${selectedCity} Station`, amenities: 'Lockers, AC/Non-AC, 24x7 Water', image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600' },
+    { id: 'gen-st-3', name: `${selectedCity} Heritage Haveli`, type: 'Heritage Stay', category: 'Heritage', priceINR: 2600, rating: 4.8, reviews: 220, distance: `Historic ${selectedCity} Hub`, amenities: 'Traditional Decor, Free WiFi, Veg Dining', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600' },
+    { id: 'gen-st-4', name: `${selectedCity} Grand Palace Hotel`, type: 'Premium 4-Star', category: 'Premium', priceINR: 4800, rating: 4.7, reviews: 280, distance: `Main Avenue, ${selectedCity}`, amenities: 'Swimming Pool, Banquet, Multi-Cuisine', image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600' },
+    { id: 'gen-st-5', name: `${selectedCity} Royal 5-Star Luxury Resort`, type: '5-Star Luxury', category: 'Luxury', priceINR: 9500, rating: 5.0, reviews: 350, distance: `Scenic Vista, ${selectedCity}`, amenities: 'VIP Cab Transfer, Spa, Royal Suites, Butler', image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600' }
+  ];
+
+  // Filter stays by category pill
+  const filteredStays = currentCityStays.filter(s => {
+    if (selectedStayType === 'All') return true;
+    if (selectedStayType === 'Ashram') return s.category === 'Ashram' || s.category === 'Budget';
+    if (selectedStayType === 'Heritage') return s.category === 'Heritage';
+    if (selectedStayType === 'Luxury') return s.category === 'Luxury' || s.category === 'Premium';
+    return true;
+  });
 
   // Comprehensive Verified Guides Dataset with minimum 1 female per place
   const verifiedGuidesList = [
@@ -742,7 +868,7 @@ export default function App() {
       const q = query.toLowerCase();
 
       if (q.includes('bhasma') || q.includes('ujjain') || q.includes('mahakal')) {
-        botReply = '🔱 **Mahakaleshwar Ujjain Darshan Info:**\n• Bhasma Aarti: 04:00 AM - 06:00 AM (Requires prior online/counter booking).\n• Regular Darshan: 06:00 AM - 11:00 PM.\n• Dress Code for Garbhagriha: Traditional Saree for women, Dhoti-Kurta (unstitched dhoti) for men.\n• Recommendation: Stay at *Shri Mahakal Bhakt Ashram* (200m from temple).';
+        botReply = '🔱 **Mahakaleshwar Ujjain Darshan Info:**\n• Bhasma Aarti: 04:00 AM - 06:00 AM (Requires prior online/counter booking).\n• Regular Darshan: 06:00 AM - 11:00 PM.\n• Dress Code for Garbhagriha: Traditional Saree for women, Dhoti-Kurta (unstitched dhoti) for men.\n• Recommendation: Stay at *Shri Mahakal Bhakt Ashram* (150m from temple).';
       } else if (q.includes('switzerland') || q.includes('swiss') || q.includes('alps')) {
         botReply = '🏔️ **Switzerland Circuit Highlights:**\n• Top Attractions: Jungfraujoch (Top of Europe), Matterhorn in Zermatt, Lake Lucerne cruise.\n• Currency: Swiss Franc (CHF).\n• Pro Tip: Get the Swiss Travel Pass for unlimited scenic train rides across panoramic routes.';
       } else if (q.includes('dubai') || q.includes('burj')) {
@@ -761,7 +887,7 @@ export default function App() {
     }, 600);
   };
 
-  // Comprehensive Dataset with default currency
+  // Comprehensive Destinations Dataset with default currency
   const destinationsData = [
     // --- 1. SPIRITUAL & DHARMIK ---
     {
@@ -1946,57 +2072,125 @@ export default function App() {
             </div>
           )}
 
-          {/* MODULE 2: ASHRAMS & STAYS (WITH REAL BACKEND BOOKING INTEGRATION) */}
+          {/* MODULE 2: ASHRAMS & STAYS (EXPANDED TO MIN 5 PER PLACE WITH LOCALS & LUXURY HOTELS) */}
           {activeTab === 'hotels' && (
             <div className="space-y-6">
-              <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Ashrams, Dharamshalas & Stays</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                <div className={`border rounded-3xl overflow-hidden shadow-xs flex flex-col justify-between ${
-                  isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-                }`}>
-                  <div className="h-44 w-full relative">
-                    <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600" alt="Ashram" className="w-full h-full object-cover" />
-                    <span className="absolute top-3 left-3 text-xs bg-emerald-600 text-white px-3 py-1 rounded-full font-bold">Recommended Ashram</span>
-                  </div>
-                  <div className="p-5 space-y-2">
-                    <h4 className={`font-extrabold text-lg ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Shri Mahakal Bhakt Ashram</h4>
-                    <p className="text-xs text-slate-400">AC Rooms, Pure Satvik Bhojan, 200m from Mandir</p>
-                    <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                      <span className="text-base font-black text-emerald-700">₹1,150 / night</span>
-                      <button 
-                        onClick={() => handleBookStay('Shri Mahakal Bhakt Ashram', 1150, 'Ashram')} 
-                        className="bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-xs"
-                      >
-                        Book Ashram
-                      </button>
-                    </div>
-                  </div>
+              
+              {/* Header & City Badge */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                    Ashrams, Heritage Stays & Luxury Hotels ({selectedCity})
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    Handpicked satvik dharamshalas, boutique havelis, and 5-star luxury resorts in {selectedCity}.
+                  </p>
                 </div>
 
-                <div className={`border rounded-3xl overflow-hidden shadow-xs flex flex-col justify-between ${
-                  isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-                }`}>
-                  <div className="h-44 w-full relative">
-                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600" alt="Heritage Hotel" className="w-full h-full object-cover" />
-                    <span className="absolute top-3 left-3 text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-bold">Heritage Stay</span>
-                  </div>
-                  <div className="p-5 space-y-2">
-                    <h4 className={`font-extrabold text-lg ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>The Grand Heritage Palace</h4>
-                    <p className="text-xs text-slate-400">Free WiFi, Traditional architecture, River view</p>
-                    <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                      <span className="text-base font-black text-emerald-700">₹2,400 / night</span>
-                      <button 
-                        onClick={() => handleBookStay('The Grand Heritage Palace', 2400, 'Hotel')} 
-                        className="bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-xs"
-                      >
-                        Book Room
-                      </button>
-                    </div>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold px-3.5 py-1.5 rounded-full bg-emerald-600 text-white shadow-xs">
+                    {filteredStays.length} Stays Available in {selectedCity}
+                  </span>
                 </div>
-
               </div>
+
+              {/* Filter Pills for Stay Categories */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
+                {[
+                  { id: 'All', label: 'All Accommodations (5+)' },
+                  { id: 'Ashram', label: '🛕 Satvik Ashrams & Pilgrim Niwas' },
+                  { id: 'Heritage', label: '🏛️ Heritage Havelis & Chalets' },
+                  { id: 'Luxury', label: '👑 4-Star & 5-Star Luxury Resorts' }
+                ].map((tier) => (
+                  <button
+                    key={tier.id}
+                    onClick={() => setSelectedStayType(tier.id)}
+                    className={`px-4 py-2 rounded-full font-bold whitespace-nowrap transition-all text-xs ${
+                      selectedStayType === tier.id
+                        ? 'bg-emerald-700 text-white shadow-xs'
+                        : isDarkMode 
+                          ? 'bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800' 
+                          : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300'
+                    }`}
+                  >
+                    {tier.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Stays Grid (Minimum 5 per Destination) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {filteredStays.map((stay) => {
+                  const convertedPrice = Math.round(stay.priceINR * activeRate);
+                  return (
+                    <div 
+                      key={stay.id}
+                      className={`border rounded-3xl overflow-hidden shadow-xs flex flex-col justify-between transition-all group ${
+                        isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-md'
+                      }`}
+                    >
+                      <div className="h-44 w-full relative overflow-hidden">
+                        <img 
+                          src={stay.image} 
+                          alt={stay.name} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                        />
+                        
+                        <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                          <span className={`text-[10px] font-black px-2.5 py-1 rounded-full text-white shadow-xs ${
+                            stay.category === 'Ashram' ? 'bg-emerald-600' :
+                            stay.category === 'Heritage' ? 'bg-blue-600' :
+                            stay.category === 'Luxury' ? 'bg-amber-600' : 'bg-slate-800'
+                          }`}>
+                            {stay.type}
+                          </span>
+                        </div>
+
+                        <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-xs text-amber-400 px-2 py-0.5 rounded-full text-[11px] font-extrabold flex items-center gap-1">
+                          <Star size={12} className="fill-amber-400" />
+                          <span>{stay.rating}</span>
+                          <span className="text-white/70 font-normal text-[9px]">({stay.reviews})</span>
+                        </div>
+
+                        <div className="absolute bottom-2 left-3 right-3">
+                          <span className="text-[10px] font-bold text-white bg-black/50 backdrop-blur-xs px-2 py-0.5 rounded-md flex items-center gap-1">
+                            <MapPin size={10} className="text-emerald-400" />
+                            <span className="truncate">{stay.distance}</span>
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
+                        <div>
+                          <h4 className={`font-extrabold text-base leading-snug ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                            {stay.name}
+                          </h4>
+                          <p className="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed">
+                            {stay.amenities}
+                          </p>
+                        </div>
+
+                        <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                          <div>
+                            <span className="text-[10px] text-slate-400 block font-semibold">Per Night</span>
+                            <span className="text-base font-black text-emerald-600">
+                              {activeSymbol}{convertedPrice.toLocaleString()}
+                            </span>
+                          </div>
+
+                          <button 
+                            onClick={() => handleBookStay(stay.name, stay.priceINR, stay.type)} 
+                            className="bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-xs"
+                          >
+                            Book Stay
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
             </div>
           )}
 
