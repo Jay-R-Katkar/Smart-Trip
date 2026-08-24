@@ -33,7 +33,14 @@ import {
   Send,
   Bot,
   User as UserIcon,
-  CornerDownLeft
+  CornerDownLeft,
+  Lock,
+  Mail,
+  Eye,
+  EyeOff,
+  UserCheck,
+  Compass,
+  LogOut
 } from 'lucide-react';
 
 export default function App() {
@@ -46,10 +53,27 @@ export default function App() {
   const [days, setDays] = useState(2);
   const [baseBudgetINR, setBaseBudgetINR] = useState(15000);
   const [scheduleGenerated, setScheduleGenerated] = useState(true);
-  const [user, setUser] = useState(null);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [emailInput, setEmailInput] = useState('');
   const [sidebarOpenMobile, setSidebarOpenMobile] = useState(false);
+
+  // Authentication State
+  const [user, setUser] = useState({
+    name: 'Rahul Sharma',
+    email: 'rahul.sharma@example.com',
+    role: 'VIP Pilgrim',
+    savedTrips: 4
+  });
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState('login'); // 'login' or 'signup'
+  const [showPassword, setShowPassword] = useState(false);
+  const [authFormData, setAuthFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    travelInterest: 'Spiritual',
+    rememberMe: true
+  });
+  const [authError, setAuthError] = useState('');
+  const [authSuccessMsg, setAuthSuccessMsg] = useState('');
 
   // Currency Exchange Rates (Base INR)
   const currencyRates = {
@@ -120,7 +144,7 @@ export default function App() {
     }, 600);
   };
 
-  // Comprehensive Dataset with default currency for automatic selection
+  // Comprehensive Dataset with default currency
   const destinationsData = [
     // --- 1. SPIRITUAL & DHARMIK ---
     {
@@ -368,7 +392,7 @@ export default function App() {
       ]
     },
 
-    // --- 4. INTERNATIONAL CIRCUITS (DUBAI, SWITZERLAND, BALI, TOKYO, PARIS, LONDON) ---
+    // --- 4. INTERNATIONAL CIRCUITS ---
     {
       id: 'dubai',
       name: 'Dubai',
@@ -478,15 +502,52 @@ export default function App() {
   const convertedTotalBudget = Math.round(baseBudgetINR * activeRate);
   const convertedPerDayBudget = Math.round((baseBudgetINR / days) * activeRate);
 
-  const handleAuth = () => {
-    if (user) {
-      setUser(null);
-    } else {
-      if (!emailInput) return;
-      setUser({ name: emailInput.split('@')[0] });
-      setIsAuthOpen(false);
-      setEmailInput('');
+  // Authentication Logic
+  const handleAuthSubmit = (e) => {
+    e.preventDefault();
+    setAuthError('');
+    setAuthSuccessMsg('');
+
+    if (!authFormData.email) {
+      setAuthError('Please enter a valid email address.');
+      return;
     }
+    if (!authFormData.password || authFormData.password.length < 6) {
+      setAuthError('Password must be at least 6 characters long.');
+      return;
+    }
+    if (authMode === 'signup' && !authFormData.name) {
+      setAuthError('Please enter your full name.');
+      return;
+    }
+
+    // Success Authentication
+    const loggedInUser = {
+      name: authMode === 'signup' ? authFormData.name : (authFormData.email.split('@')[0].replace('.', ' ').replace(/^\w/, c => c.toUpperCase())),
+      email: authFormData.email,
+      role: authMode === 'signup' ? 'New Traveler' : 'VIP Pilgrim',
+      savedTrips: authMode === 'signup' ? 1 : 4
+    };
+
+    setUser(loggedInUser);
+    setAuthSuccessMsg(authMode === 'login' ? 'Logged in successfully!' : 'Account created successfully! Welcome to SmartTrip.');
+
+    setTimeout(() => {
+      setIsAuthOpen(false);
+      setAuthSuccessMsg('');
+      setAuthFormData({ name: '', email: '', password: '', travelInterest: 'Spiritual', rememberMe: true });
+    }, 800);
+  };
+
+  const handleQuickDemoLogin = (type) => {
+    if (type === 'pilgrim') {
+      setUser({ name: 'Rahul Sharma', email: 'rahul.pilgrim@smarttrip.in', role: 'VIP Pilgrim', savedTrips: 6 });
+    } else if (type === 'guide') {
+      setUser({ name: 'Pt. Shivam Shastri', email: 'shivam.vedic@smarttrip.in', role: 'Verified Vedic Guide', savedTrips: 18 });
+    } else {
+      setUser({ name: 'Aanya Patel', email: 'aanya.global@smarttrip.in', role: 'Global Explorer', savedTrips: 9 });
+    }
+    setIsAuthOpen(false);
   };
 
   const navMenuItems = [
@@ -600,23 +661,50 @@ export default function App() {
           </div>
 
           {/* User Sign In / Profile Card */}
-          <div className={`flex items-center justify-between p-2 rounded-xl border text-xs ${
+          <div className={`p-2.5 rounded-2xl border transition-all ${
             isDarkMode ? 'bg-slate-800/80 border-slate-700 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
           }`}>
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-slate-300 text-slate-800 flex items-center justify-center font-bold text-[10px]">
-                {user ? user.name[0].toUpperCase() : 'G'}
+            {user ? (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                      {user.name[0].toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <h5 className={`font-bold text-xs truncate leading-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{user.name}</h5>
+                      <span className="text-[10px] text-emerald-600 font-semibold block truncate">{user.role}</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setUser(null)}
+                    className="text-slate-400 hover:text-rose-500 p-1 transition-colors"
+                    title="Sign Out"
+                  >
+                    <LogOut size={14} />
+                  </button>
+                </div>
               </div>
-              <span className="font-medium text-[11px] truncate max-w-[85px]">
-                {user ? user.name : 'Guest User'}
-              </span>
-            </div>
-            <button
-              onClick={() => user ? setUser(null) : setIsAuthOpen(true)}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2 py-1 rounded-lg text-[10px] transition-colors"
-            >
-              {user ? 'Logout' : 'Sign In'}
-            </button>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-slate-300 text-slate-700 flex items-center justify-center font-bold text-xs">
+                    G
+                  </div>
+                  <span className="font-medium text-xs">Guest User</span>
+                </div>
+                <button
+                  onClick={() => {
+                    setAuthMode('login');
+                    setIsAuthOpen(true);
+                  }}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1 rounded-xl text-xs shadow-xs transition-all"
+                >
+                  Sign In
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Red EMERGENCY SOS Button */}
@@ -1091,7 +1179,7 @@ export default function App() {
       </main>
 
       {/* 3. FLOATING AI CHATBOT COMPONENT */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-6 right-6 z-40">
         
         {/* Chat Window */}
         {isChatOpen && (
@@ -1215,34 +1303,236 @@ export default function App() {
 
       </div>
 
-      {/* USER AUTH MODAL */}
+      {/* 4. MODERN FULL-FEATURED LOGIN & SIGN UP MODAL */}
       {isAuthOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className={`border rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl relative ${
+          <div className={`border rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-5 shadow-2xl relative transition-all ${
             isDarkMode ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'
           }`}>
-            <button onClick={() => setIsAuthOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+            
+            {/* Close Button */}
+            <button 
+              onClick={() => {
+                setIsAuthOpen(false);
+                setAuthError('');
+                setAuthSuccessMsg('');
+              }} 
+              className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-1 rounded-full transition-colors"
+            >
               <X size={18} />
             </button>
-            <h3 className="text-xl font-extrabold">Sign In to SmartTrip</h3>
-            <div>
-              <label className="text-xs font-bold text-slate-400">Email Address</label>
-              <input
-                type="email"
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                placeholder="name@example.com"
-                className={`w-full mt-1 border rounded-xl px-4 py-2.5 text-sm focus:outline-none ${
-                  isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
-                }`}
-              />
+
+            {/* Header / Brand */}
+            <div className="text-center space-y-1">
+              <div className="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-emerald-600 text-white font-black text-lg mb-1 shadow-sm">
+                ST
+              </div>
+              <h3 className="text-xl font-extrabold tracking-tight">
+                {authMode === 'login' ? 'Welcome Back to SmartTrip' : 'Join SmartTrip Automation'}
+              </h3>
+              <p className="text-xs text-slate-400 font-medium">
+                {authMode === 'login' 
+                  ? 'Access your pilgrimage bookings, custom circuits & offline passes' 
+                  : 'Create a free account to personalize your spiritual & global journeys'}
+              </p>
             </div>
-            <button
-              onClick={handleAuth}
-              className="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 rounded-xl text-sm transition-all shadow-xs"
-            >
-              Continue
-            </button>
+
+            {/* Tab Switcher: Login vs Sign Up */}
+            <div className={`p-1 rounded-2xl border flex items-center ${
+              isDarkMode ? 'bg-slate-800/80 border-slate-700' : 'bg-slate-100 border-slate-200'
+            }`}>
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('login');
+                  setAuthError('');
+                  setAuthSuccessMsg('');
+                }}
+                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+                  authMode === 'login'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                Log In
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('signup');
+                  setAuthError('');
+                  setAuthSuccessMsg('');
+                }}
+                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+                  authMode === 'signup'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                Create Account
+              </button>
+            </div>
+
+            {/* Error / Success Feedback */}
+            {authError && (
+              <div className="p-3 bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs rounded-xl flex items-center gap-2">
+                <AlertTriangle size={14} className="shrink-0" />
+                <span>{authError}</span>
+              </div>
+            )}
+
+            {authSuccessMsg && (
+              <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 text-xs rounded-xl flex items-center gap-2">
+                <Check size={14} className="shrink-0" />
+                <span>{authSuccessMsg}</span>
+              </div>
+            )}
+
+            {/* Form */}
+            <form onSubmit={handleAuthSubmit} className="space-y-3.5">
+              
+              {/* Full Name (Only for Sign Up) */}
+              {authMode === 'signup' && (
+                <div>
+                  <label className="text-xs font-bold text-slate-400 block mb-1">Full Name</label>
+                  <div className="relative">
+                    <UserIcon className="absolute left-3.5 top-3 text-slate-400" size={16} />
+                    <input
+                      type="text"
+                      required
+                      value={authFormData.name}
+                      onChange={(e) => setAuthFormData({ ...authFormData, name: e.target.value })}
+                      placeholder="e.g. Rahul Sharma"
+                      className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-xs sm:text-sm focus:outline-none transition-all ${
+                        isDarkMode ? 'bg-slate-800 border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-emerald-600'
+                      }`}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Email Address */}
+              <div>
+                <label className="text-xs font-bold text-slate-400 block mb-1">Email Address</label>
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-3 text-slate-400" size={16} />
+                  <input
+                    type="email"
+                    required
+                    value={authFormData.email}
+                    onChange={(e) => setAuthFormData({ ...authFormData, email: e.target.value })}
+                    placeholder="name@example.com"
+                    className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-xs sm:text-sm focus:outline-none transition-all ${
+                      isDarkMode ? 'bg-slate-800 border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-emerald-600'
+                    }`}
+                  />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-bold text-slate-400">Password</label>
+                  {authMode === 'login' && (
+                    <button 
+                      type="button"
+                      onClick={() => alert('Password reset link has been dispatched to your email.')}
+                      className="text-[11px] text-emerald-600 hover:underline font-semibold"
+                    >
+                      Forgot password?
+                    </button>
+                  )}
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-3 text-slate-400" size={16} />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={authFormData.password}
+                    onChange={(e) => setAuthFormData({ ...authFormData, password: e.target.value })}
+                    placeholder="••••••••"
+                    className={`w-full pl-10 pr-10 py-2.5 border rounded-xl text-xs sm:text-sm focus:outline-none transition-all ${
+                      isDarkMode ? 'bg-slate-800 border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-emerald-600'
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-600"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Preferred Interest (Sign Up only) */}
+              {authMode === 'signup' && (
+                <div>
+                  <label className="text-xs font-bold text-slate-400 block mb-1">Primary Travel Interest</label>
+                  <select
+                    value={authFormData.travelInterest}
+                    onChange={(e) => setAuthFormData({ ...authFormData, travelInterest: e.target.value })}
+                    className={`w-full px-3 py-2 border rounded-xl text-xs font-semibold focus:outline-none ${
+                      isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'
+                    }`}
+                  >
+                    <option value="Spiritual">Spiritual & Jyotirlinga Circuits (Dharmik)</option>
+                    <option value="Heritage">ASI Heritage, Forts & UNESCO Monuments</option>
+                    <option value="Nature">Nature, Western Ghats & Himalayas</option>
+                    <option value="International">International Circuits (Dubai, Swiss, Bali, Paris)</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold py-3 rounded-xl text-xs sm:text-sm transition-all shadow-md mt-2"
+              >
+                {authMode === 'login' ? 'Log In to SmartTrip' : 'Create Free Account'}
+              </button>
+
+            </form>
+
+            {/* Quick 1-Click Demo Accounts */}
+            <div className={`pt-4 border-t space-y-2 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block text-center">
+                Or 1-Click Demo Login
+              </span>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleQuickDemoLogin('pilgrim')}
+                  className={`p-2 rounded-xl border text-[11px] font-bold transition-all text-center ${
+                    isDarkMode ? 'bg-slate-800/80 border-slate-700 text-slate-300 hover:border-emerald-500' : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-emerald-500'
+                  }`}
+                >
+                  🛕 Pilgrim
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleQuickDemoLogin('guide')}
+                  className={`p-2 rounded-xl border text-[11px] font-bold transition-all text-center ${
+                    isDarkMode ? 'bg-slate-800/80 border-slate-700 text-slate-300 hover:border-emerald-500' : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-emerald-500'
+                  }`}
+                >
+                  👳 Guide
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleQuickDemoLogin('global')}
+                  className={`p-2 rounded-xl border text-[11px] font-bold transition-all text-center ${
+                    isDarkMode ? 'bg-slate-800/80 border-slate-700 text-slate-300 hover:border-emerald-500' : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-emerald-500'
+                  }`}
+                >
+                  ✈️ Global
+                </button>
+              </div>
+            </div>
+
           </div>
         </div>
       )}
