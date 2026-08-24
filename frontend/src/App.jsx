@@ -117,6 +117,204 @@ export default function App() {
   const [newExpenseCategory, setNewExpenseCategory] = useState('Food');
   const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
 
+  // Packing Checklist States
+  const [checkedPackingItems, setCheckedPackingItems] = useState({
+    'univ-1': true,
+    'univ-2': true,
+    'uj-pk-1': true,
+    'ay-pk-1': true,
+    'var-pk-1': true,
+    'ked-pk-1': true
+  });
+  const [packingCategoryFilter, setPackingCategoryFilter] = useState('All'); // 'All', 'Place', 'Universal'
+  const [customPackingInput, setCustomPackingInput] = useState('');
+  const [customPackingItems, setCustomPackingItems] = useState([]);
+
+  // Universal All-Trip Essentials (Mandatory for ALL destinations)
+  const universalPackingEssentials = [
+    { id: 'univ-1', title: 'Govt Photo ID Proof & Passport (Physical & DigiLocker)', category: 'Documents', note: 'Mandatory for temple security, hotel check-ins & airport/railway entries' },
+    { id: 'univ-2', title: 'Fast-Charging 10,000+ mAh Power Bank & Multi-Cables', category: 'Electronics', note: 'Keeps devices powered during long parikramas and transit' },
+    { id: 'univ-3', title: 'Emergency First Aid & Personal Prescription Meds', category: 'Health', note: 'Band-aids, Paracetamol, Antacid, Motion sickness pills & ORS hydration' },
+    { id: 'univ-4', title: 'Backup Emergency Cash & Active UPI / Multi-Bank Cards', category: 'Finance', note: 'Essential for rural autos, local street vendors & dakshina' },
+    { id: 'univ-5', title: 'Reusable Insulated Water Flask', category: 'Hydration', note: 'Ensures pure hydration with zero single-use plastic waste' },
+    { id: 'univ-6', title: 'Pocket Wet Wipes, Hand Sanitizer & Tissues', category: 'Hygiene', note: 'Hygienic cleanup before receiving prasad or after travel transfers' },
+    { id: 'univ-7', title: 'Compact Travel Umbrella / Waterproof Rain Poncho', category: 'Weather', note: 'Protects from unexpected showers or intense afternoon sun' },
+    { id: 'univ-8', title: 'Offline Downloaded Tickets, Darshan Passes & Route Maps', category: 'Documents', note: 'Zero-internet access inside sanctums and remote valleys' }
+  ];
+
+  // Place-Wise Specific Essentials Dataset
+  const placeSpecificPackingData = {
+    Ujjain: [
+      { id: 'uj-pk-1', title: 'Unstitched Cotton Dhoti-Kurta (Men) / Traditional Saree (Women)', note: 'Strictly required for Mahakaleshwar Garbhagriha & Bhasma Aarti Jalabhishek' },
+      { id: 'uj-pk-2', title: 'Slip-On Footwear & Dedicated Cloth Shoe Bag', note: 'Quick shoe deposit outside Mahakal Lok corridor & Ram Ghat' },
+      { id: 'uj-pk-3', title: 'Quick-Dry Cotton Towel / Gamchha', note: 'Essential for holy Kshipra river snan at Ram Ghat' },
+      { id: 'uj-pk-4', title: 'Small Brass Pooja Lota / Bilva Patra Pouch', note: 'For offering sacred waters during daily Abhishek' }
+    ],
+    Ayodhya: [
+      { id: 'ay-pk-1', title: 'Traditional Saffron / Yellow / White Ethnic Kurta or Saree', note: 'Respectful attire for Shri Ram Janmabhoomi & Hanuman Garhi' },
+      { id: 'ay-pk-2', title: 'Non-Leather Purse / Transparent Carry Bag', note: 'Leather belts & metallic items strictly prohibited in Ram Lalla sanctum' },
+      { id: 'ay-pk-3', title: 'Sun-Protection Scarf / Cotton Gamchha', note: 'Helpful for open daytime Saryu ghat walks and parikrama' },
+      { id: 'ay-pk-4', title: 'Air-Tight Prasad Box', note: 'To carry home sacred Ram Mandir prasad safely' }
+    ],
+    Varanasi: [
+      { id: 'var-pk-1', title: 'Ganga Snan Extra Clothes & Cotton Gamchha', note: 'For holy dip at Dashashwamedh & Manikarnika Ghat' },
+      { id: 'var-pk-2', title: 'Anti-Slip Waterproof Rubber Sandals', note: 'Ghat steps can be slick during morning Ganga water cleaning' },
+      { id: 'var-pk-3', title: 'Pure Copper Gangajal Container (Lota/Canister)', note: 'To safely transport consecrated Kashi Gangajal home' },
+      { id: 'var-pk-4', title: 'Compact Front Crossbody Bag', note: 'Optimal for easy walking through crowded narrow Banaras Gallis' }
+    ],
+    Puri: [
+      { id: 'pur-pk-1', title: 'Traditional Odia Silk or Pure Cotton Attire', note: 'For respectful entry at Shree Jagannath Simhadwara Gate' },
+      { id: 'pur-pk-2', title: 'Air-Tight Stainless Steel Container', note: 'To collect and preserve sacred Jagannath Mahaprasad & dry Khaja' },
+      { id: 'pur-pk-3', title: 'UV Sunglasses & Wide Beach Hat', note: 'High coastal sun reflection at Puri Golden Beach promenade' }
+    ],
+    Amritsar: [
+      { id: 'amr-pk-1', title: 'Head Cover Cloth / Rumal (Mandatory)', note: 'Head must remain covered 100% of the time inside Sri Harmandir Sahib' },
+      { id: 'amr-pk-2', title: 'Slip-On Shoes / Jutti', note: 'For swift shoe submission at Joda Ghar' },
+      { id: 'amr-pk-3', title: 'Light Woolen Shawl', note: 'Evening breeze across the Amrit Sarovar can get crisp' },
+      { id: 'amr-pk-4', title: 'Tricolor Cap / Badge', note: 'For spirited participation at Attari-Wagah Border Ceremony' }
+    ],
+    Somnath: [
+      { id: 'som-pk-1', title: 'Sea Breeze Windcheater / Light Cardigan', note: 'Somnath coastal temple promenade gets windy in the evening' },
+      { id: 'som-pk-2', title: 'Traditional Puja Vastram', note: 'For participating in Somnath Mahadev Abhishek' },
+      { id: 'som-pk-3', title: 'Small Pocket Torch', note: 'Helpful for late evening beach and Triveni Sangam walks' }
+    ],
+    Tirupati: [
+      { id: 'tir-pk-1', title: 'Strict Traditional Attire (Dhoti/Kurta for Men; Saree/Chudidar with Dupatta for Women)', note: 'TTD strictly denies sanctum entry in western casuals' },
+      { id: 'tir-pk-2', title: 'Physical Printout of ₹300 Special Entry Barcode Ticket', note: 'Mandatory physical scan at Vaikuntam Queue Complex' },
+      { id: 'tir-pk-3', title: 'Cotton Eco-Bags for TTD Laddus', note: 'To carry sanctified big Tirupati Laddu Prasadam safely' },
+      { id: 'tir-pk-4', title: 'Padded Walking Socks', note: 'For trekking up the 3,550 stone steps of Alipiri footpath' }
+    ],
+    Kedarnath: [
+      { id: 'ked-pk-1', title: 'Heavy Thermal Inners & Sub-Zero Down Jacket (-5°C to 8°C)', note: 'High altitude Himalayan frost in morning & night' },
+      { id: 'ked-pk-2', title: 'Portable Medical Oxygen Canister (Oxy99) & Camphor (Kapoor)', note: 'Vital for oxygen drop relief along the 16km trek' },
+      { id: 'ked-pk-3', title: 'Waterproof Ankle-Grip Hiking Boots & Adjustable Trekking Pole', note: 'Steep rocky terrain from Gaurikund to Kedarnath base' },
+      { id: 'ked-pk-4', title: 'Thermal Woolen Gloves, Balaclava & Ear Muffs', note: 'Protection against biting mountain winds' },
+      { id: 'ked-pk-5', title: 'Diamox Tablets (Altitude Sickness) & Muscle Pain Spray', note: 'Combats altitude sickness and leg cramps' }
+    ],
+    Jaipur: [
+      { id: 'jai-pk-1', title: 'Wide-Brim Sun Hat & Polarized UV Sunglasses', note: 'Protection across expansive stone courtyards of Amer & Nahargarh' },
+      { id: 'jai-pk-2', title: 'Cushioned Walking Shoes', note: 'For walking uphill ramps and cobblestone paths in forts' },
+      { id: 'jai-pk-3', title: 'Vibrant Cotton / Ethnic Clothes', note: 'Picturesque contrasting colors for royal palace photography' }
+    ],
+    Agra: [
+      { id: 'agr-pk-1', title: 'Shoe Covers / Disposable Booties', note: 'Required before stepping on Taj Mahal main white marble plinth' },
+      { id: 'agr-pk-2', title: 'Polarized Sunglasses', note: 'Shields eyes from intense white marble sun glare' }
+    ],
+    Hampi: [
+      { id: 'ham-pk-1', title: 'Rock Grip Trail Sneakers', note: 'Essential for climbing boulder-rich Matanga & Anjaneya Hills' },
+      { id: 'ham-pk-2', title: 'Mosquito Repellent & High-Strength SPF 50 Sunscreen', note: 'Open heritage rocky ruins with strong daytime sun' }
+    ],
+    Goa: [
+      { id: 'goa-pk-1', title: 'Quick-Dry Swimwear, Beach Towel & Sarong', note: 'For coastal dips and water sports' },
+      { id: 'goa-pk-2', title: 'Reef-Safe Sunscreen & Aloe Vera Cooling Gel', note: 'Sunburn protection during long beach afternoons' },
+      { id: 'goa-pk-3', title: 'Two-Wheeler Driving License & Waterproof Mobile Pouch', note: 'For renting scooters and beach water sports' }
+    ],
+    Rishikesh: [
+      { id: 'rsh-pk-1', title: 'Yoga Mat / Meditation Sheet', note: 'For morning yoga along the Ganga riverbanks' },
+      { id: 'rsh-pk-2', title: 'Quick-Dry Nylon Clothes for River Rafting', note: 'Cotton gets heavy in white water river rapids' },
+      { id: 'rsh-pk-3', title: 'Strapped River Water Float Sandals', note: 'Won’t slip off during river dips' }
+    ],
+    Munnar: [
+      { id: 'mun-pk-1', title: 'Light Woolen Fleece Jacket', note: 'Crisp morning mist across tea estates' },
+      { id: 'mun-pk-2', title: 'Leech-Proof Socks & Trail Shoes', note: 'For walking through damp tea plantation paths' }
+    ],
+    Manali: [
+      { id: 'man-pk-1', title: 'Waterproof Snow Gloves & Thermal Inners', note: 'Essential for Solang Valley snow sports and Rohtang Pass' },
+      { id: 'man-pk-2', title: 'UV Snow Goggles', note: 'Prevents snow blindness from bright sunlight reflections' }
+    ],
+    Ladakh: [
+      { id: 'lad-pk-1', title: 'Camphor (Kapoor) + Diamox Acclimatization Pills', note: 'Vital for high passes (Khardung La, Chang La)' },
+      { id: 'lad-pk-2', title: 'Heavy Cold Cream, Lip Balm SPF 30+ & Sunblock 50+', note: 'Combats extreme dry Himalayan winds' },
+      { id: 'lad-pk-3', title: 'Hard Copies of Inner Line Permit (ILP) & Govt ID', note: 'Checked at multiple military checkpoints' }
+    ],
+    Dubai: [
+      { id: 'dxb-pk-1', title: 'UK Type G (3-pin square) Power Adapter', note: 'Standard electrical plug standard used across UAE' },
+      { id: 'dxb-pk-2', title: 'Multi-Currency International Forex Card (AED Loaded)', note: 'Card-first city for smooth cashless payments' },
+      { id: 'dxb-pk-3', title: 'Modest Full-Sleeve Covering / Scarf', note: 'Required for visiting Grand Mosques' },
+      { id: 'dxb-pk-4', title: 'Linen Breathable Clothes & Safari Bandana', note: 'Cooling for city walks and desert safari dunes' }
+    ],
+    Switzerland: [
+      { id: 'swz-pk-1', title: 'Swiss Type J (3-pin hexagon) Power Plug Adapter', note: 'Unique 3-pin recessed socket standard used in Switzerland' },
+      { id: 'swz-pk-2', title: 'Swiss Travel Pass QR Stored in Digital Wallet', note: 'Unlocks unlimited train, boat and bus transits' },
+      { id: 'swz-pk-3', title: 'Gore-Tex Windproof Alpine Shell & Thermal Gloves', note: 'Sub-zero temperatures on Jungfraujoch & Titlis summits' },
+      { id: 'swz-pk-4', title: 'Forex Multi-Currency Card (CHF Loaded)', note: 'Seamless cashless transactions across Alps' }
+    ],
+    Bali: [
+      { id: 'bal-pk-1', title: 'Traditional Balinese Temple Sarong & Sash (Selendang)', note: 'Mandatory waist covering for entering Tanah Lot & Uluwatu' },
+      { id: 'bal-pk-2', title: 'DEET Tropical Mosquito Repellent & Sunscreen', note: 'Protection in tropical Ubud rice terraces and jungle streams' },
+      { id: 'bal-pk-3', title: 'International Driving Permit (IDP) for Scooter', note: 'Required by local Bali transport authorities' },
+      { id: 'bal-pk-4', title: 'Waterproof Dry Bag (10L)', note: 'Keeps electronics safe on speedboats and waterfall hikes' }
+    ],
+    Tokyo: [
+      { id: 'tyo-pk-1', title: 'Type A (2-pin flat) Japanese Power Adapter', note: 'Standard 100V 2-pin flat electrical outlet in Japan' },
+      { id: 'tyo-pk-2', title: 'Digital Suica / Pasmo IC Card in Apple/Google Wallet', note: 'Tap-and-go for all metro trains, buses and vending machines' },
+      { id: 'tyo-pk-3', title: 'Dedicated Coin Pouch', note: 'Japan utilizes 100¥, 500¥ metal coins extensively' },
+      { id: 'tyo-pk-4', title: 'Slip-On Walking Shoes (15k+ daily steps)', note: 'Effortless removal at shrines, ryokans and tatami rooms' },
+      { id: 'tyo-pk-5', title: 'Pocket WiFi / Japan eSIM QR Code', note: 'Ensures continuous navigation in complex metro stations' }
+    ],
+    Paris: [
+      { id: 'par-pk-1', title: 'European Type C/E Round-Pin Power Adapter', note: 'Standard 230V socket used across France' },
+      { id: 'par-pk-2', title: 'Anti-Theft RFID Blocking Crossbody Bag', note: 'Safe transit against pickpockets in Paris Metro & Louvre crowds' },
+      { id: 'par-pk-3', title: 'Comfortable Stylish Walking Shoes', note: 'Essential for 15k+ steps over historic cobblestones' },
+      { id: 'par-pk-4', title: 'Museum Timed Entry QR Tickets Saved Offline', note: 'Skip 2-hour lines at Louvre and Eiffel Tower' }
+    ]
+  };
+
+  // Active Place Specific Packing Items
+  const currentCityPacking = placeSpecificPackingData[selectedCity] || [
+    { id: 'gen-pk-1', title: `Comfortable Walking Footwear for ${selectedCity}`, note: 'For exploring streets and landmarks comfortably' },
+    { id: 'gen-pk-2', title: `Light Cotton / Season Appropriate Clothes for ${selectedCity}`, note: 'Optimal for daily sightseeing' },
+    { id: 'gen-pk-3', title: `Local Language Phrase Guide / Offline Maps for ${selectedCity}`, note: 'Smooth interaction with local guides and transit' }
+  ];
+
+  // Toggle Packing Checkbox
+  const togglePackingItem = (id) => {
+    setCheckedPackingItems(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
+  // Add Custom Packing Item
+  const handleAddCustomPackingItem = (e) => {
+    e.preventDefault();
+    if (!customPackingInput.trim()) return;
+    const newItem = {
+      id: `custom-${Date.now()}`,
+      title: customPackingInput.trim(),
+      note: 'User added custom travel essential',
+      isCustom: true
+    };
+    setCustomPackingItems([...customPackingItems, newItem]);
+    setCheckedPackingItems(prev => ({ ...prev, [newItem.id]: true }));
+    setCustomPackingInput('');
+  };
+
+  // Delete Custom Packing Item
+  const handleDeleteCustomPackingItem = (id) => {
+    setCustomPackingItems(customPackingItems.filter(item => item.id !== id));
+  };
+
+  // Calculate Packing Stats
+  const totalPlaceItems = currentCityPacking.length;
+  const totalUniversalItems = universalPackingEssentials.length;
+  const totalCustomItems = customPackingItems.length;
+  const allPackingList = [...currentCityPacking, ...universalPackingEssentials, ...customPackingItems];
+  const totalItemsCount = allPackingList.length;
+  const packedItemsCount = allPackingList.filter(item => checkedPackingItems[item.id]).length;
+  const packingCompletionPct = Math.min(100, Math.round((packedItemsCount / (totalItemsCount || 1)) * 100));
+
+  // Mark all packed or reset
+  const handleMarkAllPacked = () => {
+    const updated = {};
+    allPackingList.forEach(item => { updated[item.id] = true; });
+    setCheckedPackingItems(updated);
+  };
+
+  const handleResetPacking = () => {
+    setCheckedPackingItems({});
+  };
+
   // Currency Exchange Rates (Base INR)
   const currencyRates = {
     INR: { symbol: '₹', rate: 1, label: 'INR (₹) - Indian Rupee' },
@@ -2774,29 +2972,314 @@ export default function App() {
             </div>
           )}
 
-          {/* MODULE 4: PACKING CHECKLIST */}
+          {/* MODULE 4: DYNAMIC DESTINATION-AWARE & UNIVERSAL PACKING CHECKLIST */}
           {activeTab === 'packing' && (
             <div className="space-y-6">
-              <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Pilgrimage & Heritage Packing Checklist</h2>
-              <div className={`border p-6 rounded-2xl space-y-3 shadow-xs ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
-              {[
-                'Traditional Attire / Dhoti / Kurta (Mandir Garbhagriha)',
-                'Govt ID Proof & Passport (For International / VIP Darshan)',
-                'Comfortable Walking Footwear & Adapters',
-                'Water Bottle & Electrolytes',
-                'Universal Power Bank & Multi-Plug Converter',
-                'Emergency First Aid & Personal Prescription Meds'
-              ].map((item, idx) => (
-                <label key={idx} className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer border ${
-                  isDarkMode ? 'bg-slate-800/50 border-slate-700/60' : 'bg-slate-50 border-slate-200/60 hover:bg-slate-100'
+              
+              {/* Header & Stats Bar */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                      Smart Packing Checklist ({selectedCity})
+                    </h2>
+                    <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-600/10 text-emerald-600 dark:text-emerald-400">
+                      {packedItemsCount} / {totalItemsCount} Packed
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Automated essentials tailored for {selectedCity} alongside universal mandatory travel items.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleMarkAllPacked}
+                    className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all shadow-xs"
+                  >
+                    <CheckCircle2 size={14} />
+                    <span>Check All</span>
+                  </button>
+
+                  <button
+                    onClick={handleResetPacking}
+                    className={`font-bold px-3 py-2 rounded-xl text-xs transition-all border ${
+                      isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+
+              {/* Packing Progress Card */}
+              <div className={`p-4 sm:p-5 rounded-3xl border shadow-xs space-y-2.5 transition-all ${
+                isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+              }`}>
+                <div className="flex items-center justify-between text-xs font-bold">
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-400">Overall Readiness:</span>
+                    <span className={packingCompletionPct === 100 ? 'text-emerald-500 font-extrabold' : isDarkMode ? 'text-white' : 'text-slate-900'}>
+                      {packingCompletionPct}% Complete
+                    </span>
+                  </div>
+                  <span className="text-xs text-emerald-600 font-bold">
+                    {totalItemsCount - packedItemsCount} items remaining
+                  </span>
+                </div>
+
+                <div className="w-full bg-slate-200 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
+                  <div 
+                    className="bg-emerald-600 h-full rounded-full transition-all duration-300"
+                    style={{ width: `${packingCompletionPct}%` }}
+                  />
+                </div>
+
+                {packingCompletionPct === 100 && (
+                  <div className="pt-1 flex items-center gap-2 text-xs font-bold text-emerald-600 animate-pulse">
+                    <Sparkles size={15} />
+                    <span>🎉 Perfect! You are 100% packed and ready for {selectedCity}!</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Filter Pills: All vs Place-Specific vs Universal */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
+                {[
+                  { id: 'All', label: `All Items (${totalItemsCount})` },
+                  { id: 'Place', label: `📍 ${selectedCity} Essentials (${totalPlaceItems})` },
+                  { id: 'Universal', label: `🌍 Universal All-Trip Essentials (${totalUniversalItems})` }
+                ].map((pill) => (
+                  <button
+                    key={pill.id}
+                    onClick={() => setPackingCategoryFilter(pill.id)}
+                    className={`px-4 py-2 rounded-full font-bold whitespace-nowrap transition-all text-xs ${
+                      packingCategoryFilter === pill.id
+                        ? 'bg-emerald-700 text-white shadow-xs'
+                        : isDarkMode 
+                          ? 'bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800' 
+                          : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300'
+                    }`}
+                  >
+                    {pill.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* SECTION 1: PLACE-SPECIFIC ESSENTIALS FOR SELECTED CITY */}
+              {(packingCategoryFilter === 'All' || packingCategoryFilter === 'Place') && (
+                <div className={`border rounded-3xl p-5 sm:p-6 space-y-4 shadow-xs ${
+                  isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
                 }`}>
-                  <input type="checkbox" defaultChecked={idx < 3} className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500" />
-                  <span className="text-xs font-semibold">{item}</span>
-                </label>
-              ))}
+                  <div className="flex items-center justify-between border-b pb-3 border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-emerald-600/10 text-emerald-600 flex items-center justify-center font-bold">
+                        <MapPin size={18} />
+                      </div>
+                      <div>
+                        <h3 className={`font-extrabold text-base ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                          📍 Place-Specific Essentials ({selectedCity})
+                        </h3>
+                        <p className="text-[11px] text-slate-400">Strictly advised for local shrines, temples, dress codes & terrain in {selectedCity}</p>
+                      </div>
+                    </div>
+
+                    <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-600 text-white">
+                      {currentCityPacking.filter(i => checkedPackingItems[i.id]).length} / {currentCityPacking.length}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {currentCityPacking.map((item) => {
+                      const isChecked = !!checkedPackingItems[item.id];
+                      return (
+                        <div
+                          key={item.id}
+                          onClick={() => togglePackingItem(item.id)}
+                          className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-start gap-3 select-none ${
+                            isChecked
+                              ? isDarkMode 
+                                ? 'bg-emerald-950/20 border-emerald-800/50 text-slate-200' 
+                                : 'bg-emerald-50/50 border-emerald-200 text-slate-800'
+                              : isDarkMode 
+                                ? 'bg-slate-800/40 border-slate-700/60 hover:bg-slate-800/80 text-slate-300' 
+                                : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700'
+                          }`}
+                        >
+                          <div className={`w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                            isChecked 
+                              ? 'bg-emerald-600 border-emerald-600 text-white' 
+                              : isDarkMode ? 'border-slate-600 bg-slate-800' : 'border-slate-300 bg-white'
+                          }`}>
+                            {isChecked && <Check size={13} strokeWidth={3} />}
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <h4 className={`font-bold text-xs sm:text-sm leading-snug ${
+                              isChecked ? 'line-through opacity-70 text-slate-400' : isDarkMode ? 'text-white' : 'text-slate-900'
+                            }`}>
+                              {item.title}
+                            </h4>
+                            <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                              {item.note}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* SECTION 2: UNIVERSAL ALL-TRIP ESSENTIALS (MANDATORY FOR EVERY DESTINATION) */}
+              {(packingCategoryFilter === 'All' || packingCategoryFilter === 'Universal') && (
+                <div className={`border rounded-3xl p-5 sm:p-6 space-y-4 shadow-xs ${
+                  isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                }`}>
+                  <div className="flex items-center justify-between border-b pb-3 border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold">
+                        <Shield size={18} />
+                      </div>
+                      <div>
+                        <h3 className={`font-extrabold text-base ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                          🌍 Universal Mandatory Essentials (All Trips)
+                        </h3>
+                        <p className="text-[11px] text-slate-400">Core essentials required on every travel itinerary across India and globally</p>
+                      </div>
+                    </div>
+
+                    <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-blue-600 text-white">
+                      {universalPackingEssentials.filter(i => checkedPackingItems[i.id]).length} / {universalPackingEssentials.length}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {universalPackingEssentials.map((item) => {
+                      const isChecked = !!checkedPackingItems[item.id];
+                      return (
+                        <div
+                          key={item.id}
+                          onClick={() => togglePackingItem(item.id)}
+                          className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-start gap-3 select-none ${
+                            isChecked
+                              ? isDarkMode 
+                                ? 'bg-emerald-950/20 border-emerald-800/50 text-slate-200' 
+                                : 'bg-emerald-50/50 border-emerald-200 text-slate-800'
+                              : isDarkMode 
+                                ? 'bg-slate-800/40 border-slate-700/60 hover:bg-slate-800/80 text-slate-300' 
+                                : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700'
+                          }`}
+                        >
+                          <div className={`w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                            isChecked 
+                              ? 'bg-emerald-600 border-emerald-600 text-white' 
+                              : isDarkMode ? 'border-slate-600 bg-slate-800' : 'border-slate-300 bg-white'
+                          }`}>
+                            {isChecked && <Check size={13} strokeWidth={3} />}
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <h4 className={`font-bold text-xs sm:text-sm leading-snug ${
+                                isChecked ? 'line-through opacity-70 text-slate-400' : isDarkMode ? 'text-white' : 'text-slate-900'
+                              }`}>
+                                {item.title}
+                              </h4>
+                              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+                                {item.category}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                              {item.note}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* SECTION 3: USER CUSTOM PACKING ITEMS & ADD INPUT BAR */}
+              <div className={`border rounded-3xl p-5 sm:p-6 space-y-4 shadow-xs ${
+                isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+              }`}>
+                <div className="flex items-center justify-between border-b pb-3 border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <CheckSquare className="text-emerald-600" size={18} />
+                    <h3 className={`font-extrabold text-sm ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                      Custom Personalized Packing Items ({customPackingItems.length})
+                    </h3>
+                  </div>
+                </div>
+
+                {/* Add Custom Item Input */}
+                <form onSubmit={handleAddCustomPackingItem} className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={customPackingInput}
+                    onChange={(e) => setCustomPackingInput(e.target.value)}
+                    placeholder="Add personal item (e.g. Camera lenses, Kindle, Specific allergy meds...)"
+                    className={`flex-1 px-4 py-2.5 border rounded-xl text-xs sm:text-sm focus:outline-none transition-all ${
+                      isDarkMode ? 'bg-slate-800 border-slate-700 text-white focus:border-emerald-500' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-emerald-600'
+                    }`}
+                  />
+                  <button
+                    type="submit"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-1.5 shadow-xs transition-all whitespace-nowrap"
+                  >
+                    <Plus size={15} />
+                    <span>Add Item</span>
+                  </button>
+                </form>
+
+                {/* Custom Items List */}
+                {customPackingItems.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 pt-2">
+                    {customPackingItems.map((item) => {
+                      const isChecked = !!checkedPackingItems[item.id];
+                      return (
+                        <div
+                          key={item.id}
+                          className={`p-3 rounded-xl border flex items-center justify-between gap-3 ${
+                            isChecked
+                              ? isDarkMode ? 'bg-emerald-950/20 border-emerald-800/50' : 'bg-emerald-50/50 border-emerald-200'
+                              : isDarkMode ? 'bg-slate-800/60 border-slate-700/60' : 'bg-slate-50 border-slate-200'
+                          }`}
+                        >
+                          <div 
+                            onClick={() => togglePackingItem(item.id)}
+                            className="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer"
+                          >
+                            <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
+                              isChecked ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-slate-400 bg-white dark:bg-slate-800'
+                            }`}>
+                              {isChecked && <Check size={11} strokeWidth={3} />}
+                            </div>
+                            <span className={`text-xs font-bold truncate ${
+                              isChecked ? 'line-through text-slate-400' : isDarkMode ? 'text-white' : 'text-slate-800'
+                            }`}>
+                              {item.title}
+                            </span>
+                          </div>
+
+                          <button
+                            onClick={() => handleDeleteCustomPackingItem(item.id)}
+                            className="text-slate-400 hover:text-rose-500 p-1 transition-colors"
+                            title="Remove custom item"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
             </div>
-          </div>
-        )}
+          )}
 
         {/* MODULE 5: SMART ALERTS & REAL-TIME CROWD MONITOR */}
         {activeTab === 'alerts' && (
