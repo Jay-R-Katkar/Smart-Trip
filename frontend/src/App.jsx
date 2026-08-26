@@ -65,6 +65,7 @@ import {
   Layers,
   Wallet
 } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
 export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -73,23 +74,34 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedStayType, setSelectedStayType] = useState('All');
-  const [activeDayView, setActiveDayView] = useState('all'); // 'all', 1, 2, 3...
-  const [selectedExpenseCategoryFilter, setSelectedExpenseCategoryFilter] = useState('All'); // 'All', 'Food', 'Stay', 'Transport', 'Activities'
-  const [currency, setCurrency] = useState('INR');
+  const [selectedGuideCity, setSelectedGuideCity] = useState('All');
   const [days, setDays] = useState(2);
+  const [currency, setCurrency] = useState('INR');
   const [baseBudgetINR, setBaseBudgetINR] = useState(15000);
   const [scheduleGenerated, setScheduleGenerated] = useState(true);
   const [sidebarOpenMobile, setSidebarOpenMobile] = useState(false);
 
-  // Authentication State
-  const [user, setUser] = useState({
-    name: 'Rahul Sharma',
-    email: 'rahul.sharma@example.com',
-    role: 'VIP Pilgrim',
-    savedTrips: 4
+  // Authentication State (Persisted in localStorage)
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('smarttrip_user');
+      return saved ? JSON.parse(saved) : {
+        name: 'Rahul Sharma',
+        email: 'rahul.sharma@smarttrip.in',
+        role: 'VIP Pilgrim',
+        savedTrips: 4
+      };
+    } catch (e) {
+      return {
+        name: 'Rahul Sharma',
+        email: 'rahul.sharma@smarttrip.in',
+        role: 'VIP Pilgrim',
+        savedTrips: 4
+      };
+    }
   });
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [authMode, setAuthMode] = useState('login'); // 'login' or 'signup'
+  const [authMode, setAuthMode] = useState('signup'); // Default to signup on click
   const [showPassword, setShowPassword] = useState(false);
   const [authFormData, setAuthFormData] = useState({
     name: '',
@@ -101,8 +113,16 @@ export default function App() {
   const [authError, setAuthError] = useState('');
   const [authSuccessMsg, setAuthSuccessMsg] = useState('');
 
-  // Booking Confirmation Modal State
+  // Booking Confirmation & Persistent Bookings List
   const [confirmedBooking, setConfirmedBooking] = useState(null);
+  const [myBookings, setMyBookings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('smarttrip_bookings');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
 
   // Budget Tracker & Expense History State
   const [expenses, setExpenses] = useState([
@@ -1531,10 +1551,48 @@ export default function App() {
     setBaseBudgetINR(inrVal);
   };
 
-  // REAL BACKEND BOOKING API CALL
+  // REAL BACKEND BOOKING API CALL WITH LOCALSTORAGE PERSISTENCE & CONFETTI
   const handleBookStay = async (stayName, price, type) => {
+    const bookingCode = `ST-BK-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newBookingObj = {
+      id: Date.now(),
+      code: bookingCode,
+      title: 'Stay Booking Confirmed!',
+      name: stayName,
+      type: type || 'Ashram',
+      price: price,
+      city: selectedCity,
+      dates: `${days} Days (${selectedCity} Circuit)`,
+      guestName: user ? user.name : 'Guest Pilgrim',
+      bookedAt: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+    };
+
+    // Save to persistent bookings list in localStorage
+    setMyBookings(prev => {
+      const updated = [newBookingObj, ...prev];
+      try { localStorage.setItem('smarttrip_bookings', JSON.stringify(updated)); } catch(e) {}
+      return updated;
+    });
+
+    // Show instant confirmation modal & fire celebratory confetti
+    setConfirmedBooking(newBookingObj);
     try {
-      const response = await fetch('/api/bookings', {
+      confetti({ particleCount: 65, spread: 60, origin: { y: 0.6 } });
+    } catch(e) {}
+
+    // Automatically log to expense history
+    setExpenses(prev => [{
+      id: Date.now(),
+      title: `${stayName} (${type || 'Stay'})`,
+      amount: price,
+      category: 'Stay',
+      date: 'Just now',
+      icon: 'hotel'
+    }, ...prev]);
+
+    // Background sync to backend if server available
+    try {
+      fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1546,60 +1604,53 @@ export default function App() {
           user_email: user ? user.email : 'guest@smarttrip.in',
           city: selectedCity
         })
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        setConfirmedBooking({
-          title: 'Stay Booking Confirmed!',
-          code: data.confirmation_code,
-          name: stayName,
-          type: type || 'Ashram',
-          price: price,
-          city: selectedCity,
-          dates: `${days} Days Circuit`
-        });
-
-        // Automatically log to expense history
-        setExpenses(prev => [{
-          id: Date.now(),
-          title: `${stayName} Booking`,
-          amount: price,
-          category: 'Stay',
-          date: 'Just now',
-          icon: 'hotel'
-        }, ...prev]);
-      } else {
-        throw new Error('Fallback to local confirmation');
-      }
-    } catch (err) {
-      const localCode = `ST-BK-${Math.floor(1000 + Math.random() * 9000)}`;
-      setConfirmedBooking({
-        title: 'Stay Booking Confirmed!',
-        code: localCode,
-        name: stayName,
-        type: type || 'Ashram',
-        price: price,
-        city: selectedCity,
-        dates: `${days} Days Circuit`
-      });
-
-      setExpenses(prev => [{
-        id: Date.now(),
-        title: `${stayName} Booking`,
-        amount: price,
-        category: 'Stay',
-        date: 'Just now',
-        icon: 'hotel'
-      }, ...prev]);
-    }
+      }).catch(() => {});
+    } catch (err) {}
   };
 
-  // REAL BACKEND GUIDE BOOKING API CALL
+  // REAL BACKEND GUIDE BOOKING API CALL WITH LOCALSTORAGE PERSISTENCE & CONFETTI
   const handleBookGuide = async (guideName, ratePerHour) => {
     const totalGuidePrice = ratePerHour * 4;
+    const voucherCode = `ST-GD-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newGuideBookingObj = {
+      id: Date.now(),
+      code: voucherCode,
+      title: 'Vedic Guide Booked!',
+      name: guideName,
+      type: 'Verified Guide',
+      price: totalGuidePrice,
+      city: selectedCity,
+      dates: '4 Hours (Morning Darshan & Parikrama)',
+      guestName: user ? user.name : 'Guest Pilgrim',
+      bookedAt: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+    };
+
+    // Save to persistent bookings list in localStorage
+    setMyBookings(prev => {
+      const updated = [newGuideBookingObj, ...prev];
+      try { localStorage.setItem('smarttrip_bookings', JSON.stringify(updated)); } catch(e) {}
+      return updated;
+    });
+
+    // Show instant confirmation modal & fire celebratory confetti
+    setConfirmedBooking(newGuideBookingObj);
     try {
-      const response = await fetch('/api/guides/book', {
+      confetti({ particleCount: 65, spread: 60, origin: { y: 0.6 } });
+    } catch(e) {}
+
+    // Automatically log to expense history
+    setExpenses(prev => [{
+      id: Date.now(),
+      title: `${guideName} (4 hrs Guide)`,
+      amount: totalGuidePrice,
+      category: 'Activities',
+      date: 'Just now',
+      icon: 'guide'
+    }, ...prev]);
+
+    // Background sync to backend if server available
+    try {
+      fetch('/api/guides/book', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1610,55 +1661,11 @@ export default function App() {
           traveler_name: user ? user.name : 'Guest Pilgrim',
           price: totalGuidePrice
         })
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        setConfirmedBooking({
-          title: 'Vedic Guide Booked!',
-          code: data.voucher_code,
-          name: guideName,
-          type: 'Verified Guide',
-          price: totalGuidePrice,
-          city: selectedCity,
-          dates: '4 Hours (Morning Darshan & Parikrama)'
-        });
-
-        setExpenses(prev => [{
-          id: Date.now(),
-          title: `${guideName} (4 hrs Guide)`,
-          amount: totalGuidePrice,
-          category: 'Activities',
-          date: 'Just now',
-          icon: 'guide'
-        }, ...prev]);
-      } else {
-        throw new Error('Fallback to local confirmation');
-      }
-    } catch (err) {
-      const localCode = `ST-GD-${Math.floor(1000 + Math.random() * 9000)}`;
-      setConfirmedBooking({
-        title: 'Vedic Guide Booked!',
-        code: localCode,
-        name: guideName,
-        type: 'Verified Guide',
-        price: totalGuidePrice,
-        city: selectedCity,
-        dates: '4 Hours (Morning Darshan & Parikrama)'
-      });
-
-      setExpenses(prev => [{
-        id: Date.now(),
-        title: `${guideName} (4 hrs Guide)`,
-        amount: totalGuidePrice,
-        category: 'Activities',
-        date: 'Just now',
-        icon: 'guide'
-      }, ...prev]);
-    }
+      }).catch(() => {});
+    } catch (err) {}
   };
 
-  // Authentication Logic with Backend Connection
+  // Authentication Logic with Instant UI Feedback & Persistent Storage
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
     setAuthError('');
@@ -1677,9 +1684,27 @@ export default function App() {
       return;
     }
 
+    const displayName = authFormData.name || authFormData.email.split('@')[0].replace('.', ' ').replace(/^./, str => str.toUpperCase());
+    const newUserObj = {
+      name: displayName,
+      email: authFormData.email,
+      role: authFormData.travelInterest ? `${authFormData.travelInterest} Explorer` : 'VIP Pilgrim',
+      savedTrips: 1
+    };
+
+    // Save to user state and browser localStorage
+    setUser(newUserObj);
+    try {
+      localStorage.setItem('smarttrip_user', JSON.stringify(newUserObj));
+      confetti({ particleCount: 75, spread: 70, origin: { y: 0.5 } });
+    } catch (e) {}
+
+    setAuthSuccessMsg(authMode === 'login' ? `Welcome back, ${displayName}!` : `Account created for ${displayName}! Welcome to SmartTrip.`);
+
+    // Background sync to backend if server available
     try {
       const endpoint = authMode === 'signup' ? '/api/auth/signup' : '/api/auth/login';
-      const response = await fetch(endpoint, {
+      fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1688,45 +1713,38 @@ export default function App() {
           password: authFormData.password,
           travel_interest: authFormData.travelInterest
         })
-      });
-      const data = await response.json();
-      if (data.success && data.user) {
-        setUser(data.user);
-      } else {
-        setUser({
-          name: authMode === 'signup' ? authFormData.name : authFormData.email.split('@')[0],
-          email: authFormData.email,
-          role: 'VIP Pilgrim',
-          savedTrips: 4
-        });
-      }
-    } catch (err) {
-      setUser({
-        name: authMode === 'signup' ? authFormData.name : authFormData.email.split('@')[0],
-        email: authFormData.email,
-        role: 'VIP Pilgrim',
-        savedTrips: 4
-      });
-    }
-
-    setAuthSuccessMsg(authMode === 'login' ? 'Logged in successfully!' : 'Account created successfully! Welcome to SmartTrip.');
+      }).catch(() => {});
+    } catch (err) {}
 
     setTimeout(() => {
       setIsAuthOpen(false);
       setAuthSuccessMsg('');
       setAuthFormData({ name: '', email: '', password: '', travelInterest: 'Spiritual', rememberMe: true });
-    }, 600);
+    }, 700);
   };
 
   const handleQuickDemoLogin = (type) => {
+    let demoUser;
     if (type === 'pilgrim') {
-      setUser({ name: 'Rahul Sharma', email: 'rahul.pilgrim@smarttrip.in', role: 'VIP Pilgrim', savedTrips: 6 });
+      demoUser = { name: 'Rahul Sharma', email: 'rahul.pilgrim@smarttrip.in', role: 'VIP Pilgrim', savedTrips: 6 };
     } else if (type === 'guide') {
-      setUser({ name: 'Pt. Shivam Shastri', email: 'shivam.vedic@smarttrip.in', role: 'Verified Vedic Guide', savedTrips: 18 });
+      demoUser = { name: 'Pt. Shivam Shastri', email: 'shivam.vedic@smarttrip.in', role: 'Verified Vedic Guide', savedTrips: 18 };
     } else {
-      setUser({ name: 'Aanya Patel', email: 'aanya.global@smarttrip.in', role: 'Global Explorer', savedTrips: 9 });
+      demoUser = { name: 'Aanya Patel', email: 'aanya.global@smarttrip.in', role: 'Global Explorer', savedTrips: 9 };
     }
+    setUser(demoUser);
+    try {
+      localStorage.setItem('smarttrip_user', JSON.stringify(demoUser));
+      confetti({ particleCount: 50, spread: 50, origin: { y: 0.5 } });
+    } catch (e) {}
     setIsAuthOpen(false);
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    try {
+      localStorage.removeItem('smarttrip_user');
+    } catch (e) {}
   };
 
   // Generate Structured Day-Wise Itinerary Plan & Budget Breakdown
@@ -2522,6 +2540,56 @@ export default function App() {
                 </div>
               </div>
 
+              {/* My Confirmed Bookings Card (If user has booked anything) */}
+              {myBookings.length > 0 && (
+                <div className={`p-4 sm:p-5 rounded-3xl border transition-all ${
+                  isDarkMode ? 'bg-emerald-950/30 border-emerald-500/40 text-white' : 'bg-emerald-50/80 border-emerald-200 text-slate-900'
+                }`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold">
+                        <CheckCircle2 size={18} />
+                      </div>
+                      <div>
+                        <h4 className="font-extrabold text-sm text-emerald-700 dark:text-emerald-400">My Confirmed Reservations ({myBookings.length})</h4>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400">Active vouchers stored in your local session & database</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setConfirmedBooking(myBookings[0])}
+                      className="text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1"
+                    >
+                      <span>View Latest Voucher</span>
+                      <ChevronRight size={14} />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                    {myBookings.map((bk) => (
+                      <div
+                        key={bk.id}
+                        onClick={() => setConfirmedBooking(bk)}
+                        className={`p-3 rounded-2xl border cursor-pointer hover:scale-[1.01] transition-all flex items-center justify-between ${
+                          isDarkMode ? 'bg-slate-900/90 border-slate-700/80 hover:border-emerald-500' : 'bg-white border-emerald-200/80 hover:border-emerald-500 shadow-xs'
+                        }`}
+                      >
+                        <div className="min-w-0 pr-2">
+                          <span className="text-[10px] font-mono font-black text-emerald-600 block">{bk.code}</span>
+                          <h6 className="font-bold text-xs truncate">{bk.name}</h6>
+                          <span className="text-[10px] text-slate-400 block">{bk.city} • {bk.type}</span>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="text-xs font-black text-emerald-600 block">₹{bk.price.toLocaleString()}</span>
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">
+                            Confirmed
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Filter Pills for Stay Categories */}
               <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
                 {[
@@ -2550,6 +2618,7 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {filteredStays.map((stay) => {
                   const convertedPrice = Math.round(stay.priceINR * activeRate);
+                  const isAlreadyBooked = myBookings.some(b => b.name === stay.name);
                   return (
                     <div 
                       key={stay.id}
@@ -2575,6 +2644,11 @@ export default function App() {
                           }`}>
                             {stay.type}
                           </span>
+                          {isAlreadyBooked && (
+                            <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500 text-white shadow-md flex items-center gap-1">
+                              <Check size={10} /> Booked
+                            </span>
+                          )}
                         </div>
 
                         <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-xs text-amber-400 px-2 py-0.5 rounded-full text-[11px] font-extrabold flex items-center gap-1">
@@ -2611,9 +2685,20 @@ export default function App() {
 
                           <button 
                             onClick={() => handleBookStay(stay.name, stay.priceINR, stay.type)} 
-                            className="bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-xs"
+                            className={`font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-xs active:scale-95 flex items-center gap-1.5 ${
+                              isAlreadyBooked 
+                                ? 'bg-emerald-600/20 text-emerald-700 dark:text-emerald-300 border border-emerald-600/40 hover:bg-emerald-600/30'
+                                : 'bg-emerald-700 hover:bg-emerald-800 text-white'
+                            }`}
                           >
-                            Book Stay
+                            {isAlreadyBooked ? (
+                              <>
+                                <Check size={13} />
+                                <span>Book Again</span>
+                              </>
+                            ) : (
+                              <span>Book Stay</span>
+                            )}
                           </button>
                         </div>
                       </div>
