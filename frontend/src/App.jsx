@@ -94,6 +94,10 @@ export default function App() {
   const [selectedTransitMode, setSelectedTransitMode] = useState('all'); // 'all', 'train', 'flight', 'bus', 'cab'
   const [selectedTrainClasses, setSelectedTrainClasses] = useState({});
 
+  // Traveler Mode & Group Size State (Single vs Multiple / Solo vs Group)
+  const [travelerType, setTravelerType] = useState('single'); // 'single' (Solo) or 'multiple' (Group)
+  const [travelerCount, setTravelerCount] = useState(1); // 1 for Solo, 2, 4, 6... for Group
+
   // Authentication State (Persisted in localStorage)
   const [user, setUser] = useState(() => {
     try {
@@ -391,11 +395,15 @@ export default function App() {
   const activeSymbol = currencyRates[currency]?.symbol || '₹';
   const convertedTotalBudget = Math.round(baseBudgetINR * activeRate);
   const convertedPerDayBudget = Math.round((baseBudgetINR / (days || 1)) * activeRate);
+  const convertedPerPersonBudget = Math.round(convertedTotalBudget / (travelerCount || 1));
+  const convertedPerPersonPerDay = Math.round(convertedPerDayBudget / (travelerCount || 1));
 
-  // Minimum required budget calculations
+  // Minimum required budget calculations adjusted for Single (Solo) vs Multiple (Group)
   const minDailyINR = cityMinDailyRatesINR[selectedCity] || 1000;
-  const totalMinRequiredINR = minDailyINR * days;
+  const groupMultiplier = travelerCount <= 1 ? 1 : (1 + (travelerCount - 1) * 0.75);
+  const totalMinRequiredINR = Math.round(minDailyINR * days * groupMultiplier);
   const convertedMinRequired = Math.round(totalMinRequiredINR * activeRate);
+  const convertedPerPersonMin = Math.round(convertedMinRequired / (travelerCount || 1));
   const isBudgetTooLow = convertedTotalBudget < convertedMinRequired;
   const budgetDeficitToMin = isBudgetTooLow ? (convertedMinRequired - convertedTotalBudget) : 0;
 
@@ -1541,6 +1549,40 @@ export default function App() {
     setBaseBudgetINR(prev => Math.round(prev * 1.3));
   };
 
+  // Handle Single vs Multiple Traveler Mode Toggle & Stepper
+  const handleSetTravelerType = (type, customCount) => {
+    setTravelerType(type);
+    let count = customCount;
+    if (!count) {
+      count = type === 'single' ? 1 : 4;
+    }
+    const prevCount = travelerCount || 1;
+    setTravelerCount(count);
+    
+    // Scale budget with traveler count
+    if (prevCount !== count) {
+      const prevMultiplier = prevCount <= 1 ? 1 : (1 + (prevCount - 1) * 0.75);
+      const newMultiplier = count <= 1 ? 1 : (1 + (count - 1) * 0.75);
+      const ratio = newMultiplier / prevMultiplier;
+      setBaseBudgetINR(prev => Math.max(Math.round(minDailyINR * days * newMultiplier), Math.round(prev * ratio)));
+    }
+  };
+
+  const handleUpdateTravelerCount = (newCount) => {
+    const validCount = Math.max(1, Math.min(25, newCount));
+    const type = validCount === 1 ? 'single' : 'multiple';
+    setTravelerType(type);
+    const prevCount = travelerCount || 1;
+    setTravelerCount(validCount);
+
+    if (prevCount !== validCount) {
+      const prevMultiplier = prevCount <= 1 ? 1 : (1 + (prevCount - 1) * 0.75);
+      const newMultiplier = validCount <= 1 ? 1 : (1 + (validCount - 1) * 0.75);
+      const ratio = newMultiplier / prevMultiplier;
+      setBaseBudgetINR(prev => Math.max(Math.round(minDailyINR * days * newMultiplier), Math.round(prev * ratio)));
+    }
+  };
+
   // Set preset budget tier directly from user
   const handleSetPresetBudgetTier = (tier) => {
     if (tier === 'budget') {
@@ -2468,13 +2510,13 @@ export default function App() {
                       </div>
                       <div>
                         <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/40 text-amber-200 text-[10px] font-black uppercase tracking-wider mb-1">
-                          ⚠️ BUDGET DEFICIT ADVISORY
+                          ⚠️ BUDGET DEFICIT ADVISORY • {travelerCount > 1 ? `GROUP OF ${travelerCount} PEOPLE` : 'SOLO TRAVELER'}
                         </div>
                         <h4 className="text-base sm:text-lg font-black">
-                          Your Defined Budget ({activeSymbol}{convertedTotalBudget.toLocaleString()}) is Too Low for {selectedCity} ({days} Days)!
+                          Your Defined Budget ({activeSymbol}{convertedTotalBudget.toLocaleString()}) is Too Low for {travelerCount} {travelerCount > 1 ? 'Travelers' : 'Traveler'} in {selectedCity} ({days} Days)!
                         </h4>
                         <p className="text-xs text-amber-100/90 font-medium mt-0.5 leading-relaxed">
-                          Basic daily accommodation (Ashram/Stay), local transit & satvik meals in {selectedCity} realistically require at least <strong>{activeSymbol}{convertedMinRequired.toLocaleString()}</strong> ({activeSymbol}{Math.round(minDailyINR * activeRate).toLocaleString()}/day).
+                          Basic daily accommodation (Ashrams/Stay), local transit & satvik meals in {selectedCity} realistically require at least <strong>{activeSymbol}{convertedMinRequired.toLocaleString()}</strong> ({activeSymbol}{convertedPerPersonMin.toLocaleString()} per person for {days} days).
                         </p>
                       </div>
                     </div>
@@ -2490,23 +2532,99 @@ export default function App() {
                 </div>
               )}
 
-              {/* HORIZONTAL TRIP SETTINGS BAR WITH USER-DEFINED BUDGET INPUT */}
+              {/* HORIZONTAL TRIP SETTINGS BAR WITH SINGLE VS MULTIPLE (SOLO VS GROUP) & USER-DEFINED BUDGET INPUT */}
               <div className={`border rounded-3xl p-5 sm:p-6 shadow-sm space-y-4 transition-colors ${
                 isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
               }`}>
                 
-                {/* Top Row: Destination, Currency, Days & Custom Budget Input */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
+                {/* Top Row: Destination, Traveler Mode (Single/Multiple), Duration, Currency & Custom Budget Input */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-center">
                   
                   {/* 1. Destination */}
-                  <div className={`border-b sm:border-b-0 sm:border-r pb-3 sm:pb-0 pr-0 sm:pr-4 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+                  <div className={`border-b sm:border-b-0 sm:border-r pb-3 sm:pb-0 pr-0 sm:pr-3 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Selected Destination</span>
-                    <span className={`font-black text-lg ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{selectedCity}</span>
+                    <span className={`font-black text-base sm:text-lg truncate block ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{selectedCity}</span>
                   </div>
 
-                  {/* 2. Currency Dropdown Menu */}
-                  <div className={`border-b sm:border-b-0 sm:border-r pb-3 sm:pb-0 pr-0 sm:pr-4 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Trip Currency (Auto)</span>
+                  {/* 2. Single vs Multiple (Solo vs Group Traveler) Selection */}
+                  <div className={`border-b sm:border-b-0 sm:border-r pb-3 sm:pb-0 pr-0 sm:pr-3 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        Travelers ({travelerType === 'single' ? 'Solo' : 'Group'})
+                      </span>
+                      <span className="text-[10px] font-black text-emerald-600">
+                        {travelerCount} Person{travelerCount > 1 ? 's' : ''}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => handleSetTravelerType('single', 1)}
+                        className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 ${
+                          travelerCount === 1
+                            ? 'bg-emerald-600 text-white shadow-xs'
+                            : isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
+                        title="Single Solo Traveler"
+                      >
+                        <UserIcon size={13} />
+                        <span>Solo</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleSetTravelerType('multiple', travelerCount > 1 ? travelerCount : 4)}
+                        className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 ${
+                          travelerCount > 1
+                            ? 'bg-emerald-600 text-white shadow-xs'
+                            : isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
+                        title="Multiple Group Travelers"
+                      >
+                        <Users size={13} />
+                        <span>Group</span>
+                      </button>
+
+                      {/* Stepper buttons if Multiple is active */}
+                      {travelerCount > 1 && (
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateTravelerCount(travelerCount - 1)}
+                            className={`w-6 h-6 rounded-lg text-xs font-black flex items-center justify-center ${
+                              isDarkMode ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                            }`}
+                          >
+                            -
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateTravelerCount(travelerCount + 1)}
+                            className={`w-6 h-6 rounded-lg text-xs font-black flex items-center justify-center ${
+                              isDarkMode ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                            }`}
+                          >
+                            +
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 3. Duration */}
+                  <div className={`border-b sm:border-b-0 sm:border-r pb-3 sm:pb-0 pr-0 sm:pr-3 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Duration (Days)</span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <button onClick={() => setDays(Math.max(1, days - 1))} className={`w-7 h-7 rounded-lg font-bold text-xs flex items-center justify-center ${isDarkMode ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-700'}`}>-</button>
+                      <span className={`font-extrabold text-sm ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{days} Days</span>
+                      <button onClick={() => setDays(Math.min(14, days + 1))} className={`w-7 h-7 rounded-lg font-bold text-xs flex items-center justify-center ${isDarkMode ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-700'}`}>+</button>
+                    </div>
+                  </div>
+
+                  {/* 4. Currency Dropdown Menu */}
+                  <div className={`border-b sm:border-b-0 lg:border-r pb-3 sm:pb-0 pr-0 sm:pr-3 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Trip Currency</span>
                     <div className="relative mt-1">
                       <select
                         value={currency}
@@ -2526,25 +2644,19 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* 3. Duration */}
-                  <div className={`border-b sm:border-b-0 lg:border-r pb-3 sm:pb-0 pr-0 sm:pr-4 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Duration (Days)</span>
-                    <div className="flex items-center gap-2 mt-1">
-                      <button onClick={() => setDays(Math.max(1, days - 1))} className={`w-7 h-7 rounded-lg font-bold text-xs flex items-center justify-center ${isDarkMode ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-700'}`}>-</button>
-                      <span className={`font-extrabold text-sm ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{days} Days</span>
-                      <button onClick={() => setDays(Math.min(14, days + 1))} className={`w-7 h-7 rounded-lg font-bold text-xs flex items-center justify-center ${isDarkMode ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-700'}`}>+</button>
-                    </div>
-                  </div>
-
-                  {/* 4. USER-DEFINED EDITABLE BUDGET INPUT */}
+                  {/* 5. USER-DEFINED EDITABLE BUDGET INPUT */}
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                        Define Your Budget ({currency})
+                        Total Budget ({currency})
                       </span>
-                      {isBudgetTooLow && (
+                      {isBudgetTooLow ? (
                         <span className="text-[9px] font-black text-rose-500 uppercase tracking-wider">
                           Too Low
+                        </span>
+                      ) : (
+                        <span className="text-[9px] font-bold text-emerald-600">
+                          {activeSymbol}{convertedPerPersonBudget.toLocaleString()} / person
                         </span>
                       )}
                     </div>
@@ -2572,7 +2684,7 @@ export default function App() {
 
                 </div>
 
-                {/* Bottom Row: 3 Quick Preset Tiers + Explore Button */}
+                {/* Bottom Row: Quick Preset Tiers & Group Budget Telemetry */}
                 <div className={`pt-3 border-t flex flex-col sm:flex-row items-center justify-between gap-3 ${
                   isDarkMode ? 'border-slate-800' : 'border-slate-100'
                 }`}>
@@ -2611,6 +2723,10 @@ export default function App() {
                     >
                       👑 VIP Luxury Pass
                     </button>
+
+                    <span className="hidden md:inline-block text-[11px] font-bold px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                      👥 {travelerCount === 1 ? 'Solo Traveler' : `${travelerCount} Travelers`} • {activeSymbol}{convertedPerPersonBudget.toLocaleString()} / person
+                    </span>
                   </div>
 
                   <button
@@ -2769,6 +2885,11 @@ export default function App() {
                                 <span className="text-base font-black text-emerald-600">
                                   {activeSymbol}{dayItem.dayBudget.toLocaleString()}
                                 </span>
+                                {travelerCount > 1 && (
+                                  <span className="text-[10px] text-slate-400 block font-semibold">
+                                    ({activeSymbol}{Math.round(dayItem.dayBudget / travelerCount).toLocaleString()} / person)
+                                  </span>
+                                )}
                               </div>
                             </div>
 
