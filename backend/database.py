@@ -16,6 +16,7 @@ def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
 
+    # 1. Users Table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,97 +24,128 @@ def init_db():
         email TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
         phone TEXT,
+        role TEXT DEFAULT 'VIP Pilgrim',
+        travel_interest TEXT DEFAULT 'Spiritual',
+        saved_trips INTEGER DEFAULT 4,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     """)
 
+    # 2. Destinations Table
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS attractions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        city TEXT NOT NULL,
+    CREATE TABLE IF NOT EXISTS destinations (
+        id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
-        category TEXT DEFAULT 'Sightseeing',
-        cost REAL DEFAULT 0.0,
-        duration REAL DEFAULT 2.0,
-        rating REAL DEFAULT 4.5,
-        latitude REAL NOT NULL,
-        longitude REAL NOT NULL,
-        opening_hours TEXT DEFAULT '09:00 - 18:00',
-        crowd_pattern TEXT DEFAULT 'Moderate',
-        description TEXT,
-        image_url TEXT
-    );
-    """)
-
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS hotels (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        city TEXT NOT NULL,
-        price REAL NOT NULL,
-        rating REAL DEFAULT 4.0,
-        stars INTEGER DEFAULT 3,
+        title TEXT NOT NULL,
+        category TEXT NOT NULL,
+        default_currency TEXT DEFAULT 'INR',
+        min_daily_rate REAL DEFAULT 1000.0,
+        image TEXT,
+        activities TEXT,
         latitude REAL,
-        longitude REAL,
-        amenities TEXT,
-        image_url TEXT,
-        comparison_prices TEXT
+        longitude REAL
     );
     """)
 
+    # 3. Stays & Ashrams Table
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS flights (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        origin TEXT NOT NULL,
-        destination TEXT NOT NULL,
-        airline TEXT NOT NULL,
-        flight_number TEXT NOT NULL,
-        departure_time TEXT NOT NULL,
-        arrival_time TEXT NOT NULL,
-        duration TEXT NOT NULL,
-        price REAL NOT NULL,
-        stops INTEGER DEFAULT 0
+    CREATE TABLE IF NOT EXISTS stays (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        city TEXT NOT NULL,
+        type TEXT NOT NULL,
+        category TEXT NOT NULL,
+        price_inr REAL NOT NULL,
+        rating REAL DEFAULT 4.8,
+        reviews INTEGER DEFAULT 150,
+        distance TEXT,
+        amenities TEXT,
+        image TEXT
     );
     """)
 
+    # 4. Transit & Tickets Table (Trains, Flights, Buses, Tempo Travellers & Cabs)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS transit_tickets (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER DEFAULT 1,
+        pnr_code TEXT UNIQUE NOT NULL,
+        transit_mode TEXT NOT NULL,
+        operator_name TEXT NOT NULL,
+        route_number TEXT,
+        origin_city TEXT NOT NULL,
+        destination_city TEXT NOT NULL,
+        departure_time TEXT,
+        arrival_time TEXT,
+        travel_date TEXT,
+        passenger_count INTEGER DEFAULT 1,
+        travel_class TEXT,
+        total_price REAL NOT NULL,
+        status TEXT DEFAULT 'Confirmed',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
+
+    # 5. Stays & General Bookings Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS bookings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        trip_id INTEGER DEFAULT 1,
+        user_id INTEGER DEFAULT 1,
+        item_type TEXT NOT NULL,
+        item_name TEXT NOT NULL,
+        city TEXT,
+        dates TEXT,
+        price REAL NOT NULL,
+        status TEXT DEFAULT 'Confirmed',
+        confirmation_code TEXT UNIQUE,
+        guest_name TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
+
+    # 6. Verified Guides Table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS guides (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         city TEXT NOT NULL,
-        rating REAL DEFAULT 4.8,
+        rating REAL DEFAULT 4.9,
+        reviews INTEGER DEFAULT 200,
         languages TEXT NOT NULL,
         expertise TEXT NOT NULL,
-        price_per_hour REAL NOT NULL,
         price_per_day REAL NOT NULL,
-        availability TEXT DEFAULT 'Available',
-        verified INTEGER DEFAULT 1,
         phone TEXT,
         avatar_url TEXT,
-        bio TEXT
+        bio TEXT,
+        verified INTEGER DEFAULT 1
     );
     """)
 
+    # 7. Trips Table (Single & Group Itineraries)
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS trips (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER DEFAULT 1,
         title TEXT NOT NULL,
         destination TEXT NOT NULL,
-        start_date TEXT,
-        end_date TEXT,
-        days INTEGER NOT NULL DEFAULT 3,
-        budget REAL NOT NULL DEFAULT 1000.0,
-        travel_style TEXT DEFAULT 'Balanced',
+        days INTEGER NOT NULL DEFAULT 2,
+        traveler_type TEXT DEFAULT 'single',
+        traveler_count INTEGER DEFAULT 1,
+        currency TEXT DEFAULT 'INR',
+        budget REAL NOT NULL DEFAULT 15000.0,
+        plan_style TEXT DEFAULT 'standard',
         itinerary TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     """)
 
+    # 8. Budget Tracker Expenses Table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS expenses (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        trip_id INTEGER NOT NULL,
+        trip_id INTEGER DEFAULT 1,
+        user_id INTEGER DEFAULT 1,
         title TEXT NOT NULL,
         amount REAL NOT NULL,
         category TEXT NOT NULL,
@@ -123,30 +155,15 @@ def init_db():
     );
     """)
 
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS bookings (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        trip_id INTEGER,
-        item_type TEXT NOT NULL,
-        item_id INTEGER,
-        item_name TEXT NOT NULL,
-        dates TEXT,
-        price REAL NOT NULL,
-        status TEXT DEFAULT 'Confirmed',
-        payment_id TEXT,
-        confirmation_code TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-    """)
-
+    # 9. Safety Info Table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS safety_info (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         city TEXT UNIQUE NOT NULL,
-        safety_score INTEGER DEFAULT 85,
+        safety_score INTEGER DEFAULT 90,
         police_number TEXT DEFAULT '112',
-        ambulance_number TEXT DEFAULT '112',
-        tourist_helpline TEXT,
+        ambulance_number TEXT DEFAULT '108',
+        tourist_helpline TEXT DEFAULT '1363',
         safe_areas TEXT,
         caution_areas TEXT,
         nearest_hospitals TEXT,
@@ -154,10 +171,10 @@ def init_db():
     );
     """)
 
+    # 10. Smart Alerts Table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS alerts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        trip_id INTEGER,
         city TEXT,
         type TEXT NOT NULL,
         title TEXT NOT NULL,

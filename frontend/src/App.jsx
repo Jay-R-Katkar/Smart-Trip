@@ -1763,19 +1763,25 @@ export default function App() {
       icon: 'car'
     }, ...prev]);
 
-    // Background sync to backend if server available
+    // Background sync to backend transit API
     try {
-      fetch('/api/bookings', {
+      fetch('/api/transit/book', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          item_type: mode,
-          item_name: `${serviceName} (${originCity} to ${selectedCity})`,
-          price: totalPrice,
-          dates: `${transitDate} (${departureTime})`,
+          transit_mode: mode,
+          operator_name: serviceName,
+          route_number: serviceNumber || '',
+          departure_time: departureTime,
+          arrival_time: arrivalTime,
+          origin_city: originCity,
+          destination_city: selectedCity,
+          travel_date: transitDate,
+          passenger_count: passengerCount,
+          travel_class: seatType || 'Standard',
+          total_price: totalPrice,
           user_name: user ? user.name : 'Guest Pilgrim',
-          user_email: user ? user.email : 'guest@smarttrip.in',
-          city: `${originCity} -> ${selectedCity}`
+          user_email: user ? user.email : 'guest@smarttrip.in'
         })
       }).catch(() => {});
     } catch (err) {}
