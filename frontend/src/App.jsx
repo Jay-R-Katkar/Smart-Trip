@@ -85,6 +85,7 @@ export default function App() {
   const [currency, setCurrency] = useState('INR');
   const [baseBudgetINR, setBaseBudgetINR] = useState(15000);
   const [scheduleGenerated, setScheduleGenerated] = useState(true);
+  const [activeDayView, setActiveDayView] = useState('all');
   const [sidebarOpenMobile, setSidebarOpenMobile] = useState(false);
 
   // Transit & Ticket Booking State (Current Location ➔ Selected Destination)
@@ -152,6 +153,7 @@ export default function App() {
   const [newExpenseTitle, setNewExpenseTitle] = useState('');
   const [newExpenseAmount, setNewExpenseAmount] = useState('');
   const [newExpenseCategory, setNewExpenseCategory] = useState('Food');
+  const [selectedExpenseCategoryFilter, setSelectedExpenseCategoryFilter] = useState('All');
   const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
 
   // Packing Checklist States
