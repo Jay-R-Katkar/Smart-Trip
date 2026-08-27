@@ -131,16 +131,82 @@ export default function App() {
   const [authError, setAuthError] = useState('');
   const [authSuccessMsg, setAuthSuccessMsg] = useState('');
 
-  // Booking Confirmation & Persistent Bookings List
+  // Booking Confirmation & Persistent Bookings List (Hotels with Room Nos, Transit with Seat/PNRs, Guides)
   const [confirmedBooking, setConfirmedBooking] = useState(null);
   const [myBookings, setMyBookings] = useState(() => {
     try {
       const saved = localStorage.getItem('smarttrip_bookings');
-      return saved ? JSON.parse(saved) : [];
+      if (saved && JSON.parse(saved).length > 0) return JSON.parse(saved);
+      return [
+        {
+          id: 101,
+          code: 'ST-TRN-8821',
+          category: 'transit',
+          transitMode: 'Train',
+          title: 'Train Ticket Confirmed!',
+          name: 'Vande Bharat Express (#20911)',
+          operator: 'Vande Bharat Express',
+          seatNumber: 'Coach B3 • Berth 31 (Lower), 32 (Middle)',
+          seatClass: '3A (3-Tier AC)',
+          type: 'Train • 3A (3-Tier AC)',
+          price: 3360,
+          route: 'Mumbai ➔ Ujjain',
+          fromCity: 'Mumbai',
+          toCity: 'Ujjain',
+          city: 'Mumbai ➔ Ujjain',
+          dates: '2026-08-28',
+          departureTime: '06:10 AM (Mumbai MMCT)',
+          arrivalTime: '01:30 PM (Ujjain Junction)',
+          passengers: '2 Passengers',
+          status: 'Confirmed',
+          guestName: 'Rahul Sharma',
+          bookedAt: '27 Aug 2026'
+        },
+        {
+          id: 102,
+          code: 'ST-BK-7492',
+          category: 'stay',
+          title: 'Stay Booking Confirmed!',
+          name: 'Shri Mahakal Bhakt Ashram',
+          type: 'Satvik Ashram',
+          roomNumber: 'Room #204 (AC Satvik Bhavan - Mandir View)',
+          roomFloor: '2nd Floor • Keycard Instant Access',
+          city: 'Ujjain',
+          dates: '2 Days (Ujjain Circuit)',
+          checkIn: '28 Aug 2026 (12:00 PM)',
+          checkOut: '30 Aug 2026 (11:00 AM)',
+          price: 2300,
+          amenities: 'Pure Satvik Bhojan, Hot Water, Mandir Shuttle, 24/7 Security',
+          status: 'Confirmed',
+          guestName: 'Rahul Sharma',
+          bookedAt: '27 Aug 2026'
+        },
+        {
+          id: 103,
+          code: 'ST-GD-4190',
+          category: 'guide',
+          title: 'Vedic Guide Booked!',
+          name: 'Pt. Shivam Shastri',
+          type: 'Verified Vedic Guide',
+          city: 'Ujjain',
+          dates: '29 Aug 2026 (06:00 AM - 10:00 AM)',
+          duration: '4 Hours Dedicated Guidance',
+          guideContact: '+91 98260 11223 (WhatsApp & Call)',
+          meetingPoint: 'Main Corridor VIP Gate 1, Ujjain',
+          price: 1500,
+          status: 'Confirmed',
+          guestName: 'Rahul Sharma',
+          bookedAt: '27 Aug 2026'
+        }
+      ];
     } catch (e) {
       return [];
     }
   });
+
+  // My Bookings Category & Search Filter States
+  const [bookingCategoryFilter, setBookingCategoryFilter] = useState('all'); // 'all', 'transit', 'stay', 'guide'
+  const [bookingSearchQuery, setBookingSearchQuery] = useState('');
 
   // Budget Tracker & Expense History State
   const [expenses, setExpenses] = useState([
@@ -1608,19 +1674,51 @@ export default function App() {
     setBaseBudgetINR(inrVal);
   };
 
-  // REAL BACKEND BOOKING API CALL WITH LOCALSTORAGE PERSISTENCE & CONFETTI
+  // Cancel confirmed booking handler with localStorage update
+  const handleCancelBooking = (bookingId) => {
+    const target = myBookings.find(b => b.id === bookingId);
+    const confirmMsg = target 
+      ? `Are you sure you want to cancel reservation for "${target.name}" (${target.code})?\nFull refund of ₹${target.price.toLocaleString()} will be initiated.`
+      : 'Are you sure you want to cancel this booking?';
+    
+    if (window.confirm(confirmMsg)) {
+      setMyBookings(prev => {
+        const updated = prev.filter(b => b.id !== bookingId);
+        try { localStorage.setItem('smarttrip_bookings', JSON.stringify(updated)); } catch(e) {}
+        return updated;
+      });
+    }
+  };
+
+  // REAL BACKEND BOOKING API CALL WITH LOCALSTORAGE PERSISTENCE, ASSIGNED ROOM NO & CONFETTI
   const handleBookStay = async (stayName, price, type) => {
     const bookingCode = `ST-BK-${Math.floor(1000 + Math.random() * 9000)}`;
+    const randomRoom = Math.floor(101 + Math.random() * 399);
+    const roomTypeStr = type === 'Satvik Ashram' 
+      ? 'Satvik AC Bhavan' 
+      : type === 'Heritage Stay' 
+        ? 'Royal Courtyard Suite' 
+        : type === '5-Star Luxury' 
+          ? 'VIP Oceanfront Suite' 
+          : 'Deluxe AC Room';
+
     const newBookingObj = {
       id: Date.now(),
       code: bookingCode,
-      title: 'Stay Booking Confirmed!',
+      category: 'stay',
+      title: 'Stay & Room Reserved!',
       name: stayName,
-      type: type || 'Ashram',
-      price: price,
+      type: type || 'Satvik Ashram',
+      roomNumber: `Room #${randomRoom} (${roomTypeStr})`,
+      roomFloor: `${Math.floor(randomRoom / 100)}th Floor • Keycard Instant Access`,
       city: selectedCity,
       dates: `${days} Days (${selectedCity} Circuit)`,
-      guestName: user ? user.name : 'Guest Pilgrim',
+      checkIn: 'Check-in: 12:00 PM (Instant Confirmation)',
+      checkOut: `Check-out: 11:00 AM (${days} Days Stay)`,
+      price: price,
+      amenities: 'Satvik Bhojan, Hot Water, Mandir Shuttle, 24/7 Security',
+      status: 'Confirmed',
+      guestName: user ? user.name : 'Rahul Sharma',
       bookedAt: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
     };
 
@@ -1640,7 +1738,7 @@ export default function App() {
     // Automatically log to expense history
     setExpenses(prev => [{
       id: Date.now(),
-      title: `${stayName} (${type || 'Stay'})`,
+      title: `${stayName} (${newBookingObj.roomNumber})`,
       amount: price,
       category: 'Stay',
       date: 'Just now',
@@ -1649,7 +1747,7 @@ export default function App() {
 
     // Background sync to backend if server available
     try {
-      fetch('/api/bookings', {
+      fetch('/api/stays/book', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1657,28 +1755,32 @@ export default function App() {
           item_name: stayName,
           price: price,
           dates: `${days} Days (${selectedCity} Circuit)`,
-          user_name: user ? user.name : 'Guest Pilgrim',
-          user_email: user ? user.email : 'guest@smarttrip.in',
+          user_name: user ? user.name : 'Rahul Sharma',
           city: selectedCity
         })
       }).catch(() => {});
     } catch (err) {}
   };
 
-  // REAL BACKEND GUIDE BOOKING API CALL WITH LOCALSTORAGE PERSISTENCE & CONFETTI
+  // REAL BACKEND GUIDE BOOKING API CALL WITH LOCALSTORAGE PERSISTENCE, ASSIGNED CONTACT & CONFETTI
   const handleBookGuide = async (guideName, ratePerHour) => {
     const totalGuidePrice = ratePerHour * 4;
     const voucherCode = `ST-GD-${Math.floor(1000 + Math.random() * 9000)}`;
     const newGuideBookingObj = {
       id: Date.now(),
       code: voucherCode,
-      title: 'Vedic Guide Booked!',
+      category: 'guide',
+      title: 'Vedic Guide Assigned!',
       name: guideName,
-      type: 'Verified Guide',
-      price: totalGuidePrice,
+      type: 'Verified Vedic & Cultural Guide',
       city: selectedCity,
-      dates: '4 Hours (Morning Darshan & Parikrama)',
-      guestName: user ? user.name : 'Guest Pilgrim',
+      dates: 'Tomorrow (06:00 AM - 10:00 AM)',
+      duration: '4 Hours Dedicated Guidance',
+      guideContact: '+91 98260 11223 (WhatsApp & Call)',
+      meetingPoint: `Main Corridor VIP Gate 1, ${selectedCity}`,
+      price: totalGuidePrice,
+      status: 'Confirmed',
+      guestName: user ? user.name : 'Rahul Sharma',
       bookedAt: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
     };
 
@@ -1698,7 +1800,7 @@ export default function App() {
     // Automatically log to expense history
     setExpenses(prev => [{
       id: Date.now(),
-      title: `${guideName} (4 hrs Guide)`,
+      title: `Guide: ${guideName} (${voucherCode})`,
       amount: totalGuidePrice,
       category: 'Activities',
       date: 'Just now',
@@ -1715,7 +1817,7 @@ export default function App() {
           city: selectedCity,
           date: 'Tomorrow (Morning Darshan)',
           hours: 4,
-          traveler_name: user ? user.name : 'Guest Pilgrim',
+          traveler_name: user ? user.name : 'Rahul Sharma',
           price: totalGuidePrice
         })
       }).catch(() => {});
@@ -1728,17 +1830,37 @@ export default function App() {
     const pnrCode = `ST-${prefix}-${Math.floor(1000 + Math.random() * 9000)}`;
     const isCab = mode === 'Cab / Tempo Traveller' || mode === 'Cab' || mode === 'Traveller';
     const totalPrice = isCab ? pricePerPerson : (pricePerPerson * passengerCount);
+    
+    const seatAlloc = mode === 'Train' 
+      ? `Coach B3 • Berth 31 (Lower), 32 (Middle)` 
+      : mode === 'Flight' 
+        ? `Seat 14A (Window), 14B (Aisle) • Terminal 2` 
+        : mode === 'Bus' 
+          ? `Upper Berth U4, U5 (AC Sleeper)` 
+          : `Vehicle Reg: MP-09-TA-${Math.floor(1000 + Math.random() * 9000)} (Dedicated Chauffeur)`;
 
     const newTransitBooking = {
       id: Date.now(),
       code: pnrCode,
+      category: 'transit',
+      transitMode: mode,
       title: `${mode} Ticket Confirmed!`,
-      name: `${serviceName} ${serviceNumber ? `(${serviceNumber})` : ''}`,
+      name: `${serviceName} ${serviceNumber ? `(#${serviceNumber})` : ''}`,
+      operator: serviceName,
+      seatNumber: seatAlloc,
+      seatClass: seatType || 'Standard',
       type: `${mode} • ${seatType || 'Standard'}`,
       price: totalPrice,
+      route: `${originCity} ➔ ${selectedCity}`,
+      fromCity: originCity,
+      toCity: selectedCity,
       city: `${originCity} ➔ ${selectedCity}`,
-      dates: `${transitDate} • ${departureTime} (${isCab ? 'Full Vehicle Booking' : `${passengerCount} Seat${passengerCount > 1 ? 's' : ''}`})`,
-      guestName: user ? user.name : 'Guest Pilgrim',
+      dates: transitDate,
+      departureTime: departureTime,
+      arrivalTime: arrivalTime,
+      passengers: `${passengerCount} Passenger${passengerCount > 1 ? 's' : ''}`,
+      status: 'Confirmed',
+      guestName: user ? user.name : 'Rahul Sharma',
       bookedAt: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
     };
 
@@ -1758,7 +1880,7 @@ export default function App() {
     // Automatically log into expenses under Transport
     setExpenses(prev => [{
       id: Date.now(),
-      title: `${mode}: ${serviceName} (${originCity} ➔ ${selectedCity})`,
+      title: `${mode}: ${serviceName} (${pnrCode})`,
       amount: totalPrice,
       category: 'Transport',
       date: 'Just now',
@@ -1782,7 +1904,7 @@ export default function App() {
           passenger_count: passengerCount,
           travel_class: seatType || 'Standard',
           total_price: totalPrice,
-          user_name: user ? user.name : 'Guest Pilgrim',
+          user_name: user ? user.name : 'Rahul Sharma',
           user_email: user ? user.email : 'guest@smarttrip.in'
         })
       }).catch(() => {});
@@ -2215,6 +2337,7 @@ export default function App() {
     { id: 'itinerary', label: 'Itinerary Planner', icon: MapPin },
     { id: 'transport', label: 'Transit & Tickets', icon: Plane },
     { id: 'hotels', label: 'Ashrams & Stays', icon: Building2 },
+    { id: 'mybookings', label: 'My Bookings', icon: Ticket, count: myBookings.length },
     { id: 'budget', label: 'Budget Tracker', icon: PieChart },
     { id: 'packing', label: 'Packing Checklist', icon: CheckSquare },
     { id: 'alerts', label: 'Smart Alerts', icon: Bell },
@@ -2284,7 +2407,7 @@ export default function App() {
                     setActiveTab(item.id);
                     setSidebarOpenMobile(false);
                   }}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all text-left ${
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all text-left ${
                     isActive
                       ? isDarkMode 
                         ? 'bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30'
@@ -2294,8 +2417,15 @@ export default function App() {
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                   }`}
                 >
-                  <Icon size={17} className={isActive ? (isDarkMode ? 'text-emerald-400' : 'text-emerald-600') : 'text-slate-400'} />
-                  <span>{item.label}</span>
+                  <div className="flex items-center gap-3">
+                    <Icon size={17} className={isActive ? (isDarkMode ? 'text-emerald-400' : 'text-emerald-600') : 'text-slate-400'} />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.count !== undefined && item.count > 0 && (
+                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-600 text-white shadow-xs">
+                      {item.count}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -3778,6 +3908,372 @@ export default function App() {
             </div>
           )}
 
+          {/* MODULE: MY BOOKINGS (CONFIRMED TRAINS, FLIGHTS, BUSES, CABS, ASHRAM ROOMS & GUIDES) */}
+          {activeTab === 'mybookings' && (() => {
+            const filteredBookings = myBookings.filter(bk => {
+              if (bookingCategoryFilter === 'transit' && bk.category !== 'transit') return false;
+              if (bookingCategoryFilter === 'stay' && bk.category !== 'stay') return false;
+              if (bookingCategoryFilter === 'guide' && bk.category !== 'guide') return false;
+
+              if (bookingSearchQuery) {
+                const q = bookingSearchQuery.toLowerCase();
+                const matchName = bk.name?.toLowerCase().includes(q);
+                const matchCode = bk.code?.toLowerCase().includes(q);
+                const matchCity = bk.city?.toLowerCase().includes(q);
+                const matchRoom = bk.roomNumber?.toLowerCase().includes(q);
+                return matchName || matchCode || matchCity || matchRoom;
+              }
+              return true;
+            });
+
+            const transitCount = myBookings.filter(b => b.category === 'transit').length;
+            const stayCount = myBookings.filter(b => b.category === 'stay').length;
+            const guideCount = myBookings.filter(b => b.category === 'guide').length;
+            const totalSpentBookings = myBookings.reduce((sum, b) => sum + (b.price || 0), 0);
+
+            return (
+              <div className="space-y-6">
+
+                {/* Top Header & Refresh / Download Action */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h2 className={`text-2xl font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                      My Bookings & Reservations
+                    </h2>
+                    <p className="text-xs text-slate-400">
+                      All your confirmed Tickets, Hotel/Ashram Room Numbers, and Verified Guide passes.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-black px-3.5 py-1.5 rounded-full bg-emerald-600 text-white shadow-xs">
+                      {myBookings.length} Active Reservation{myBookings.length !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 4 Summary Stat Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                  <div className={`p-4 rounded-2xl border transition-all ${
+                    isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+                  }`}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Bookings</span>
+                      <Ticket size={16} className="text-emerald-600" />
+                    </div>
+                    <h4 className="text-2xl font-black mt-1">{myBookings.length}</h4>
+                    <span className="text-[10px] text-slate-400">₹{totalSpentBookings.toLocaleString()} Value</span>
+                  </div>
+
+                  <div className={`p-4 rounded-2xl border transition-all ${
+                    isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+                  }`}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Transit Tickets</span>
+                      <Train size={16} className="text-blue-500" />
+                    </div>
+                    <h4 className="text-2xl font-black mt-1 text-blue-600">{transitCount}</h4>
+                    <span className="text-[10px] text-slate-400">Trains, Flights, Buses</span>
+                  </div>
+
+                  <div className={`p-4 rounded-2xl border transition-all ${
+                    isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+                  }`}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Rooms & Stays</span>
+                      <Building2 size={16} className="text-amber-500" />
+                    </div>
+                    <h4 className="text-2xl font-black mt-1 text-amber-600">{stayCount}</h4>
+                    <span className="text-[10px] text-slate-400">Assigned Room Numbers</span>
+                  </div>
+
+                  <div className={`p-4 rounded-2xl border transition-all ${
+                    isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+                  }`}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Vedic Guides</span>
+                      <Users size={16} className="text-purple-500" />
+                    </div>
+                    <h4 className="text-2xl font-black mt-1 text-purple-600">{guideCount}</h4>
+                    <span className="text-[10px] text-slate-400">Verified Acharyas</span>
+                  </div>
+                </div>
+
+                {/* Filter & Search Bar */}
+                <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row items-center justify-between gap-3 ${
+                  isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+                }`}>
+                  <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 no-scrollbar text-xs">
+                    {[
+                      { id: 'all', label: `🌟 All (${myBookings.length})` },
+                      { id: 'transit', label: `🚆 Transit & Tickets (${transitCount})` },
+                      { id: 'stay', label: `🏨 Stays & Room Nos (${stayCount})` },
+                      { id: 'guide', label: `👳 Guides (${guideCount})` }
+                    ].map(f => (
+                      <button
+                        key={f.id}
+                        type="button"
+                        onClick={() => setBookingCategoryFilter(f.id)}
+                        className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all ${
+                          bookingCategoryFilter === f.id
+                            ? 'bg-emerald-600 text-white shadow-xs'
+                            : isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
+                      >
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="relative w-full sm:w-64">
+                    <Search size={14} className="absolute left-3 top-2.5 text-slate-400" />
+                    <input
+                      type="text"
+                      value={bookingSearchQuery}
+                      onChange={(e) => setBookingSearchQuery(e.target.value)}
+                      placeholder="Search PNR, Hotel, Room..."
+                      className={`w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border focus:outline-none transition-all ${
+                        isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
+                      }`}
+                    />
+                    {bookingSearchQuery && (
+                      <button
+                        onClick={() => setBookingSearchQuery('')}
+                        className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600"
+                      >
+                        <X size={13} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* BOOKINGS LIST */}
+                {filteredBookings.length > 0 ? (
+                  <div className="space-y-4">
+                    {filteredBookings.map((booking) => {
+                      const isTransit = booking.category === 'transit';
+                      const isStay = booking.category === 'stay';
+                      const isGuide = booking.category === 'guide';
+
+                      return (
+                        <div
+                          key={booking.id}
+                          className={`border rounded-3xl p-5 sm:p-6 transition-all shadow-xs space-y-4 ${
+                            isDarkMode ? 'bg-slate-900 border-slate-800 hover:border-slate-700' : 'bg-white border-slate-200 hover:shadow-md'
+                          }`}
+                        >
+                          {/* Top Row: Category Badge + PNR/Booking Code + Status */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3 border-slate-100 dark:border-slate-800">
+                            <div className="flex items-center gap-2">
+                              <span className={`text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5 ${
+                                isTransit 
+                                  ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300' 
+                                  : isStay 
+                                    ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300' 
+                                    : 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300'
+                              }`}>
+                                {isTransit && <Train size={12} />}
+                                {isStay && <Building2 size={12} />}
+                                {isGuide && <Users size={12} />}
+                                <span>{isTransit ? `Transit Ticket (${booking.transitMode || 'Train/Flight'})` : isStay ? 'Ashram / Hotel Stay' : 'Verified Vedic Guide'}</span>
+                              </span>
+
+                              <span className="text-xs font-mono font-black text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 px-2.5 py-0.5 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                                {booking.code}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <span className="text-[11px] font-bold text-emerald-600 bg-emerald-500/10 px-2.5 py-1 rounded-full flex items-center gap-1">
+                                <CheckCircle2 size={13} />
+                                <span>Confirmed & Ticket Issued</span>
+                              </span>
+                              <span className="text-[10px] text-slate-400 font-medium">
+                                Booked on {booking.bookedAt}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Middle Content Details */}
+                          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                            
+                            {/* Primary Details (Left 7 Cols) */}
+                            <div className="md:col-span-7 space-y-2">
+                              <h3 className={`font-black text-lg ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                                {booking.name}
+                              </h3>
+
+                              {/* 1. If Stay -> Show Assigned Room Number Prominently */}
+                              {isStay && (
+                                <div className={`p-3 rounded-2xl border flex items-center gap-3 ${
+                                  isDarkMode ? 'bg-amber-950/30 border-amber-800/50 text-amber-200' : 'bg-amber-50/80 border-amber-200 text-amber-900'
+                                }`}>
+                                  <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
+                                    🔑
+                                  </div>
+                                  <div className="min-w-0">
+                                    <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider block">
+                                      Assigned Room & Suite Details
+                                    </span>
+                                    <h5 className="font-extrabold text-sm truncate">
+                                      {booking.roomNumber || 'Room #204 (AC Satvik Bhavan)'}
+                                    </h5>
+                                    <span className="text-[10px] opacity-80 block truncate">
+                                      {booking.roomFloor || '2nd Floor • Keycard Instant Access at Reception'}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* 2. If Transit -> Show Seat & Berth Number */}
+                              {isTransit && (
+                                <div className={`p-3 rounded-2xl border flex items-center gap-3 ${
+                                  isDarkMode ? 'bg-blue-950/30 border-blue-800/50 text-blue-200' : 'bg-blue-50/80 border-blue-200 text-blue-900'
+                                }`}>
+                                  <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
+                                    💺
+                                  </div>
+                                  <div className="min-w-0">
+                                    <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider block">
+                                      Assigned Seat / Coach / Berth
+                                    </span>
+                                    <h5 className="font-extrabold text-sm truncate">
+                                      {booking.seatNumber || 'Coach B3 • Berth 31 (Lower), 32 (Middle)'}
+                                    </h5>
+                                    <span className="text-[10px] opacity-80 block truncate">
+                                      {booking.route || `${booking.city}`} • {booking.passengers || 'Confirmed Passengers'}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* 3. If Guide -> Show Guide Contact & Time */}
+                              {isGuide && (
+                                <div className={`p-3 rounded-2xl border flex items-center gap-3 ${
+                                  isDarkMode ? 'bg-purple-950/30 border-purple-800/50 text-purple-200' : 'bg-purple-50/80 border-purple-200 text-purple-900'
+                                }`}>
+                                  <div className="w-9 h-9 rounded-xl bg-purple-600 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
+                                    👳
+                                  </div>
+                                  <div className="min-w-0">
+                                    <span className="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-wider block">
+                                      Assigned Guide Contact & Meeting Point
+                                    </span>
+                                    <h5 className="font-extrabold text-sm truncate">
+                                      {booking.guideContact || '+91 98260 11223 (WhatsApp & Call)'}
+                                    </h5>
+                                    <span className="text-[10px] opacity-80 block truncate">
+                                      {booking.meetingPoint || `Main Corridor VIP Gate 1, ${booking.city}`} • {booking.duration || '4 Hours Dedicated'}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+
+                              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400 pt-1">
+                                <span className="flex items-center gap-1 font-semibold text-slate-600 dark:text-slate-300">
+                                  <MapPin size={13} className="text-emerald-600" />
+                                  <span>{booking.city}</span>
+                                </span>
+                                <span>•</span>
+                                <span className="flex items-center gap-1">
+                                  <Calendar size={13} />
+                                  <span>{booking.dates}</span>
+                                </span>
+                                <span>•</span>
+                                <span>Guest: <strong className="text-slate-600 dark:text-slate-300">{booking.guestName || 'Rahul Sharma'}</strong></span>
+                              </div>
+                            </div>
+
+                            {/* Right Price & Quick Actions (Right 5 Cols) */}
+                            <div className="md:col-span-5 flex flex-col items-end justify-between space-y-3 pt-2 md:pt-0">
+                              <div className="text-right">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                                  Amount Paid
+                                </span>
+                                <span className="text-xl font-black text-emerald-600">
+                                  ₹{booking.price?.toLocaleString()}
+                                </span>
+                                <span className="text-[10px] text-emerald-600 font-semibold block">
+                                  ✓ Pre-paid & Guaranteed
+                                </span>
+                              </div>
+
+                              <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                                <button
+                                  type="button"
+                                  onClick={() => handleCancelBooking(booking.id)}
+                                  className="p-2 rounded-xl border text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 border-rose-200 dark:border-rose-800 transition-all text-xs font-bold flex items-center gap-1"
+                                  title="Cancel Reservation"
+                                >
+                                  <Trash2 size={13} />
+                                  <span className="hidden sm:inline">Cancel</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => setConfirmedBooking(booking)}
+                                  className="bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-xs flex items-center gap-1.5"
+                                >
+                                  <Receipt size={13} />
+                                  <span>View E-Ticket</span>
+                                </button>
+                              </div>
+                            </div>
+
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  /* Empty State */
+                  <div className={`p-10 rounded-3xl border text-center space-y-4 ${
+                    isDarkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+                  }`}>
+                    <div className="w-16 h-16 rounded-3xl bg-emerald-600/10 text-emerald-600 mx-auto flex items-center justify-center font-bold">
+                      <Ticket size={32} />
+                    </div>
+                    <div className="max-w-md mx-auto space-y-1">
+                      <h4 className={`text-lg font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                        No Reservations Found
+                      </h4>
+                      <p className="text-xs text-slate-400">
+                        {bookingSearchQuery 
+                          ? `No bookings match your search "${bookingSearchQuery}".`
+                          : "You haven't made any bookings yet. Reserve your trains, flights, luxury ashrams, and Vedic guides in seconds!"}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
+                      <button
+                        onClick={() => setActiveTab('transport')}
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-xs flex items-center gap-1.5"
+                      >
+                        <Train size={14} />
+                        <span>Book Transit Tickets</span>
+                      </button>
+                      <button
+                        onClick={() => setActiveTab('hotels')}
+                        className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-xs flex items-center gap-1.5"
+                      >
+                        <Building2 size={14} />
+                        <span>Book Ashrams & Stays</span>
+                      </button>
+                      <button
+                        onClick={() => setActiveTab('guides')}
+                        className="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-xs flex items-center gap-1.5"
+                      >
+                        <Users size={14} />
+                        <span>Book Vedic Guide</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            );
+          })()}
+
           {/* MODULE 3: BUDGET TRACKER WITH LIVE CATEGORY TELEMETRY BREAKDOWN & ITEMIZED EXPENSES */}
           {activeTab === 'budget' && (
             <div className="space-y-6">
@@ -4903,57 +5399,134 @@ export default function App() {
         </div>
       )}
 
-      {/* 5. BOOKING CONFIRMATION POPUP MODAL */}
+      {/* 5. BOOKING CONFIRMATION & DIGITAL E-TICKET VOUCHER MODAL */}
       {confirmedBooking && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className={`border rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl relative transition-all ${
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className={`border rounded-3xl w-full max-w-lg p-6 sm:p-7 space-y-5 shadow-2xl relative transition-all ${
             isDarkMode ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'
           }`}>
             <button 
               onClick={() => setConfirmedBooking(null)} 
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1 rounded-full"
+              className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               <X size={18} />
             </button>
 
-            <div className="text-center space-y-2">
-              <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center font-bold">
-                <CheckCircle2 size={28} />
+            <div className="text-center space-y-1.5">
+              <div className="w-13 h-13 rounded-2xl bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center font-black text-xl shadow-xs">
+                <CheckCircle2 size={32} />
               </div>
-              <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">{confirmedBooking.title}</h3>
-              <p className="text-xs text-slate-400">Your reservation has been confirmed and registered in the database.</p>
+              <h3 className="text-xl font-black">{confirmedBooking.title || 'Reservation Confirmed!'}</h3>
+              <p className="text-xs text-slate-400">
+                Official Digital Voucher registered in database & offline saved.
+              </p>
             </div>
 
-            <div className={`p-4 rounded-2xl border space-y-2.5 ${
+            {/* Voucher Body Details */}
+            <div className={`p-4 rounded-2xl border space-y-3 ${
               isDarkMode ? 'bg-slate-800/80 border-slate-700' : 'bg-slate-50 border-slate-200'
             }`}>
-              <div className="flex items-center justify-between border-b pb-2 border-slate-200 dark:border-slate-700">
-                <span className="text-xs text-slate-400 font-medium">Confirmation Code</span>
-                <span className="text-xs font-black text-emerald-600 font-mono tracking-wide">{confirmedBooking.code}</span>
+              <div className="flex items-center justify-between border-b pb-2.5 border-slate-200 dark:border-slate-700">
+                <div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+                    {confirmedBooking.category === 'transit' ? 'PNR Code' : 'Confirmation Code'}
+                  </span>
+                  <span className="text-sm font-black text-emerald-600 font-mono tracking-wide">
+                    {confirmedBooking.code}
+                  </span>
+                </div>
+                <span className="text-[11px] font-bold text-emerald-600 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                  ✓ Confirmed & Guaranteed
+                </span>
               </div>
 
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400 font-medium">Reservation</span>
-                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{confirmedBooking.name}</span>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-400 font-medium">Service / Property</span>
+                <span className="font-bold text-right truncate max-w-[240px]">{confirmedBooking.name}</span>
               </div>
 
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400 font-medium">Location</span>
-                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{confirmedBooking.city}</span>
+              {/* Room Number Highlight for Stays */}
+              {confirmedBooking.roomNumber && (
+                <div className={`p-2.5 rounded-xl border flex items-center justify-between ${
+                  isDarkMode ? 'bg-amber-950/40 border-amber-800/50 text-amber-200' : 'bg-amber-50 border-amber-200 text-amber-900'
+                }`}>
+                  <span className="text-[11px] font-extrabold flex items-center gap-1.5">
+                    <span>🔑</span>
+                    <span>Assigned Room Number</span>
+                  </span>
+                  <span className="text-xs font-black">{confirmedBooking.roomNumber}</span>
+                </div>
+              )}
+
+              {/* Seat Number Highlight for Transit */}
+              {confirmedBooking.seatNumber && (
+                <div className={`p-2.5 rounded-xl border flex items-center justify-between ${
+                  isDarkMode ? 'bg-blue-950/40 border-blue-800/50 text-blue-200' : 'bg-blue-50 border-blue-200 text-blue-900'
+                }`}>
+                  <span className="text-[11px] font-extrabold flex items-center gap-1.5">
+                    <span>💺</span>
+                    <span>Assigned Seats / Berth</span>
+                  </span>
+                  <span className="text-xs font-black truncate max-w-[220px]">{confirmedBooking.seatNumber}</span>
+                </div>
+              )}
+
+              {/* Guide WhatsApp Highlight */}
+              {confirmedBooking.guideContact && (
+                <div className={`p-2.5 rounded-xl border flex items-center justify-between ${
+                  isDarkMode ? 'bg-purple-950/40 border-purple-800/50 text-purple-200' : 'bg-purple-50 border-purple-200 text-purple-900'
+                }`}>
+                  <span className="text-[11px] font-extrabold flex items-center gap-1.5">
+                    <span>👳</span>
+                    <span>Guide Contact / WhatsApp</span>
+                  </span>
+                  <span className="text-xs font-black">{confirmedBooking.guideContact}</span>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-400 font-medium">Route / Location</span>
+                <span className="font-bold">{confirmedBooking.city || confirmedBooking.route}</span>
               </div>
 
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400 font-medium">Total Amount</span>
-                <span className="text-sm font-black text-emerald-600">₹{confirmedBooking.price.toLocaleString()}</span>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-400 font-medium">Schedule / Dates</span>
+                <span className="font-bold">{confirmedBooking.dates}</span>
+              </div>
+
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-400 font-medium">Lead Guest</span>
+                <span className="font-bold">{confirmedBooking.guestName || user?.name || 'Rahul Sharma'}</span>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-700">
+                <span className="text-xs text-slate-400 font-medium">Total Amount Paid</span>
+                <span className="text-base font-black text-emerald-600">₹{confirmedBooking.price?.toLocaleString()}</span>
               </div>
             </div>
 
-            <button
-              onClick={() => setConfirmedBooking(null)}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-xs"
-            >
-              Done
-            </button>
+            {/* Actions: View In My Bookings & Done */}
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setConfirmedBooking(null);
+                  setActiveTab('mybookings');
+                }}
+                className="flex-1 bg-slate-800 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-xs flex items-center justify-center gap-1.5"
+              >
+                <Ticket size={14} />
+                <span>Go to My Bookings</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setConfirmedBooking(null)}
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-xs"
+              >
+                Done
+              </button>
+            </div>
           </div>
         </div>
       )}
